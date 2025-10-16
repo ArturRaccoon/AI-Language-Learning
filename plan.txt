@@ -296,4 +296,3 @@ Il valore principale nei primi 5 mesi sarà **dimostrare fattibilità tecnica** 
 [^55]: https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/4450e38d64cb3c504abd5b199f4b50bf/011f97e3-b2d1-49ba-89e5-9bbbd62b8ae8/19f589e6.csv
 
 [^56]: https://ppl-ai-code-interpreter-files.s3.amazonaws.com/web/direct-files/4450e38d64cb3c504abd5b199f4b50bf/de274c83-3796-4e5e-8f00-85ac70f72756/8d27562a.csv
-
