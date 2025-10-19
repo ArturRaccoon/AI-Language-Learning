@@ -7,57 +7,49 @@ import '../styles/Login.css';
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [modalita, setModalita] = useState('login'); // 'login' o 'registrazione'
+  const [modalita, setModalita] = useState('login');
   const [errore, setErrore] = useState('');
   const [caricamento, setCaricamento] = useState(false);
   
-  const { login, registrazione } = useAutenticazione();
+  // <-- NUOVO: Ora importiamo anche loginConGoogle
+  const { login, registrazione, loginConGoogle } = useAutenticazione(); 
   const naviga = useNavigate();
 
-  // Gestisce l'invio del form
   async function gestisciInvio(e) {
     e.preventDefault();
-    
-    // Validazione base
-    if (!email || !password) {
-      setErrore('Compila tutti i campi');
-      return;
-    }
-    
     if (password.length < 6) {
-      setErrore('La password deve essere di almeno 6 caratteri');
-      return;
+      return setErrore('La password deve essere di almeno 6 caratteri');
     }
-    
     setErrore('');
     setCaricamento(true);
-    
     try {
       if (modalita === 'login') {
         await login(email, password);
       } else {
         await registrazione(email, password);
       }
-      
-      // Reindirizza alla dashboard dopo il login/registrazione
       naviga('/dashboard');
     } catch (err) {
-      // Gestione errori Firebase
-      if (err.code === 'auth/email-already-in-use') {
-        setErrore('Email già registrata');
-      } else if (err.code === 'auth/invalid-credential') {
-        setErrore('Credenziali non valide. Controlla email e password.');
-      } else if (err.code === 'auth/invalid-email') {
-        setErrore('Email non valida');
-      } else {
-        setErrore('Errore durante l\'autenticazione');
-      }
+      setErrore('Credenziali non valide o email già in uso.');
     } finally {
       setCaricamento(false);
     }
   }
 
-  // Cambia tra modalità login e registrazione
+  // <-- NUOVO: Funzione per gestire il click sul bottone di Google
+  async function gestisciLoginGoogle() {
+    setErrore('');
+    setCaricamento(true);
+    try {
+      await loginConGoogle();
+      naviga('/dashboard');
+    } catch (err) {
+      setErrore('Errore durante il login con Google');
+    } finally {
+      setCaricamento(false);
+    }
+  }
+
   function cambiaModalita() {
     setModalita(modalita === 'login' ? 'registrazione' : 'login');
     setErrore('');
@@ -74,43 +66,38 @@ function Login() {
           <div className="gruppo-input">
             <label htmlFor="email">Email</label>
             <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="tua@email.com"
-              disabled={caricamento}
+              type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)}
+              placeholder="tua@email.com" disabled={caricamento}
             />
           </div>
-          
           <div className="gruppo-input">
             <label htmlFor="password">Password</label>
             <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              disabled={caricamento}
+              type="password" id="password" value={password} onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••" disabled={caricamento}
             />
           </div>
-          
-          <button  
-            type="submit"  
-            className="btn-primario"
-            disabled={caricamento}
-          >
+          <button type="submit" className="btn-primario" disabled={caricamento}>
             {caricamento ? 'Caricamento...' : (modalita === 'login' ? 'Accedi' : 'Registrati')}
           </button>
         </form>
+
+        {/* <-- NUOVO: Divisore e pulsante per il login con Google --> */}
+        <div className="divisore">
+          <span>oppure</span>
+        </div>
         
+        <button 
+          onClick={gestisciLoginGoogle} 
+          className="btn-google" 
+          disabled={caricamento}
+        >
+          Accedi con Google
+        </button>
+
         <p className="testo-cambio-modalita">
           {modalita === 'login' ? 'Non hai un account?' : 'Hai già un account?'}
-          <button  
-            onClick={cambiaModalita}
-            className="btn-link"
-            disabled={caricamento}
-          >
+          <button onClick={cambiaModalita} className="btn-link" disabled={caricamento}>
             {modalita === 'login' ? 'Registrati' : 'Accedi'}
           </button>
         </p>

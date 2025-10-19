@@ -1,0 +1,140 @@
+/* src/components/Flashcard.css */
+
+/* Wrapper esterno - gestisce dimensioni e hover */
+.flashcard-wrapper {
+  width: 100%;
+  height: 250px;
+  perspective: 1000px; /* Crea profondità 3D */
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.flashcard-wrapper:hover {
+  transform: translateY(-5px); /* Solleva leggermente al hover */
+}
+
+/* Contenitore interno - gestisce la rotazione */
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.6s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+/* Quando la card è girata */
+.flashcard-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+/* Facce della card (fronte e retro) */
+.flashcard-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; /* Nasconde il retro quando non visibile */
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+/* Fronte della card */
+.flashcard-front {
+  z-index: 2;
+  transform: rotateY(0deg);
+}
+
+/* Retro della card */
+.flashcard-back {
+  transform: rotateY(180deg);
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Contenuto testuale */
+.flashcard-content {
+  text-align: center;
+  width: 100%;
+}
+
+.testo-lingua {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin: 0 0 8px 0;
+}
+
+.testo-principale {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0;
+  word-wrap: break-word;
+  line-height: 1.3;
+}
+
+/* Hint per girare la card */
+.flip-hint {
+  position: absolute;
+  bottom: 12px;
+  font-size: 0.7rem;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.flashcard-wrapper:hover .flip-hint {
+  opacity: 1;
+}
+
+/* Pulsante elimina */
+.btn-elimina {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.btn-elimina:hover {
+  background: rgba(255, 59, 48, 0.9);
+  border-color: rgba(255, 59, 48, 1);
+  transform: scale(1.1);
+}
+
+.btn-elimina:active {
+  transform: scale(0.95);
+}
+
+/* Responsive - cards più piccole su mobile */
+@media (max-width: 768px) {
+  .flashcard-wrapper {
+    height: 200px;
+  }
+  
+  .testo-principale {
+    font-size: 1.4rem;
+  }
+  
+  .flashcard-face {
+    padding: 16px;
+  }
+}

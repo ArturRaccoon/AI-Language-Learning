@@ -1,24 +1,35 @@
 // src/config/firebase.js
-import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getAuth } from 'firebase/auth';
+import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
-// La tua configurazione Firebase personale
-const firebaseConfig = {
-  apiKey: "AIzaSyBG7L3VEVZFCLUNz2TDoIuAbL20dUc_WIw",
-  authDomain: "language-learning-ai-6a367.firebaseapp.com",
-  projectId: "language-learning-ai-6a367",
-  storageBucket: "language-learning-ai-6a367.appspot.com",
-  messagingSenderId: "838945541559",
-  appId: "1:838945541559:web:344ef0182f02309aba2c32",
-  measurementId: "G-HFX9JJRXDX"
+// ✅ BEST PRACTICE: Usa variabili d'ambiente
+const configurazioneFire = {
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
 // Inizializza Firebase
-const app = initializeApp(firebaseConfig);
-
-// Esporta i servizi che useremo: Autenticazione e Database
+const app = initializeApp(configurazioneFire);
 export const autenticazione = getAuth(app);
 export const database = getFirestore(app);
+
+// ✅ Abilita cache offline persistente (funziona anche offline!)
+enableIndexedDbPersistence(database)
+  .then(() => {
+    console.log("✅ Cache offline abilitata con successo!");
+  })
+  .catch((errore) => {
+    if (errore.code === 'failed-precondition') {
+      console.warn("⚠️ Cache offline: più schede aperte simultaneamente");
+    } else if (errore.code === 'unimplemented') {
+      console.warn("⚠️ Browser non supporta IndexedDB persistence");
+    }
+  });
 
 export default app;
