@@ -9,36 +9,39 @@ import {
   query,
   where,
   orderBy,
-  onSnapshot,
-  serverTimestamp
+  limit,
+  startAfter
 } from 'firebase/firestore';
 import { database } from '../config/firebase';
 
-// Nome della collezione Firestore
+// Configurazione paginazione
 const COLLEZIONE_FLASHCARD = 'flashcards';
+const LIMITE_PER_PAGINA = 20; // Numero di card per pagina
 
 /**
  * CREA una nuova flashcard
  * @param {string} idUtente - UID dell'utente autenticato
  * @param {Object} datiFlashcard - Dati della flashcard (parolaOriginale, traduzione)
- * @returns {Promise<Object>} - Risultato dell'operazione
+ * @returns {Promise<Object>} - Risultato dell'operazione con ID della card creata
  */
 export async function creaFlashcard(idUtente, datiFlashcard) {
   try {
     const docRef = await addDoc(collection(database, COLLEZIONE_FLASHCARD), {
       idUtente: idUtente,
-      parolaOriginale: datiFlashcard.parolaOriginale,
-      traduzione: datiFlashcard.traduzione,
+      parolaOriginale: datiFlashcard.parolaOriginale.trim(),
+      traduzione: datiFlashcard.traduzione.trim(),
       dataCreazione: new Date().toISOString(),
-      // Campi per spaced repetition (fase futura)
+      // Campi per Spaced Repetition System (SRS)
       livelloConoscenza: 1, // 1 = nuovo, 5 = padroneggiato
-      ultimaRevisione: new Date().toISOString(),
-      prossimaRevisione: new Date().toISOString(),
+      ultimaRevisione: null, // Prima revisione non ancora fatta
+      prossimaRevisione: new Date().toISOString(), // Disponibile subito
       numeroRevisioni: 0,
+      facilita: 2.5, // SM-2 algorithm default
+      intervallo: 1, // Giorni prima della prossima revisione
     });
     
     console.log('✅ Flashcard creata con ID:', docRef.id);
-    return { successo: true, id: docRef.id };
+    return { successo: true, id: docRef.id, dati: { id: docRef.id, ...datiFlashcard } };
   } catch (errore) {
     console.error("❌ Errore nella creazione della flashcard:", errore);
     return { successo: false, errore: errore.message };
@@ -46,51 +49,76 @@ export async function creaFlashcard(idUtente, datiFlashcard) {
 }
 
 /**
- * ASCOLTA le flashcard in tempo reale (real-time updates)
- * Questa funzione usa onSnapshot per ricevere aggiornamenti istantanei
+ * OTTIENI flashcard con PAGINAZIONE
+ * Questa è la funzione principale per caricare le flashcard
  * @param {string} idUtente - UID dell'utente autenticato
- * @param {Function} callback - Funzione chiamata quando i dati cambiano
- * @returns {Function} - Funzione per fermare l'ascolto (cleanup)
+ * @param {Object|null} ultimoDocumento - Snapshot dell'ultimo documento visto (per paginazione)
+ * @returns {Promise<Object>} - Risultato con array di flashcard e ultimo documento
  */
-export function ascoltaFlashcards(idUtente, callback) {
-  const q = query(
-    collection(database, COLLEZIONE_FLASHCARD),
-    where('idUtente', '==', idUtente),
-    orderBy('dataCreazione', 'desc')
-  );
-  
-  // onSnapshot restituisce una funzione unsubscribe per fermare l'ascolto
-  const unsubscribe = onSnapshot(q, 
-    (snapshot) => {
-      const flashcards = snapshot.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data() 
-      }));
-      
-      console.log(`📥 Ricevute ${flashcards.length} flashcard da Firestore`);
-      callback({ successo: true, dati: flashcards });
-    },
-    (errore) => {
-      console.error("❌ Errore nell'ascolto delle flashcard:", errore);
-      callback({ successo: false, errore: errore.message });
+export async function ottieniFlashcards(idUtente, ultimoDocumento = null) {
+  try {
+    // Costruisci la query base
+    let q = query(
+      collection(database, COLLEZIONE_FLASHCARD),
+      where('idUtente', '==', idUtente),
+      orderBy('dataCreazione', 'desc'),
+      limit(LIMITE_PER_PAGINA)
+    );
+    
+    // Se c'è un punto di partenza, continua da lì
+    if (ultimoDocumento) {
+      q = query(
+        collection(database, COLLEZIONE_FLASHCARD),
+        where('idUtente', '==', idUtente),
+        orderBy('dataCreazione', 'desc'),
+        startAfter(ultimoDocumento),
+        limit(LIMITE_PER_PAGINA)
+      );
     }
-  );
-  
-  return unsubscribe;
+    
+    const snapshot = await getDocs(q);
+    const flashcards = snapshot.docs.map(doc => ({ 
+      id: doc.id, 
+      ...doc.data() 
+    }));
+    
+    // L'ultimo documento diventa il cursore per la prossima pagina
+    const ultimoDocVisibile = snapshot.docs[snapshot.docs.length - 1];
+    
+    // Se abbiamo meno card del limite, non ci sono altre pagine
+    const haAltrePagine = flashcards.length === LIMITE_PER_PAGINA;
+    
+    console.log(`✅ Recuperate ${flashcards.length} flashcard (altre pagine: ${haAltrePagine})`);
+    
+    return { 
+      successo: true, 
+      dati: flashcards,
+      ultimoDocumento: ultimoDocVisibile,
+      haAltrePagine
+    };
+  } catch (errore) {
+    console.error("❌ Errore nel recupero delle flashcard:", errore);
+    return { successo: false, errore: errore.message };
+  }
 }
 
 /**
- * OTTIENI flashcard (fetch singolo, senza real-time)
- * Usa questa funzione se non hai bisogno di aggiornamenti in tempo reale
+ * OTTIENI flashcard PER REVISIONE (per SRS)
+ * Carica solo le flashcard che devono essere revisionate oggi
  * @param {string} idUtente - UID dell'utente autenticato
- * @returns {Promise<Object>} - Risultato con array di flashcard
+ * @param {number} limite - Numero massimo di card da caricare
+ * @returns {Promise<Object>} - Flashcard in scadenza oggi
  */
-export async function ottieniFlashcards(idUtente) {
+export async function ottieniFlashcardPerRevisione(idUtente, limite = 20) {
   try {
+    const oggi = new Date().toISOString();
+    
     const q = query(
       collection(database, COLLEZIONE_FLASHCARD),
       where('idUtente', '==', idUtente),
-      orderBy('dataCreazione', 'desc')
+      where('prossimaRevisione', '<=', oggi),
+      orderBy('prossimaRevisione', 'asc'),
+      limit(limite)
     );
     
     const snapshot = await getDocs(q);
@@ -99,10 +127,11 @@ export async function ottieniFlashcards(idUtente) {
       ...doc.data() 
     }));
     
-    console.log(`✅ Recuperate ${flashcards.length} flashcard`);
+    console.log(`🧠 ${flashcards.length} flashcard in scadenza oggi`);
+    
     return { successo: true, dati: flashcards };
   } catch (errore) {
-    console.error("❌ Errore nel recupero delle flashcard:", errore);
+    console.error("❌ Errore nel recupero flashcard per revisione:", errore);
     return { successo: false, errore: errore.message };
   }
 }
@@ -147,37 +176,103 @@ export async function eliminaFlashcard(idFlashcard) {
 }
 
 /**
- * AGGIORNA REVISIONE - Segna una flashcard come revisionata
- * Questa funzione sarà usata quando implementeremo lo spaced repetition
+ * REGISTRA REVISIONE - Implementa algoritmo SM-2 per Spaced Repetition
  * @param {string} idFlashcard - ID della flashcard
- * @param {number} difficolta - 1 (facile) a 5 (difficile)
+ * @param {number} qualita - Qualità della risposta (0-5): 0=totale blackout, 5=perfetto
  * @returns {Promise<Object>} - Risultato dell'operazione
  */
-export async function aggiornaRevisione(idFlashcard, difficolta) {
+export async function registraRevisione(idFlashcard, qualita) {
   try {
-    const rifDocumento = doc(database, COLLEZIONE_FLASHCARD, idFlashcard);
+    // Recupera la flashcard corrente
+    const flashcardRef = doc(database, COLLEZIONE_FLASHCARD, idFlashcard);
+    const flashcardSnap = await getDocs(query(collection(database, COLLEZIONE_FLASHCARD), where('__name__', '==', idFlashcard)));
     
-    // Calcola la prossima revisione basata sulla difficoltà
-    const giorniDaAggiungere = difficolta === 1 ? 7 : difficolta === 2 ? 3 : 1;
+    if (flashcardSnap.empty) {
+      throw new Error('Flashcard non trovata');
+    }
+    
+    const flashcard = flashcardSnap.docs[0].data();
+    
+    // Algoritmo SM-2 (SuperMemo 2)
+    let { facilita = 2.5, intervallo = 1, numeroRevisioni = 0 } = flashcard;
+    
+    // Calcola nuova facilità
+    facilita = Math.max(1.3, facilita + (0.1 - (5 - qualita) * (0.08 + (5 - qualita) * 0.02)));
+    
+    // Calcola nuovo intervallo
+    if (qualita < 3) {
+      // Risposta sbagliata: riparti da 1 giorno
+      intervallo = 1;
+    } else {
+      // Risposta corretta: aumenta intervallo
+      if (numeroRevisioni === 0) {
+        intervallo = 1;
+      } else if (numeroRevisioni === 1) {
+        intervallo = 6;
+      } else {
+        intervallo = Math.round(intervallo * facilita);
+      }
+    }
+    
+    // Calcola prossima revisione
     const prossimaRevisione = new Date();
-    prossimaRevisione.setDate(prossimaRevisione.getDate() + giorniDaAggiungere);
+    prossimaRevisione.setDate(prossimaRevisione.getDate() + intervallo);
     
-    await updateDoc(rifDocumento, {
+    // Aggiorna livello di conoscenza (1-5)
+    const nuovoLivello = Math.min(5, Math.max(1, Math.round(facilita)));
+    
+    await updateDoc(flashcardRef, {
+      facilita,
+      intervallo,
+      numeroRevisioni: numeroRevisioni + 1,
+      livelloConoscenza: nuovoLivello,
       ultimaRevisione: new Date().toISOString(),
-      prossimaRevisione: prossimaRevisione.toISOString(),
-      numeroRevisioni: increment(1),
-      livelloConoscenza: Math.min(5, difficolta + 1)
+      prossimaRevisione: prossimaRevisione.toISOString()
     });
     
-    console.log('✅ Revisione registrata per flashcard:', idFlashcard);
-    return { successo: true };
+    console.log(`✅ Revisione registrata: prossima tra ${intervallo} giorni`);
+    
+    return { 
+      successo: true, 
+      prossimaRevisione: prossimaRevisione.toISOString(),
+      intervallo 
+    };
   } catch (errore) {
-    console.error("❌ Errore nell'aggiornamento della revisione:", errore);
+    console.error("❌ Errore nella registrazione revisione:", errore);
     return { successo: false, errore: errore.message };
   }
 }
 
-// Helper per incrementare valori numerici
-function increment(value) {
-  return { increment: value };
+/**
+ * STATISTICHE UTENTE - Dati per dashboard SRS
+ * @param {string} idUtente - UID dell'utente
+ * @returns {Promise<Object>} - Statistiche complete
+ */
+export async function ottieniStatistiche(idUtente) {
+  try {
+    const q = query(
+      collection(database, COLLEZIONE_FLASHCARD),
+      where('idUtente', '==', idUtente)
+    );
+    
+    const snapshot = await getDocs(q);
+    const flashcards = snapshot.docs.map(doc => doc.data());
+    
+    const oggi = new Date().toISOString();
+    
+    const statistiche = {
+      totale: flashcards.length,
+      daRivedere: flashcards.filter(f => f.prossimaRevisione <= oggi).length,
+      nuove: flashcards.filter(f => f.numeroRevisioni === 0).length,
+      padroneggiate: flashcards.filter(f => f.livelloConoscenza >= 4).length,
+      mediaTotaleRevisioni: flashcards.reduce((sum, f) => sum + (f.numeroRevisioni || 0), 0) / flashcards.length || 0
+    };
+    
+    console.log('📊 Statistiche:', statistiche);
+    
+    return { successo: true, dati: statistiche };
+  } catch (errore) {
+    console.error("❌ Errore nel calcolo statistiche:", errore);
+    return { successo: false, errore: errore.message };
+  }
 }

@@ -2,8 +2,9 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+// import SessioneStudio from './pages/SessioneStudio'; // <-- Importeremo questo quando lo creeremo
 import { useAutenticazione } from './contexts/AutenticazioneContext';
-import './App.css';
+import './App.css'; // Manteniamo gli stili di base se necessario
 
 /**
  * Componente RottaProtetta - Protegge le rotte che richiedono autenticazione
@@ -12,8 +13,13 @@ import './App.css';
 function RottaProtetta({ children }) {
   const { utenteCorrente } = useAutenticazione();
   
+  // Se il contesto sta ancora caricando, potremmo mostrare un loader
+  // const { caricamento } = useAutenticazione(); // Se hai esposto 'caricamento' dal context
+  // if (caricamento) return <div>Caricamento...</div>; 
+
   if (!utenteCorrente) {
-    return <Navigate to="/login" replace />;
+    // replace evita che l'utente possa tornare indietro alla pagina protetta con il tasto back
+    return <Navigate to="/login" replace />; 
   }
   
   return children;
@@ -25,10 +31,10 @@ function RottaProtetta({ children }) {
 function App() {
   return (
     <Routes>
-      {/* Rotta pubblica - Login/Registrazione */}
+      {/* Rotta pubblica per Login/Registrazione */}
       <Route path="/login" element={<Login />} />
       
-      {/* Rotta protetta - Dashboard */}
+      {/* Rotta protetta per la Dashboard principale */}
       <Route 
         path="/dashboard" 
         element={
@@ -37,13 +43,26 @@ function App() {
           </RottaProtetta>
         } 
       />
-      
-      {/* Rotta di default - Reindirizza a dashboard */}
+
+      {/* --- Rotte Future (Commentate per ora) --- */}
+      {/* <Route 
+        path="/studia" 
+        element={
+          <RottaProtetta>
+            <SessioneStudio /> 
+          </RottaProtetta>
+        } 
+      /> 
+      */}
+
+      {/* --- Fallback Routes --- */}
+      {/* Se l'utente visita '/', viene reindirizzato alla dashboard (che poi lo manderà al login se non autenticato) */}
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
       
-      {/* Catch-all - Qualsiasi altra rotta va alla dashboard */}
+      {/* Qualsiasi altra rotta non definita viene reindirizzata alla dashboard */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );
 }
+
 export default App;
