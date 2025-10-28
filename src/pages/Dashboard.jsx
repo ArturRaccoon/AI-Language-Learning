@@ -1,49 +1,55 @@
-// src/pages/Dashboard.jsx
+/**
+ * FILE: src/pages/Dashboard.jsx
+ * DATA ULTIMA MODIFICA: 2024-12-25 21:50
+ * DESCRIZIONE: Pagina principale dashboard con:
+ *   - Widget SRS (statistiche studio)
+ *   - Form creazione flashcard intelligente
+ *   - Lista flashcard con paginazione (20/pagina)
+ *   - Audio TTS con voci casuali
+ */
+
 import { useState, useEffect } from 'react';
 import { useAutenticazione } from '../contexts/AutenticazioneContext';
 import { useNavigate } from 'react-router-dom';
 import { creaFlashcard, ottieniFlashcards, eliminaFlashcard } from '../services/flashcardService';
 import Flashcard from '../components/Flashcard';
+import FlashcardForm from '../components/FlashcardForm';
 import '../styles/Dashboard.css';
 
 function Dashboard() {
   const { utenteCorrente, logout } = useAutenticazione();
   const naviga = useNavigate();
 
-  // Stati per form creazione
-  const [parolaOriginale, setParolaOriginale] = useState('');
-  const [traduzione, setTraduzione] = useState('');
-  
-  // Stati per lista flashcard
+  // Stati lista flashcard
   const [flashcards, setFlashcards] = useState([]);
   const [caricamento, setCaricamento] = useState(true);
   const [caricamentoPagina, setCaricamentoPagina] = useState(false);
+  const [caricamentoCreazione, setCaricamentoCreazione] = useState(false);
   
-  // Stati per paginazione
+  // Stati paginazione
   const [ultimoDocumento, setUltimoDocumento] = useState(null);
   const [haAltrePagine, setHaAltrePagine] = useState(false);
   
-  // Stati per feedback
+  // Stati feedback
   const [errore, setErrore] = useState('');
   
-  // Stati per statistiche (widget futuro)
+  // Stati statistiche SRS
   const [statistiche, setStatistiche] = useState(null);
 
   /**
-   * CARICA PRIMA PAGINA - Al montaggio del componente
+   * Carica prima pagina e statistiche all'avvio
    */
   useEffect(() => {
     if (!utenteCorrente) return;
     caricaPrimaPagina();
-    caricaStatistiche(); // Carica anche le statistiche
+    caricaStatistiche();
   }, [utenteCorrente]);
-  
+
   /**
    * Carica statistiche per widget SRS
    */
   async function caricaStatistiche() {
     try {
-      // Importa la funzione solo quando serve (lazy loading)
       const { ottieniStatistiche } = await import('../services/flashcardService');
       const risultato = await ottieniStatistiche(utenteCorrente.uid);
       
@@ -51,8 +57,7 @@ function Dashboard() {
         setStatistiche(risultato.dati);
       }
     } catch (err) {
-      console.error('Errore caricamento statistiche:', err);
-      // Non blocca l'app se le statistiche falliscono
+      console.error('❌ Errore caricamento statistiche:', err);
     }
   }
 
@@ -77,7 +82,7 @@ function Dashboard() {
   }
 
   /**
-   * Carica la pagina successiva (append alle esistenti)
+   * Carica la pagina successiva (append)
    */
   async function caricaPaginaSuccessiva() {
     if (!ultimoDocumento) return;
@@ -87,7 +92,6 @@ function Dashboard() {
     const risultato = await ottieniFlashcards(utenteCorrente.uid, ultimoDocumento);
     
     if (risultato.successo) {
-      // Aggiungi le nuove card a quelle esistenti
       setFlashcards(prev => [...prev, ...risultato.dati]);
       setUltimoDocumento(risultato.ultimoDocumento);
       setHaAltrePagine(risultato.haAltrePagine);
@@ -99,35 +103,19 @@ function Dashboard() {
   }
 
   /**
-   * CREA NUOVA FLASHCARD
+   * Crea nuova flashcard (callback da FlashcardForm)
    */
-  async function gestisciCreaFlashcard(e) {
-    e.preventDefault();
-    
-    // Validazione input
-    if (!parolaOriginale.trim() || !traduzione.trim()) {
-      setErrore('Compila entrambi i campi');
-      return;
-    }
-    
-    if (parolaOriginale.length > 100 || traduzione.length > 100) {
-      setErrore('Il testo è troppo lungo (max 100 caratteri)');
-      return;
-    }
-    
+  async function gestisciCreaFlashcard(datiCard) {
+    setCaricamentoCreazione(true);
     setErrore('');
     
-    const risultato = await creaFlashcard(utenteCorrente.uid, { 
-      parolaOriginale: parolaOriginale.trim(), 
-      traduzione: traduzione.trim() 
-    });
+    const risultato = await creaFlashcard(utenteCorrente.uid, datiCard);
     
     if (risultato.successo) {
-      // Ottimizzazione: aggiungi la card in testa senza ricaricare tutto
+      // Ottimizzazione: aggiungi in testa senza ricaricare
       const nuovaCard = {
         id: risultato.id,
-        parolaOriginale: parolaOriginale.trim(),
-        traduzione: traduzione.trim(),
+        ...datiCard,
         dataCreazione: new Date().toISOString(),
         livelloConoscenza: 1,
         numeroRevisioni: 0
@@ -135,37 +123,41 @@ function Dashboard() {
       
       setFlashcards(prev => [nuovaCard, ...prev]);
       
-      // Reset form
-      setParolaOriginale('');
-      setTraduzione('');
+      // Ricarica statistiche
+      caricaStatistiche();
     } else {
       setErrore('Errore nella creazione della flashcard');
     }
+    
+    setCaricamentoCreazione(false);
   }
   
   /**
-   * ELIMINA FLASHCARD
+   * Elimina flashcard
    */
   async function gestisciElimina(idFlashcard) {
     const risultato = await eliminaFlashcard(idFlashcard);
     
     if (risultato.successo) {
-      // Ottimizzazione: rimuovi solo quella card senza ricaricare tutto
+      // Ottimizzazione: rimuovi solo quella card
       setFlashcards(prev => prev.filter(card => card.id !== idFlashcard));
+      
+      // Ricarica statistiche
+      caricaStatistiche();
     } else {
       setErrore('Errore nell\'eliminazione della flashcard');
     }
   }
 
   /**
-   * LOGOUT
+   * Logout
    */
   async function gestisciLogout() {
     try {
       await logout();
       naviga('/login');
     } catch (errore) {
-      console.error("Errore nel logout:", errore);
+      console.error("❌ Errore nel logout:", errore);
       setErrore('Errore durante il logout');
     }
   }
@@ -175,8 +167,12 @@ function Dashboard() {
       <header className="dashboard-header">
         <h1>📚 Dashboard</h1>
         <div className="header-user">
-          <span className="user-email">{utenteCorrente && utenteCorrente.email}</span>
-          <button onClick={gestisciLogout} className="btn-logout">Logout</button>
+          <span className="user-email">
+            {utenteCorrente && utenteCorrente.email}
+          </span>
+          <button onClick={gestisciLogout} className="btn-logout">
+            Logout
+          </button>
         </div>
       </header>
 
@@ -187,8 +183,12 @@ function Dashboard() {
             <div className="widget-icon">🧠</div>
             <div className="widget-content">
               <h3>Sessione di Studio</h3>
-              <p className="widget-count">{statistiche.daRivedere} flashcard da rivedere oggi</p>
-              <p className="widget-subtitle">Mantieni viva la memoria!</p>
+              <p className="widget-count">
+                {statistiche.daRivedere} flashcard da rivedere oggi
+              </p>
+              <p className="widget-subtitle">
+                Mantieni viva la memoria!
+              </p>
             </div>
             <button 
               onClick={() => alert('Funzionalità in arrivo! 🚀')} 
@@ -199,33 +199,12 @@ function Dashboard() {
           </div>
         )}
         
-        {/* SEZIONE CREAZIONE */}
+        {/* SEZIONE CREAZIONE con Form Intelligente */}
         <div className="sezione-creazione">
-          <form onSubmit={gestisciCreaFlashcard}>
-            <h2>✨ Crea una nuova Flashcard</h2>
-            
-            {errore && <div className="alert-errore">{errore}</div>}
-            
-            <input 
-              type="text" 
-              value={parolaOriginale} 
-              onChange={(e) => setParolaOriginale(e.target.value)} 
-              placeholder="Parola o frase originale (es. Hello)"
-              maxLength={100}
-            />
-            
-            <input 
-              type="text" 
-              value={traduzione} 
-              onChange={(e) => setTraduzione(e.target.value)} 
-              placeholder="Traduzione (es. Ciao)"
-              maxLength={100}
-            />
-            
-            <button type="submit" disabled={!parolaOriginale.trim() || !traduzione.trim()}>
-              Crea Flashcard
-            </button>
-          </form>
+          <FlashcardForm 
+            onSubmit={gestisciCreaFlashcard}
+            loading={caricamentoCreazione}
+          />
         </div>
 
         {/* SEZIONE LISTA */}
@@ -233,7 +212,9 @@ function Dashboard() {
           <div className="lista-header">
             <h2>📋 Le tue Flashcard</h2>
             {flashcards.length > 0 && (
-              <span className="counter">{flashcards.length} card{flashcards.length !== 1 ? 's' : ''}</span>
+              <span className="counter">
+                {flashcards.length} card{flashcards.length !== 1 ? 's' : ''}
+              </span>
             )}
           </div>
           

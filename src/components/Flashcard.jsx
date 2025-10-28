@@ -1,12 +1,17 @@
-// src/components/Flashcard.jsx
+/**
+ * FILE: src/components/Flashcard.jsx
+ * DATA ULTIMA MODIFICA: 2024-12-25 21:55
+ * DESCRIZIONE: Componente flashcard con:
+ *   - Flip animation 3D
+ *   - Audio TTS con voci casuali per lingua
+ *   - Eliminazione con conferma
+ *   - Fallback per card vecchie senza lingua
+ */
+
 import { useState } from 'react';
+import AudioButton from './AudioButton';
 import './Flashcard.css';
 
-/**
- * Componente Flashcard con flip animation 3D
- * @param {Object} card - Dati della flashcard (parolaOriginale, traduzione)
- * @param {Function} onElimina - Callback per eliminare la card
- */
 function Flashcard({ card, onElimina }) {
   const [girato, setGirato] = useState(false);
 
@@ -15,11 +20,15 @@ function Flashcard({ card, onElimina }) {
   };
 
   const handleElimina = (e) => {
-    e.stopPropagation(); // Previene il flip quando si clicca su elimina
+    e.stopPropagation();
     if (window.confirm('Sei sicuro di voler eliminare questa flashcard?')) {
       onElimina(card.id);
     }
   };
+
+  // Fallback per card vecchie senza lingua salvata
+  const linguaFronte = card.linguaOriginale || 'en-US';
+  const linguaRetro = card.linguaTraduzione || 'it-IT';
 
   return (
     <div className="flashcard-wrapper" onClick={handleFlip}>
@@ -33,6 +42,16 @@ function Flashcard({ card, onElimina }) {
           >
             ✕
           </button>
+          
+          {/* Audio con lingua dinamica */}
+          <div className="audio-container">
+            <AudioButton 
+              testo={card.parolaOriginale}
+              lingua={linguaFronte}
+              size="medium"
+            />
+          </div>
+          
           <div className="flashcard-content">
             <p className="testo-lingua">Parola Originale</p>
             <p className="testo-principale">{card.parolaOriginale}</p>
@@ -49,6 +68,16 @@ function Flashcard({ card, onElimina }) {
           >
             ✕
           </button>
+          
+          {/* Audio con lingua dinamica */}
+          <div className="audio-container">
+            <AudioButton 
+              testo={card.traduzione}
+              lingua={linguaRetro}
+              size="medium"
+            />
+          </div>
+          
           <div className="flashcard-content">
             <p className="testo-lingua">Traduzione</p>
             <p className="testo-principale">{card.traduzione}</p>

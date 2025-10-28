@@ -21,7 +21,7 @@ const LIMITE_PER_PAGINA = 20; // Numero di card per pagina
 /**
  * CREA una nuova flashcard
  * @param {string} idUtente - UID dell'utente autenticato
- * @param {Object} datiFlashcard - Dati della flashcard (parolaOriginale, traduzione)
+ * @param {Object} datiFlashcard - Dati della flashcard
  * @returns {Promise<Object>} - Risultato dell'operazione con ID della card creata
  */
 export async function creaFlashcard(idUtente, datiFlashcard) {
@@ -30,18 +30,27 @@ export async function creaFlashcard(idUtente, datiFlashcard) {
       idUtente: idUtente,
       parolaOriginale: datiFlashcard.parolaOriginale.trim(),
       traduzione: datiFlashcard.traduzione.trim(),
+      linguaOriginale: datiFlashcard.linguaOriginale || 'en-US', // NUOVO
+      linguaTraduzione: datiFlashcard.linguaTraduzione || 'it-IT', // NUOVO
       dataCreazione: new Date().toISOString(),
       // Campi per Spaced Repetition System (SRS)
-      livelloConoscenza: 1, // 1 = nuovo, 5 = padroneggiato
-      ultimaRevisione: null, // Prima revisione non ancora fatta
-      prossimaRevisione: new Date().toISOString(), // Disponibile subito
+      livelloConoscenza: 1,
+      ultimaRevisione: null,
+      prossimaRevisione: new Date().toISOString(),
       numeroRevisioni: 0,
-      facilita: 2.5, // SM-2 algorithm default
-      intervallo: 1, // Giorni prima della prossima revisione
+      facilita: 2.5,
+      intervallo: 1,
     });
     
     console.log('✅ Flashcard creata con ID:', docRef.id);
-    return { successo: true, id: docRef.id, dati: { id: docRef.id, ...datiFlashcard } };
+    return { 
+      successo: true, 
+      id: docRef.id, 
+      dati: { 
+        id: docRef.id, 
+        ...datiFlashcard 
+      } 
+    };
   } catch (errore) {
     console.error("❌ Errore nella creazione della flashcard:", errore);
     return { successo: false, errore: errore.message };

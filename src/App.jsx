@@ -1,67 +1,98 @@
-// src/App.jsx
-import { Routes, Route, Navigate } from 'react-router-dom';
+/**
+ * FILE: src/App.jsx
+ * DATA ULTIMA MODIFICA: 2024-12-25 22:40
+ * DESCRIZIONE: Router principale con route onboarding protetta
+ */
+
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { AutenticazioneProvider } from './contexts/AutenticazioneContext';
+
+// Pages
 import Login from './pages/Login';
+import Registrazione from './pages/Registrazione';
+import Onboarding from './pages/Onboarding';
 import Dashboard from './pages/Dashboard';
-// import SessioneStudio from './pages/SessioneStudio'; // <-- Importeremo questo quando lo creeremo
-import { useAutenticazione } from './contexts/AutenticazioneContext';
-import './App.css'; // Manteniamo gli stili di base se necessario
+import Flashcards from './pages/Flashcards';
+import Revisione from './pages/Revisione';
+import Statistiche from './pages/Statistiche';
+import Impostazioni from './pages/Impostazioni';
 
-/**
- * Componente RottaProtetta - Protegge le rotte che richiedono autenticazione
- * Se l'utente non è loggato, reindirizza a /login
- */
-function RottaProtetta({ children }) {
-  const { utenteCorrente } = useAutenticazione();
-  
-  // Se il contesto sta ancora caricando, potremmo mostrare un loader
-  // const { caricamento } = useAutenticazione(); // Se hai esposto 'caricamento' dal context
-  // if (caricamento) return <div>Caricamento...</div>; 
+// Components
+import ProtectedRoute from './components/ProtectedRoute';
 
-  if (!utenteCorrente) {
-    // replace evita che l'utente possa tornare indietro alla pagina protetta con il tasto back
-    return <Navigate to="/login" replace />; 
-  }
-  
-  return children;
-}
-
-/**
- * App Component - Gestisce tutto il routing dell'applicazione
- */
 function App() {
   return (
-    <Routes>
-      {/* Rotta pubblica per Login/Registrazione */}
-      <Route path="/login" element={<Login />} />
-      
-      {/* Rotta protetta per la Dashboard principale */}
-      <Route 
-        path="/dashboard" 
-        element={
-          <RottaProtetta>
-            <Dashboard />
-          </RottaProtetta>
-        } 
-      />
+    <AutenticazioneProvider>
+      <BrowserRouter>
+        <Routes>
+          {/* Route pubbliche */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/registrazione" element={<Registrazione />} />
 
-      {/* --- Rotte Future (Commentate per ora) --- */}
-      {/* <Route 
-        path="/studia" 
-        element={
-          <RottaProtetta>
-            <SessioneStudio /> 
-          </RottaProtetta>
-        } 
-      /> 
-      */}
+          {/* Route onboarding (protetta da auth, gestita da ProtectedRoute) */}
+          <Route 
+            path="/onboarding" 
+            element={
+              <ProtectedRoute>
+                <Onboarding />
+              </ProtectedRoute>
+            } 
+          />
 
-      {/* --- Fallback Routes --- */}
-      {/* Se l'utente visita '/', viene reindirizzato alla dashboard (che poi lo manderà al login se non autenticato) */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      
-      {/* Qualsiasi altra rotta non definita viene reindirizzata alla dashboard */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+          {/* Route protette (richiedono auth + onboarding completato) */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/flashcards"
+            element={
+              <ProtectedRoute>
+                <Flashcards />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/revisione"
+            element={
+              <ProtectedRoute>
+                <Revisione />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/statistiche"
+            element={
+              <ProtectedRoute>
+                <Statistiche />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/impostazioni"
+            element={
+              <ProtectedRoute>
+                <Impostazioni />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirect root → dashboard o login */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          {/* 404 → dashboard */}
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AutenticazioneProvider>
   );
 }
 
