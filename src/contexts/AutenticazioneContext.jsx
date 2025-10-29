@@ -1,22 +1,19 @@
 /**
  * FILE: src/contexts/AutenticazioneContext.jsx
- * DATA ULTIMA MODIFICA: 2024-12-25 22:30
- * DESCRIZIONE: Context autenticazione + profilo utente
- * CHANGELOG:
- *   - Aggiunto stato `profiloUtente` e `isOnboardingNecessario`
- *   - Funzione `caricaProfilo()` per fetch profilo da Firestore
- *   - Auto-caricamento profilo dopo login/registrazione
- *   - Inizializzazione profilo base al primo login
+ * DATA ULTIMA MODIFICA: 2024-12-26 00:10
+ * DESCRIZIONE: Context autenticazione + Google Sign-In
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut,
   onAuthStateChanged
 } from 'firebase/auth';
-import { auth } from '../config/firebase';
+import { autenticazione } from '../config/firebase';
 import { 
   getProfiloUtente, 
   inizializzaProfiloBase 
@@ -39,24 +36,26 @@ export function AutenticazioneProvider({ children }) {
 
   /**
    * Carica profilo utente da Firestore
-   * @returns {Promise<boolean>} - true se profilo esiste e onboarding completato
    */
   async function caricaProfilo(uid = null) {
     const idUtente = uid || utenteCorrente?.uid;
     
+    console.log('🔍 caricaProfilo chiamato per UID:', idUtente);
+    
     if (!idUtente) {
-      console.warn('⚠️ Nessun utente loggato, impossibile caricare profilo');
+      console.warn('⚠️ Nessun utente loggato');
       setProfiloUtente(null);
       return false;
     }
 
     try {
+      console.log('📡 Chiamata getProfiloUtente...');
       const risultato = await getProfiloUtente(idUtente);
+      console.log('📦 Risultato getProfiloUtente:', risultato);
 
       if (risultato.successo && risultato.esiste) {
         setProfiloUtente(risultato.profilo);
         
-        // Verifica se onboarding completato
         const onboardingOk = risultato.profilo.onboardingCompletato === true;
         
         console.log(
@@ -67,7 +66,6 @@ export function AutenticazioneProvider({ children }) {
         
         return onboardingOk;
       } else {
-        // Profilo non esiste → onboarding necessario
         setProfiloUtente(null);
         console.log('ℹ️ Nessun profilo trovato, onboarding necessario');
         return false;
@@ -81,34 +79,33 @@ export function AutenticazioneProvider({ children }) {
 
   /**
    * Verifica se utente deve fare onboarding
-   * @returns {boolean}
    */
   function isOnboardingNecessario() {
-    // Se non c'è utente loggato → no redirect
     if (!utenteCorrente) return false;
-
-    // Se non c'è profilo → onboarding necessario
     if (!profiloUtente) return true;
-
-    // Se profilo esiste ma flag è false → onboarding necessario
     return profiloUtente.onboardingCompletato !== true;
   }
 
   /**
-   * Registrazione nuovo utente
+   * Registrazione con email/password
    */
   async function registrazione(email, password) {
+    console.log('🔵 Tentativo di registrazione per:', email);
+    
     try {
-      const credenziali = await createUserWithEmailAndPassword(auth, email, password);
+      console.log('📡 Chiamata createUserWithEmailAndPassword...');
+      const credenziali = await createUserWithEmailAndPassword(autenticazione, email, password);
+      console.log('✅ Registrazione Riuscita:', credenziali.user.uid);
       
-      // Inizializza profilo base
+      console.log('📡 Inizializzazione profilo base...');
       await inizializzaProfiloBase(credenziali.user.uid, email);
-      
-      console.log('✅ Utente registrato, profilo base creato');
+      console.log('✅ Profilo base creato');
       
       return { successo: true };
     } catch (errore) {
-      console.error('❌ Errore registrazione:', errore);
+      console.error('❌ ERRORE registrazione:', errore);
+      console.error('  - Codice errore:', errore.code);
+      console.error('  - Messaggio:', errore.message);
       
       let messaggioErrore = 'Errore durante la registrazione';
       
@@ -122,6 +119,8 @@ export function AutenticazioneProvider({ children }) {
         case 'auth/invalid-email':
           messaggioErrore = 'Email non valida';
           break;
+        default:
+          messaggioErrore = `Errore: ${errore.message}`;
       }
       
       return { successo: false, errore: messaggioErrore };
@@ -129,23 +128,27 @@ export function AutenticazioneProvider({ children }) {
   }
 
   /**
-   * Login utente esistente
+   * Login con email/password
    */
   async function login(email, password) {
+    console.log('🔵 Tentativo di login per:', email);
+    
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      
-      console.log('✅ Login effettuato');
+      console.log('📡 Chiamata signInWithEmailAndPassword...');
+      const userCredential = await signInWithEmailAndPassword(autenticazione, email, password);
+      console.log('✅ Login Riuscito:', userCredential.user.uid);
       
       return { successo: true };
     } catch (errore) {
-      console.error('❌ Errore login:', errore);
+      console.error('❌ ERRORE login:', errore);
+      console.error('  - Codice errore:', errore.code);
       
       let messaggioErrore = 'Errore durante il login';
       
       switch (errore.code) {
         case 'auth/user-not-found':
         case 'auth/wrong-password':
+        case 'auth/invalid-credential':
           messaggioErrore = 'Email o password errati';
           break;
         case 'auth/invalid-email':
@@ -154,6 +157,71 @@ export function AutenticazioneProvider({ children }) {
         case 'auth/user-disabled':
           messaggioErrore = 'Account disabilitato';
           break;
+        case 'auth/too-many-requests':
+          messaggioErrore = 'Troppi tentativi. Riprova tra qualche minuto.';
+          break;
+        default:
+          messaggioErrore = `Errore: ${errore.message}`;
+      }
+      
+      return { successo: false, errore: messaggioErrore };
+    }
+  }
+
+  /**
+   * Login con Google
+   */
+  async function loginConGoogle() {
+    console.log('🔵 Tentativo di login con Google');
+    
+    try {
+      const provider = new GoogleAuthProvider();
+      
+      // Configura provider per chiedere sempre la selezione account
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      console.log('📡 Apertura popup Google...');
+      const risultato = await signInWithPopup(autenticazione, provider);
+      
+      console.log('✅ Login Google Riuscito:', risultato.user.uid);
+      console.log('  - Email:', risultato.user.email);
+      console.log('  - Nome:', risultato.user.displayName);
+      console.log('  - Foto:', risultato.user.photoURL);
+      
+      // Verifica se è primo accesso (nuovo utente)
+      const profiloEsiste = await getProfiloUtente(risultato.user.uid);
+      
+      if (!profiloEsiste.esiste) {
+        console.log('📡 Primo accesso Google, inizializzazione profilo...');
+        await inizializzaProfiloBase(risultato.user.uid, risultato.user.email);
+        console.log('✅ Profilo base creato per utente Google');
+      }
+      
+      return { successo: true };
+    } catch (errore) {
+      console.error('❌ ERRORE login Google:', errore);
+      console.error('  - Codice errore:', errore.code);
+      console.error('  - Messaggio:', errore.message);
+      
+      let messaggioErrore = 'Errore durante il login con Google';
+      
+      switch (errore.code) {
+        case 'auth/popup-closed-by-user':
+          messaggioErrore = 'Popup chiuso prima del completamento';
+          break;
+        case 'auth/cancelled-popup-request':
+          messaggioErrore = 'Richiesta popup annullata';
+          break;
+        case 'auth/popup-blocked':
+          messaggioErrore = 'Popup bloccato dal browser. Abilita i popup per questo sito.';
+          break;
+        case 'auth/account-exists-with-different-credential':
+          messaggioErrore = 'Account già esistente con diverso metodo di accesso';
+          break;
+        default:
+          messaggioErrore = `Errore: ${errore.message}`;
       }
       
       return { successo: false, errore: messaggioErrore };
@@ -164,8 +232,10 @@ export function AutenticazioneProvider({ children }) {
    * Logout
    */
   async function logout() {
+    console.log('🔵 Tentativo di logout');
+    
     try {
-      await signOut(auth);
+      await signOut(autenticazione);
       setProfiloUtente(null);
       
       console.log('✅ Logout effettuato');
@@ -178,24 +248,37 @@ export function AutenticazioneProvider({ children }) {
   }
 
   /**
-   * Observer Firebase Auth + Auto-caricamento profilo
+   * Observer Firebase Auth
    */
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (utente) => {
+    console.log('🔧 Inizializzazione observer Firebase Auth');
+    
+    const unsubscribe = onAuthStateChanged(autenticazione, async (utente) => {
+      console.log('🔄 Stato autenticazione cambiato:', utente ? utente.uid : 'Nessun utente');
+      
+      if (utente) {
+        console.log('  - Email:', utente.email);
+        console.log('  - Provider:', utente.providerData.map(p => p.providerId).join(', '));
+      }
+      
       setUtenteCorrente(utente);
 
       if (utente) {
-        // Utente loggato → carica profilo
+        console.log('📡 Caricamento profilo...');
         await caricaProfilo(utente.uid);
       } else {
-        // Utente sloggato → reset profilo
+        console.log('🔄 Reset profilo');
         setProfiloUtente(null);
       }
 
       setCaricamento(false);
+      console.log('✅ Observer completato');
     });
 
-    return unsubscribe;
+    return () => {
+      console.log('🔧 Cleanup observer');
+      unsubscribe();
+    };
   }, []);
 
   const value = {
@@ -203,6 +286,7 @@ export function AutenticazioneProvider({ children }) {
     profiloUtente,
     registrazione,
     login,
+    loginConGoogle,
     logout,
     caricaProfilo,
     isOnboardingNecessario

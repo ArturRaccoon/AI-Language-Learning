@@ -1,18 +1,13 @@
 /**
  * FILE: src/components/FlashcardForm.jsx
- * DATA ULTIMA MODIFICA: 2024-12-25 22:45
+ * DATA ULTIMA MODIFICA: 2024-12-25 23:50
  * DESCRIZIONE: Form creazione flashcard con lingue automatiche dal profilo
- * CHANGELOG:
- *   - Rimossi selettori manuali lingue
- *   - Lingue recuperate da `profiloUtente` via context
- *   - Traduzione automatica usa lingue profilo
- *   - Validazione: errore se profilo non caricato
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAutenticazione } from '../contexts/AutenticazioneContext';
-import { aggiungiFlashcard } from '../services/flashcardService';
-import { traduciTesto } from '../services/traduzioneService';
+import { creaFlashcard } from '../services/flashcardService';
+import { traduciTesto } from '../services/translationService';
 import './FlashcardForm.css';
 
 // Mappa codici lingua per API traduzione
@@ -119,16 +114,15 @@ function FlashcardForm({ onFlashcardAggiunta }) {
 
     try {
       const nuovaFlashcard = {
-        testoOriginale: testoOriginale.trim(),
+        parolaOriginale: testoOriginale.trim(),
         traduzione: traduzione.trim(),
         note: note.trim(),
         categoria: categoria.trim() || 'generale',
-        linguaOriginale: linguaMadre, // Dal profilo
-        linguaTraduzione: linguaObiettivo, // Dal profilo
-        idUtente: utenteCorrente.uid
+        linguaOriginale: linguaMadre,
+        linguaTraduzione: linguaObiettivo
       };
 
-      const risultato = await aggiungiFlashcard(nuovaFlashcard);
+      const risultato = await creaFlashcard(utenteCorrente.uid, nuovaFlashcard);
 
       if (risultato.successo) {
         setSuccesso(true);
@@ -141,7 +135,7 @@ function FlashcardForm({ onFlashcardAggiunta }) {
 
         // Callback parent
         if (onFlashcardAggiunta) {
-          onFlashcardAggiunta(risultato.flashcard);
+          onFlashcardAggiunta(risultato.dati);
         }
 
         // Nascondi messaggio successo dopo 3s

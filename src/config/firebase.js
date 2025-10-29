@@ -3,7 +3,7 @@ import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
 
-// ✅ BEST PRACTICE: Usa variabili d'ambiente
+// Configurazione Firebase
 const configurazioneFire = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
@@ -16,10 +16,12 @@ const configurazioneFire = {
 
 // Inizializza Firebase
 const app = initializeApp(configurazioneFire);
+
+// Export con nomi italiani (coerenti con il progetto)
 export const autenticazione = getAuth(app);
 export const database = getFirestore(app);
 
-// ✅ Abilita cache offline persistente (funziona anche offline!)
+// Abilita cache offline persistente
 enableIndexedDbPersistence(database)
   .then(() => {
     console.log("✅ Cache offline abilitata con successo!");

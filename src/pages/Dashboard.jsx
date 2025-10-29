@@ -1,17 +1,13 @@
 /**
  * FILE: src/pages/Dashboard.jsx
- * DATA ULTIMA MODIFICA: 2024-12-25 21:50
- * DESCRIZIONE: Pagina principale dashboard con:
- *   - Widget SRS (statistiche studio)
- *   - Form creazione flashcard intelligente
- *   - Lista flashcard con paginazione (20/pagina)
- *   - Audio TTS con voci casuali
+ * DATA ULTIMA MODIFICA: 2024-12-25 23:55
+ * DESCRIZIONE: Pagina principale dashboard
  */
 
 import { useState, useEffect } from 'react';
 import { useAutenticazione } from '../contexts/AutenticazioneContext';
 import { useNavigate } from 'react-router-dom';
-import { creaFlashcard, ottieniFlashcards, eliminaFlashcard } from '../services/flashcardService';
+import { ottieniFlashcards, eliminaFlashcard, ottieniStatistiche } from '../services/flashcardService';
 import Flashcard from '../components/Flashcard';
 import FlashcardForm from '../components/FlashcardForm';
 import '../styles/Dashboard.css';
@@ -24,7 +20,6 @@ function Dashboard() {
   const [flashcards, setFlashcards] = useState([]);
   const [caricamento, setCaricamento] = useState(true);
   const [caricamentoPagina, setCaricamentoPagina] = useState(false);
-  const [caricamentoCreazione, setCaricamentoCreazione] = useState(false);
   
   // Stati paginazione
   const [ultimoDocumento, setUltimoDocumento] = useState(null);
@@ -50,7 +45,6 @@ function Dashboard() {
    */
   async function caricaStatistiche() {
     try {
-      const { ottieniStatistiche } = await import('../services/flashcardService');
       const risultato = await ottieniStatistiche(utenteCorrente.uid);
       
       if (risultato.successo) {
@@ -103,33 +97,14 @@ function Dashboard() {
   }
 
   /**
-   * Crea nuova flashcard (callback da FlashcardForm)
+   * Callback quando flashcard creata
    */
-  async function gestisciCreaFlashcard(datiCard) {
-    setCaricamentoCreazione(true);
-    setErrore('');
+  function gestisciFlashcardAggiunta(nuovaCard) {
+    // Aggiungi in testa
+    setFlashcards(prev => [nuovaCard, ...prev]);
     
-    const risultato = await creaFlashcard(utenteCorrente.uid, datiCard);
-    
-    if (risultato.successo) {
-      // Ottimizzazione: aggiungi in testa senza ricaricare
-      const nuovaCard = {
-        id: risultato.id,
-        ...datiCard,
-        dataCreazione: new Date().toISOString(),
-        livelloConoscenza: 1,
-        numeroRevisioni: 0
-      };
-      
-      setFlashcards(prev => [nuovaCard, ...prev]);
-      
-      // Ricarica statistiche
-      caricaStatistiche();
-    } else {
-      setErrore('Errore nella creazione della flashcard');
-    }
-    
-    setCaricamentoCreazione(false);
+    // Ricarica statistiche
+    caricaStatistiche();
   }
   
   /**
@@ -139,7 +114,7 @@ function Dashboard() {
     const risultato = await eliminaFlashcard(idFlashcard);
     
     if (risultato.successo) {
-      // Ottimizzazione: rimuovi solo quella card
+      // Rimuovi dalla lista
       setFlashcards(prev => prev.filter(card => card.id !== idFlashcard));
       
       // Ricarica statistiche
@@ -177,7 +152,7 @@ function Dashboard() {
       </header>
 
       <main className="dashboard-main">
-        {/* WIDGET SESSIONE STUDIO (se statistiche disponibili) */}
+        {/* WIDGET SESSIONE STUDIO */}
         {statistiche && statistiche.daRivedere > 0 && (
           <div className="widget-studio">
             <div className="widget-icon">🧠</div>
@@ -191,7 +166,7 @@ function Dashboard() {
               </p>
             </div>
             <button 
-              onClick={() => alert('Funzionalità in arrivo! 🚀')} 
+              onClick={() => naviga('/revisione')} 
               className="btn-widget"
             >
               Inizia Ora
@@ -199,11 +174,11 @@ function Dashboard() {
           </div>
         )}
         
-        {/* SEZIONE CREAZIONE con Form Intelligente */}
+        {/* SEZIONE CREAZIONE */}
         <div className="sezione-creazione">
+          <h2>✨ Crea Nuova Flashcard</h2>
           <FlashcardForm 
-            onSubmit={gestisciCreaFlashcard}
-            loading={caricamentoCreazione}
+            onFlashcardAggiunta={gestisciFlashcardAggiunta}
           />
         </div>
 
@@ -223,6 +198,13 @@ function Dashboard() {
             <div className="caricamento">
               <div className="spinner"></div>
               <p>Caricamento flashcard...</p>
+            </div>
+          )}
+          
+          {/* Errore */}
+          {errore && (
+            <div className="alert-errore">
+              {errore}
             </div>
           )}
           
@@ -262,7 +244,7 @@ function Dashboard() {
           )}
           
           {/* Stato vuoto */}
-          {!caricamento && flashcards.length === 0 && (
+          {!caricamento && flashcards.length === 0 && !errore && (
             <div className="stato-vuoto">
               <p>📝 Nessuna flashcard ancora.</p>
               <p>Crea la tua prima card qui sopra!</p>

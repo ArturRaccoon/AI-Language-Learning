@@ -1,13 +1,6 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FlashcardForm CSS</title>
-  <style>
 /**
  * FILE: src/components/FlashcardForm.css
- * DATA ULTIMA MODIFICA: 2024-12-25 22:50
+ * DATA ULTIMA MODIFICA: 2024-12-25 23:50
  */
 
 /* Indicatore lingue */
@@ -217,58 +210,3 @@
     transform: rotate(90deg);
   }
 }
-  </style>
-</head>
-<body>
-  <div style="padding: 2rem; background: #f5f5f5; min-height: 100vh;">
-    <h2 style="text-align: center; margin-bottom: 2rem;">Anteprima CSS FlashcardForm</h2>
-    
-    <div class="flashcard-form-container">
-      <div class="lingue-info">
-        <div class="lingua-badge">
-          <span class="label">Dalla tua lingua:</span>
-          <span class="valore">🇮🇹 Italiano</span>
-        </div>
-        <span class="arrow">→</span>
-        <div class="lingua-badge">
-          <span class="label">Verso:</span>
-          <span class="valore">🇺🇸 Inglese (US)</span>
-        </div>
-      </div>
-
-      <div class="alert-successo">
-        ✅ Flashcard salvata con successo!
-      </div>
-
-      <div class="flashcard-form">
-        <div class="form-group">
-          <label>Testo originale (🇮🇹 Italiano) *</label>
-          <textarea placeholder="Es: Hello world" rows="3"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label>Traduzione (🇺🇸 Inglese (US)) *</label>
-          <div class="traduzione-group">
-            <textarea placeholder="Es: Ciao mondo" rows="3"></textarea>
-            <button class="btn-traduzione">🔄 Traduci automaticamente</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label>Categoria (opzionale)</label>
-          <input type="text" placeholder="Es: viaggio, lavoro, quotidiano" />
-        </div>
-
-        <div class="form-group">
-          <label>Note (opzionali)</label>
-          <textarea placeholder="Aggiungi contesto o esempi d'uso" rows="2"></textarea>
-        </div>
-
-        <button class="btn-primary">
-          💾 Salva Flashcard
-        </button>
-      </div>
-    </div>
-  </div>
-</body>
-</html>
