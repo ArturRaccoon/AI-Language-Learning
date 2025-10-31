@@ -1,7 +1,7 @@
 /**
  * FILE: src/App.jsx
- * DATA ULTIMA MODIFICA: 2024-12-25 22:40
- * DESCRIZIONE: Router principale con route onboarding protetta
+ * DATA ULTIMA MODIFICA: 2024-12-26 00:45
+ * DESCRIZIONE: Router con onboarding pubblico prima di registrazione
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -10,8 +10,9 @@ import { AutenticazioneProvider } from './contexts/AutenticazioneContext';
 // Pages
 import Login from './pages/Login';
 import Registrazione from './pages/Registrazione';
-import Onboarding from './pages/Onboarding';
+import OnboardingFlow from './pages/OnboardingFlow';
 import Dashboard from './pages/Dashboard';
+import SessioneStudio from './pages/SessioneStudio';
 import Flashcards from './pages/Flashcards';
 import Revisione from './pages/Revisione';
 import Statistiche from './pages/Statistiche';
@@ -28,16 +29,9 @@ function App() {
           {/* Route pubbliche */}
           <Route path="/login" element={<Login />} />
           <Route path="/registrazione" element={<Registrazione />} />
-
-          {/* Route onboarding (protetta da auth, gestita da ProtectedRoute) */}
-          <Route 
-            path="/onboarding" 
-            element={
-              <ProtectedRoute>
-                <Onboarding />
-              </ProtectedRoute>
-            } 
-          />
+          
+          {/* ONBOARDING PUBBLICO - Accessibile senza login */}
+          <Route path="/onboarding" element={<OnboardingFlow />} />
 
           {/* Route protette (richiedono auth + onboarding completato) */}
           <Route
@@ -45,6 +39,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/studia"
+            element={
+              <ProtectedRoute>
+                <SessioneStudio />
               </ProtectedRoute>
             }
           />
@@ -85,11 +88,11 @@ function App() {
             }
           />
 
-          {/* Redirect root → dashboard o login */}
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          {/* Redirect root → onboarding (per iniziare il flow) */}
+          <Route path="/" element={<Navigate to="/onboarding" replace />} />
 
-          {/* 404 → dashboard */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          {/* 404 → onboarding */}
+          <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </BrowserRouter>
     </AutenticazioneProvider>

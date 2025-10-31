@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "AI-Language-Learning Docs": {
+      "type": "sse",
+      "url": "https://gitmcp.io/ArturRaccoon/AI-Language-Learning"
+    }
+  }
+}

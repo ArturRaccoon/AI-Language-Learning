@@ -1,7 +1,7 @@
 /**
  * FILE: src/contexts/AutenticazioneContext.jsx
- * DATA ULTIMA MODIFICA: 2024-12-26 00:10
- * DESCRIZIONE: Context autenticazione + Google Sign-In
+ * DATA ULTIMA MODIFICA: 2024-12-26 00:50
+ * DESCRIZIONE: Context con salvataggio profilo da localStorage dopo registrazione
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
@@ -16,7 +16,8 @@ import {
 import { autenticazione } from '../config/firebase';
 import { 
   getProfiloUtente, 
-  inizializzaProfiloBase 
+  inizializzaProfiloBase,
+  salvaProfiloUtente
 } from '../services/userService';
 
 const AutenticazioneContext = createContext();
@@ -88,6 +89,7 @@ export function AutenticazioneProvider({ children }) {
 
   /**
    * Registrazione con email/password
+   * NUOVO: Salva dati onboarding da localStorage dopo registrazione
    */
   async function registrazione(email, password) {
     console.log('🔵 Tentativo di registrazione per:', email);
@@ -97,15 +99,47 @@ export function AutenticazioneProvider({ children }) {
       const credenziali = await createUserWithEmailAndPassword(autenticazione, email, password);
       console.log('✅ Registrazione Riuscita:', credenziali.user.uid);
       
-      console.log('📡 Inizializzazione profilo base...');
-      await inizializzaProfiloBase(credenziali.user.uid, email);
-      console.log('✅ Profilo base creato');
+      // NUOVO: Recupera dati onboarding da localStorage
+      console.log('🔍 Controllo dati onboarding in localStorage...');
+      const datiOnboardingJSON = localStorage.getItem('onboardingData');
+      
+      if (datiOnboardingJSON) {
+        try {
+          const datiOnboarding = JSON.parse(datiOnboardingJSON);
+          console.log('📦 Dati onboarding trovati:', datiOnboarding);
+          
+          // Salva profilo completo con onboarding
+          console.log('💾 Salvataggio profilo completo con dati onboarding...');
+          const risultatoSalvataggio = await salvaProfiloUtente(
+            credenziali.user.uid, 
+            {
+              ...datiOnboarding,
+              onboardingCompletato: true
+            }
+          );
+          
+          if (risultatoSalvataggio.successo) {
+            console.log('✅ Profilo completo salvato con successo');
+            
+            // Pulisci localStorage
+            localStorage.removeItem('onboardingData');
+            console.log('🧹 localStorage pulito');
+          } else {
+            console.error('❌ Errore salvataggio profilo:', risultatoSalvataggio.errore);
+          }
+        } catch (parseError) {
+          console.error('❌ Errore parsing dati onboarding:', parseError);
+        }
+      } else {
+        console.log('⚠️ Nessun dato onboarding trovato, inizializzazione profilo base');
+        // Fallback: profilo base se non ci sono dati onboarding
+        await inizializzaProfiloBase(credenziali.user.uid, email);
+      }
       
       return { successo: true };
     } catch (errore) {
       console.error('❌ ERRORE registrazione:', errore);
       console.error('  - Codice errore:', errore.code);
-      console.error('  - Messaggio:', errore.message);
       
       let messaggioErrore = 'Errore durante la registrazione';
       
@@ -129,6 +163,7 @@ export function AutenticazioneProvider({ children }) {
 
   /**
    * Login con email/password
+   * ProtectedRoute gestirà il redirect a onboarding se necessario
    */
   async function login(email, password) {
     console.log('🔵 Tentativo di login per:', email);
@@ -170,40 +205,58 @@ export function AutenticazioneProvider({ children }) {
 
   /**
    * Login con Google
+   * NUOVO: Salva dati onboarding da localStorage se primo accesso
    */
   async function loginConGoogle() {
     console.log('🔵 Tentativo di login con Google');
     
     try {
       const provider = new GoogleAuthProvider();
-      
-      // Configura provider per chiedere sempre la selezione account
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
+      provider.setCustomParameters({ prompt: 'select_account' });
       
       console.log('📡 Apertura popup Google...');
       const risultato = await signInWithPopup(autenticazione, provider);
-      
       console.log('✅ Login Google Riuscito:', risultato.user.uid);
-      console.log('  - Email:', risultato.user.email);
-      console.log('  - Nome:', risultato.user.displayName);
-      console.log('  - Foto:', risultato.user.photoURL);
       
-      // Verifica se è primo accesso (nuovo utente)
+      // Verifica se è primo accesso
       const profiloEsiste = await getProfiloUtente(risultato.user.uid);
       
       if (!profiloEsiste.esiste) {
-        console.log('📡 Primo accesso Google, inizializzazione profilo...');
-        await inizializzaProfiloBase(risultato.user.uid, risultato.user.email);
-        console.log('✅ Profilo base creato per utente Google');
+        console.log('📡 Primo accesso Google...');
+        
+        // Controlla dati onboarding in localStorage
+        const datiOnboardingJSON = localStorage.getItem('onboardingData');
+        
+        if (datiOnboardingJSON) {
+          try {
+            const datiOnboarding = JSON.parse(datiOnboardingJSON);
+            console.log('📦 Dati onboarding trovati per Google:', datiOnboarding);
+            
+            // Salva profilo completo
+            await salvaProfiloUtente(
+              risultato.user.uid,
+              {
+                ...datiOnboarding,
+                onboardingCompletato: true
+              }
+            );
+            
+            // Pulisci localStorage
+            localStorage.removeItem('onboardingData');
+            console.log('✅ Profilo Google salvato con dati onboarding');
+          } catch (parseError) {
+            console.error('❌ Errore parsing dati onboarding:', parseError);
+            await inizializzaProfiloBase(risultato.user.uid, risultato.user.email);
+          }
+        } else {
+          // Fallback: profilo base
+          await inizializzaProfiloBase(risultato.user.uid, risultato.user.email);
+        }
       }
       
       return { successo: true };
     } catch (errore) {
       console.error('❌ ERRORE login Google:', errore);
-      console.error('  - Codice errore:', errore.code);
-      console.error('  - Messaggio:', errore.message);
       
       let messaggioErrore = 'Errore durante il login con Google';
       
@@ -215,10 +268,7 @@ export function AutenticazioneProvider({ children }) {
           messaggioErrore = 'Richiesta popup annullata';
           break;
         case 'auth/popup-blocked':
-          messaggioErrore = 'Popup bloccato dal browser. Abilita i popup per questo sito.';
-          break;
-        case 'auth/account-exists-with-different-credential':
-          messaggioErrore = 'Account già esistente con diverso metodo di accesso';
+          messaggioErrore = 'Popup bloccato dal browser';
           break;
         default:
           messaggioErrore = `Errore: ${errore.message}`;
@@ -256,11 +306,6 @@ export function AutenticazioneProvider({ children }) {
     const unsubscribe = onAuthStateChanged(autenticazione, async (utente) => {
       console.log('🔄 Stato autenticazione cambiato:', utente ? utente.uid : 'Nessun utente');
       
-      if (utente) {
-        console.log('  - Email:', utente.email);
-        console.log('  - Provider:', utente.providerData.map(p => p.providerId).join(', '));
-      }
-      
       setUtenteCorrente(utente);
 
       if (utente) {
@@ -272,7 +317,6 @@ export function AutenticazioneProvider({ children }) {
       }
 
       setCaricamento(false);
-      console.log('✅ Observer completato');
     });
 
     return () => {

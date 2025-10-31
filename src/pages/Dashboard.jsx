@@ -166,7 +166,7 @@ function Dashboard() {
               </p>
             </div>
             <button 
-              onClick={() => naviga('/revisione')} 
+              onClick={() => naviga('/studia')} 
               className="btn-widget"
             >
               Inizia Ora
