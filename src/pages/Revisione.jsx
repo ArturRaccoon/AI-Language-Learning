@@ -33,8 +33,8 @@ function Revisione() {
             Il sistema di revisione con Spaced Repetition sarà disponibile presto!
           </p>
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <button 
-              onClick={() => naviga('/dashboard')}
+            <button
+              onClick={() => naviga('/home')}
               style={{
                 background: '#667eea',
                 color: 'white',

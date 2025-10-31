@@ -11,7 +11,7 @@ import { AutenticazioneProvider } from './contexts/AutenticazioneContext';
 import Login from './pages/Login';
 import Registrazione from './pages/Registrazione';
 import OnboardingFlow from './pages/OnboardingFlow';
-import Dashboard from './pages/Dashboard';
+import Home from './pages/Home';
 import SessioneStudio from './pages/SessioneStudio';
 import Flashcards from './pages/Flashcards';
 import Revisione from './pages/Revisione';
@@ -29,16 +29,16 @@ function App() {
           {/* Route pubbliche */}
           <Route path="/login" element={<Login />} />
           <Route path="/registrazione" element={<Registrazione />} />
-          
+
           {/* ONBOARDING PUBBLICO - Accessibile senza login */}
           <Route path="/onboarding" element={<OnboardingFlow />} />
 
           {/* Route protette (richiedono auth + onboarding completato) */}
           <Route
-            path="/dashboard"
+            path="/home"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Home />
               </ProtectedRoute>
             }
           />

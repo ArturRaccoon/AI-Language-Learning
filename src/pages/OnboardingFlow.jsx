@@ -57,12 +57,12 @@ function OnboardingFlow() {
   const [livelloConoscenza, setLivelloConoscenza] = useState('');
 
   /**
-   * Se utente è già loggato con profilo completo → redirect dashboard
+   * Se utente è già loggato con profilo completo → redirect home
    */
   useEffect(() => {
     if (utenteCorrente) {
       console.log('ℹ️ Utente già loggato, skip onboarding pubblico');
-      naviga('/dashboard');
+      naviga('/home');
     }
   }, [utenteCorrente, naviga]);
 

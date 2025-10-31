@@ -32,10 +32,10 @@ function ProtectedRoute({ children }) {
   }
 
   // 3. Utente loggato con onboarding completato
-  // Ma se prova ad accedere a /onboarding → redirect dashboard
+  // Ma se prova ad accedere a /onboarding → redirect home
   if (location.pathname === '/onboarding') {
-    console.log('✅ Onboarding già completato, redirect dashboard');
-    return <Navigate to="/dashboard" replace />;
+    console.log('✅ Onboarding già completato, redirect home');
+    return <Navigate to="/home" replace />;
   }
 
   // 4. Tutto ok → mostra contenuto

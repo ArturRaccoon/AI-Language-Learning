@@ -29,11 +29,11 @@ function Impostazioni() {
       <main className="dashboard-main">
         <div className="sezione-lista">
           <h2>🚧 Pagina in Costruzione</h2>
-          
+
           {profiloUtente && (
-            <div style={{ 
-              background: 'white', 
-              padding: '1.5rem', 
+            <div style={{
+              background: 'white',
+              padding: '1.5rem',
               borderRadius: '12px',
               marginTop: '1rem'
             }}>
@@ -48,10 +48,10 @@ function Impostazioni() {
           <p style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
             La possibilità di modificare le impostazioni sarà disponibile presto!
           </p>
-          
+
           <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-            <button 
-              onClick={() => naviga('/dashboard')}
+            <button
+              onClick={() => naviga('/home')}
               style={{
                 background: '#667eea',
                 color: 'white',

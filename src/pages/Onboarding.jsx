@@ -154,8 +154,8 @@ function Onboarding() {
         // Ricarica profilo nel context
         await caricaProfilo();
 
-        // Reindirizza a dashboard
-        naviga('/dashboard');
+        // Reindirizza a home
+        naviga('/home');
       } else {
         setErrore('Errore nel salvataggio. Riprova.');
       }

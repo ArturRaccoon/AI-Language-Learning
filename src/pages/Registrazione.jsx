@@ -44,7 +44,7 @@ function Registrazione() {
 
       if (risultato.successo) {
         // Redirect automatico a onboarding (gestito da ProtectedRoute)
-        naviga('/dashboard');
+        naviga('/home');
       } else {
         setErrore(risultato.errore || 'Errore durante la registrazione');
       }

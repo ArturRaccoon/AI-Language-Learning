@@ -111,7 +111,7 @@ function SessioneStudio() {
      * Torna alla dashboard
      */
     function tornaDashboard() {
-        naviga('/dashboard');
+        naviga('/home');
     }
 
     // Card corrente
