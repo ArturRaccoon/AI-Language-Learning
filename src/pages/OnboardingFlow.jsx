@@ -21,7 +21,6 @@ const LINGUE = [
   { codice: 'ja-JP', nome: '🇯🇵 Giapponese', traduzioneAPI: 'ja' },
   { codice: 'ko-KR', nome: '🇰🇷 Coreano', traduzioneAPI: 'ko' },
   { codice: 'zh-CN', nome: '🇨🇳 Cinese', traduzioneAPI: 'zh' },
-  { codice: 'ru-RU', nome: '🇷🇺 Russo', traduzioneAPI: 'ru' },
   { codice: 'ar-XA', nome: '🇸🇦 Arabo', traduzioneAPI: 'ar' }
 ];
 
