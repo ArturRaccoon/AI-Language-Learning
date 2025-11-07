@@ -1,39 +1,40 @@
 /**
  * FILE: src/App.jsx
- * DATA ULTIMA MODIFICA: 2024-12-26 00:45
- * DESCRIZIONE: Router con onboarding pubblico prima di registrazione
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: Main application router with public onboarding flow before registration
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AutenticazioneProvider } from './contexts/AutenticazioneContext';
+import { AuthenticationProvider } from './contexts/AuthenticationContext';
 
 // Pages
 import Login from './pages/Login';
-import Registrazione from './pages/Registrazione';
+import Registration from './pages/Registration';
 import OnboardingFlow from './pages/OnboardingFlow';
 import Home from './pages/Home';
-import SessioneStudio from './pages/SessioneStudio';
+import StudySession from './pages/StudySession';
 import Flashcards from './pages/Flashcards';
-import Revisione from './pages/Revisione';
-import Statistiche from './pages/Statistiche';
-import Impostazioni from './pages/Impostazioni';
+import Review from './pages/Review';
+import Statistics from './pages/Statistics';
+import Settings from './pages/Settings';g
+import Chat from './pages/Chat';
 
 // Components
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <AutenticazioneProvider>
+    <AuthenticationProvider>
       <BrowserRouter>
         <Routes>
-          {/* Route pubbliche */}
+          {/* Public routes */}
           <Route path="/login" element={<Login />} />
-          <Route path="/registrazione" element={<Registrazione />} />
+          <Route path="/registration" element={<Registration />} />
 
-          {/* ONBOARDING PUBBLICO - Accessibile senza login */}
+          {/* PUBLIC ONBOARDING - Accessible without login */}
           <Route path="/onboarding" element={<OnboardingFlow />} />
 
-          {/* Route protette (richiedono auth + onboarding completato) */}
+          {/* Protected routes (require auth + completed onboarding) */}
           <Route
             path="/home"
             element={
@@ -44,10 +45,10 @@ function App() {
           />
 
           <Route
-            path="/studia"
+            path="/study"
             element={
               <ProtectedRoute>
-                <SessioneStudio />
+                <StudySession />
               </ProtectedRoute>
             }
           />
@@ -62,40 +63,49 @@ function App() {
           />
 
           <Route
-            path="/revisione"
+            path="/review"
             element={
               <ProtectedRoute>
-                <Revisione />
+                <Review />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/statistiche"
+            path="/statistics"
             element={
               <ProtectedRoute>
-                <Statistiche />
+                <Statistics />
               </ProtectedRoute>
             }
           />
 
           <Route
-            path="/impostazioni"
+            path="/settings"
             element={
               <ProtectedRoute>
-                <Impostazioni />
+                <Settings />
               </ProtectedRoute>
             }
           />
 
-          {/* Redirect root → onboarding (per iniziare il flow) */}
+          <Route
+            path="/chat"
+            element={
+              <ProtectedRoute>
+                <Chat />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Redirect root → onboarding (to start the flow) */}
           <Route path="/" element={<Navigate to="/onboarding" replace />} />
 
           {/* 404 → onboarding */}
           <Route path="*" element={<Navigate to="/onboarding" replace />} />
         </Routes>
       </BrowserRouter>
-    </AutenticazioneProvider>
+    </AuthenticationProvider>
   );
 }
 

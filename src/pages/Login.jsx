@@ -8,7 +8,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAutenticazione } from '../contexts/AutenticazioneContext';
 import { sendPasswordResetEmail } from 'firebase/auth';
-import { autenticazione } from '../config/firebase';
+import { auth } from '../config/firebase';
 import '../styles/Login.css';
 
 function Login() {
@@ -100,7 +100,7 @@ function Login() {
     setCaricamento(true);
 
     try {
-      await sendPasswordResetEmail(autenticazione, email);
+      await sendPasswordResetEmail(auth, email);
       setSuccesso(`Email di reset inviata a ${email}. Controlla la tua casella di posta.`);
 
       setTimeout(() => {

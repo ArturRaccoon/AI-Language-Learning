@@ -1,126 +1,129 @@
-/**
- * FILE: src/components/__tests__/ProtectedRoute.test.jsx
- * DATA CREAZIONE: 2024-12-25 23:10
- * DESCRIZIONE: Test ProtectedRoute con redirect onboarding
- */
-
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { describe, it, expect, vi } from 'vitest';
 import ProtectedRoute from '../ProtectedRoute';
-import { useAutenticazione } from '../../contexts/AutenticazioneContext';
+import { AutenticazioneProvider } from '../../contexts/AutenticazioneContext';
 
-// Mock context
-jest.mock('../../contexts/AutenticazioneContext');
+// Mock del context
+const mockContextValue = (overrides = {}) => ({
+  utenteCorrente: null,
+  loading: false,
+  ...overrides
+});
+
+// Wrapper con Router per i test
+const TestWrapper = ({ children, contextValue }) => (
+  <BrowserRouter>
+    <AutenticazioneProvider value={contextValue}>
+      <Routes>
+        <Route path="/login" element={<div>Login Page</div>} />
+        <Route path="/protected" element={children} />
+      </Routes>
+    </AutenticazioneProvider>
+  </BrowserRouter>
+);
 
 describe('ProtectedRoute', () => {
-  function renderWithRouter(ui, initialRoute = '/') {
-    window.history.pushState({}, 'Test', initialRoute);
+  it('mostra loader durante il caricamento', () => {
+    const contextValue = mockContextValue({ loading: true });
+    
+    render(
+      <TestWrapper contextValue={contextValue}>
+        <ProtectedRoute>
+          <div>Protected Content</div>
+        </ProtectedRoute>
+      </TestWrapper>
+    );
 
-    return render(
+    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(screen.getByText('Caricamento...')).toBeInTheDocument();
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+  });
+
+  it('redirige a /login se utente non autenticato', () => {
+    const contextValue = mockContextValue({ 
+      loading: false, 
+      utenteCorrente: null 
+    });
+    
+    render(
+      <TestWrapper contextValue={contextValue}>
+        <ProtectedRoute>
+          <div>Protected Content</div>
+        </ProtectedRoute>
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Login Page')).toBeInTheDocument();
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+  });
+
+  it('mostra contenuto protetto se utente autenticato', () => {
+    const contextValue = mockContextValue({ 
+      loading: false, 
+      utenteCorrente: { uid: '123', email: 'test@test.com' } 
+    });
+    
+    render(
+      <TestWrapper contextValue={contextValue}>
+        <ProtectedRoute>
+          <div>Protected Content</div>
+        </ProtectedRoute>
+      </TestWrapper>
+    );
+
+    expect(screen.getByText('Protected Content')).toBeInTheDocument();
+    expect(screen.queryByText('Login Page')).not.toBeInTheDocument();
+  });
+
+  it('supporta redirectTo personalizzato', () => {
+    const contextValue = mockContextValue({ 
+      loading: false, 
+      utenteCorrente: null 
+    });
+    
+    render(
       <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<div>Login Page</div>} />
-          <Route path="/onboarding" element={
-            <ProtectedRoute>
-              <div>Onboarding Page</div>
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <div>Dashboard Page</div>
-            </ProtectedRoute>
-          } />
-        </Routes>
+        <AutenticazioneProvider value={contextValue}>
+          <Routes>
+            <Route path="/custom-login" element={<div>Custom Login</div>} />
+            <Route 
+              path="/protected" 
+              element={
+                <ProtectedRoute redirectTo="/custom-login">
+                  <div>Protected Content</div>
+                </ProtectedRoute>
+              } 
+            />
+          </Routes>
+        </AutenticazioneProvider>
       </BrowserRouter>
     );
-  }
 
-  describe('Utente non autenticato', () => {
-    beforeEach(() => {
-      useAutenticazione.mockReturnValue({
-        utenteCorrente: null,
-        isOnboardingNecessario: () => false
-      });
-    });
-
-    test('redirect a login se utente non loggato', () => {
-      renderWithRouter(null, '/dashboard');
-
-      expect(screen.getByText('Login Page')).toBeInTheDocument();
-    });
+    expect(screen.getByText('Custom Login')).toBeInTheDocument();
   });
 
-  describe('Utente autenticato senza onboarding', () => {
-    beforeEach(() => {
-      useAutenticazione.mockReturnValue({
-        utenteCorrente: { uid: 'test-123' },
-        profiloUtente: null,
-        isOnboardingNecessario: () => true
-      });
+  it('non causa re-render infiniti', () => {
+    const renderSpy = vi.fn();
+    const contextValue = mockContextValue({ 
+      loading: false, 
+      utenteCorrente: { uid: '123' } 
     });
 
-    test('redirect a onboarding da dashboard', () => {
-      renderWithRouter(null, '/dashboard');
+    const TestComponent = () => {
+      renderSpy();
+      return <div>Protected Content</div>;
+    };
+    
+    render(
+      <TestWrapper contextValue={contextValue}>
+        <ProtectedRoute>
+          <TestComponent />
+        </ProtectedRoute>
+      </TestWrapper>
+    );
 
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
-
-    test('permette accesso a pagina onboarding stessa', () => {
-      renderWithRouter(null, '/onboarding');
-
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
-  });
-
-  describe('Utente autenticato con onboarding completato', () => {
-    beforeEach(() => {
-      useAutenticazione.mockReturnValue({
-        utenteCorrente: { uid: 'test-123' },
-        profiloUtente: {
-          linguaMadre: 'it-IT',
-          linguaObiettivo: 'en-US',
-          onboardingCompletato: true
-        },
-        isOnboardingNecessario: () => false
-      });
-    });
-
-    test('permette accesso a dashboard', () => {
-      renderWithRouter(null, '/dashboard');
-
-      expect(screen.getByText('Dashboard Page')).toBeInTheDocument();
-    });
-
-    test('redirect a dashboard se prova ad accedere a onboarding', () => {
-      renderWithRouter(null, '/onboarding');
-
-      expect(screen.getByText('Dashboard Page')).toBeInTheDocument();
-    });
-  });
-
-  describe('Edge cases', () => {
-    test('gestisce profilo con onboardingCompletato = false', () => {
-      useAutenticazione.mockReturnValue({
-        utenteCorrente: { uid: 'test-123' },
-        profiloUtente: { onboardingCompletato: false },
-        isOnboardingNecessario: () => true
-      });
-
-      renderWithRouter(null, '/dashboard');
-
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
-
-    test('gestisce profilo senza campo onboardingCompletato', () => {
-      useAutenticazione.mockReturnValue({
-        utenteCorrente: { uid: 'test-123' },
-        profiloUtente: { linguaMadre: 'it-IT' }, // Senza flag
-        isOnboardingNecessario: () => true
-      });
-
-      renderWithRouter(null, '/dashboard');
-
-      expect(screen.getByText('Onboarding Page')).toBeInTheDocument();
-    });
+    // Il componente dovrebbe renderizzare una sola volta
+    expect(renderSpy).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,224 +1,124 @@
 /**
  * FILE: src/services/userService.js
- * DATA CREAZIONE: 2024-12-25 22:00
- * DESCRIZIONE: Servizio per gestione profilo utente:
- *   - Salvataggio preferenze onboarding
- *   - Recupero profilo utente
- *   - Flag onboarding completato
- *   - Lingue predefinite
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: User profile management and onboarding flow
  */
 
-import { 
-  doc, 
-  setDoc, 
-  getDoc,
-  updateDoc,
-  serverTimestamp 
-} from 'firebase/firestore';
-import { database } from '../config/firebase';
+import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { db } from '../config/firebase';
 
-const COLLEZIONE_UTENTI = 'utenti';
+// Supported languages for STUDY
+export const AVAILABLE_LANGUAGES = [
+  { code: 'it', name: 'Italian', native: 'Italiano' },
+  { code: 'fr', name: 'French', native: 'Français' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+  { code: 'en', name: 'English', native: 'English' }
+];
+
+// Supported languages for INTERFACE
+export const INTERFACE_LANGUAGES = [
+  { code: 'it', name: 'Italian', native: 'Italiano' },
+  { code: 'fr', name: 'French', native: 'Français' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' },
+  { code: 'en', name: 'English', native: 'English' }
+];
 
 /**
- * Salva o aggiorna il profilo utente completo
- * @param {string} idUtente - UID Firebase
- * @param {Object} datiProfilo - Dati profilo utente
- * @returns {Promise<Object>}
+ * Create or update user profile after registration/login
  */
-export async function salvaProfiloUtente(idUtente, datiProfilo) {
+export const createUserProfile = async (uid, data) => {
   try {
-    const riferimentoUtente = doc(database, COLLEZIONE_UTENTI, idUtente);
-    
-    const profiloCompleto = {
-      // Dati onboarding
-      linguaMadre: datiProfilo.linguaMadre,
-      linguaObiettivo: datiProfilo.linguaObiettivo,
-      obiettivi: datiProfilo.obiettivi || [],
-      livelloConoscenza: datiProfilo.livelloConoscenza,
-      
-      // Metadata
-      onboardingCompletato: true,
-      dataOnboarding: new Date().toISOString(),
-      dataAggiornamento: new Date().toISOString(),
-      
-      // Info aggiuntive (per future feature)
-      impostazioniNotifiche: datiProfilo.impostazioniNotifiche || {
-        revisioni: true,
-        progressi: true,
-        suggerimenti: false
-      },
-      
-      tema: datiProfilo.tema || 'auto' // auto, light, dark
-    };
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
 
-    // Usa setDoc con merge per non sovrascrivere campi esistenti
-    await setDoc(riferimentoUtente, profiloCompleto, { merge: true });
-
-    console.log('✅ Profilo utente salvato:', idUtente);
-    
-    return { 
-      successo: true, 
-      profilo: profiloCompleto 
-    };
-
-  } catch (errore) {
-    console.error('❌ Errore salvataggio profilo:', errore);
-    return { 
-      successo: false, 
-      errore: errore.message 
-    };
-  }
-}
-
-/**
- * Recupera il profilo utente da Firestore
- * @param {string} idUtente - UID Firebase
- * @returns {Promise<Object>}
- */
-export async function getProfiloUtente(idUtente) {
-  try {
-    const riferimentoUtente = doc(database, COLLEZIONE_UTENTI, idUtente);
-    const snapshot = await getDoc(riferimentoUtente);
-
-    if (snapshot.exists()) {
-      const profilo = snapshot.data();
-      
-      console.log('✅ Profilo utente recuperato:', idUtente);
-      
-      return { 
-        successo: true, 
-        profilo,
-        esiste: true 
-      };
-    } else {
-      // Utente esiste in Auth ma non ha profilo → onboarding necessario
-      console.log('⚠️ Profilo non trovato, onboarding necessario');
-      
-      return { 
-        successo: true, 
-        profilo: null,
-        esiste: false 
-      };
+    // If user already exists, don't overwrite existing data
+    if (userSnap.exists()) {
+      console.log('User already exists, skipping creation');
+      return userSnap.data();
     }
 
-  } catch (errore) {
-    console.error('❌ Errore recupero profilo:', errore);
-    return { 
-      successo: false, 
-      errore: errore.message 
+    const profile = {
+      email: data.email || '',
+      name: data.displayName || data.name || '',
+      nativeLanguage: data.nativeLanguage || 'en',
+      targetLanguage: data.targetLanguage || 'it',
+      interfaceLanguage: data.interfaceLanguage || 'en',
+      level: data.level || 'A1',
+      onboardingCompleted: data.onboardingCompleted || false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      authenticationMethods: data.authenticationMethods || ['password']
     };
+
+    await setDoc(userRef, profile);
+    console.log('✅ User profile created:', uid);
+    return profile;
+  } catch (error) {
+    console.error('❌ Profile creation error:', error);
+    throw new Error(`Unable to create profile: ${error.message}`);
   }
-}
+};
 
 /**
- * Verifica se l'utente ha completato l'onboarding
- * @param {string} idUtente - UID Firebase
- * @returns {Promise<boolean>}
+ * Complete onboarding and save preferences
  */
-export async function isOnboardingCompletato(idUtente) {
+export const completeOnboarding = async (uid, preferences) => {
   try {
-    const risultato = await getProfiloUtente(idUtente);
+    const userRef = doc(db, 'users', uid);
     
-    if (!risultato.successo) {
-      return false;
+    await updateDoc(userRef, {
+      nativeLanguage: preferences.nativeLanguage,
+      targetLanguage: preferences.targetLanguage,
+      interfaceLanguage: preferences.interfaceLanguage,
+      level: preferences.level,
+      dailyGoals: preferences.dailyGoals || 10,
+      onboardingCompleted: true, // CRITICAL: set to true
+      updatedAt: serverTimestamp()
+    });
+
+    console.log('✅ Onboarding completed for:', uid);
+    return true;
+  } catch (error) {
+    console.error('❌ Onboarding completion error:', error);
+    throw error;
+  }
+};
+
+/**
+ * Retrieve user profile
+ */
+export const getUserProfile = async (uid) => {
+  try {
+    const userRef = doc(db, 'users', uid);
+    const userSnap = await getDoc(userRef);
+
+    if (!userSnap.exists()) {
+      return null;
     }
 
-    return risultato.esiste && risultato.profilo?.onboardingCompletato === true;
-
-  } catch (errore) {
-    console.error('❌ Errore verifica onboarding:', errore);
-    return false;
+    return {
+      uid,
+      ...userSnap.data()
+    };
+  } catch (error) {
+    console.error('❌ Profile retrieval error:', error);
+    throw error;
   }
-}
+};
 
 /**
- * Aggiorna solo le lingue predefinite
- * @param {string} idUtente - UID Firebase
- * @param {string} linguaMadre - Codice lingua madre (es. 'it-IT')
- * @param {string} linguaObiettivo - Codice lingua obiettivo (es. 'en-US')
- * @returns {Promise<Object>}
+ * Update interface language
  */
-export async function aggiornaLingue(idUtente, linguaMadre, linguaObiettivo) {
+export const updateInterfaceLanguage = async (uid, languageCode) => {
   try {
-    const riferimentoUtente = doc(database, COLLEZIONE_UTENTI, idUtente);
-    
-    await updateDoc(riferimentoUtente, {
-      linguaMadre,
-      linguaObiettivo,
-      dataAggiornamento: new Date().toISOString()
+    const userRef = doc(db, 'users', uid);
+    await updateDoc(userRef, {
+      interfaceLanguage: languageCode,
+      updatedAt: serverTimestamp()
     });
-
-    console.log('✅ Lingue aggiornate');
-    
-    return { successo: true };
-
-  } catch (errore) {
-    console.error('❌ Errore aggiornamento lingue:', errore);
-    return { 
-      successo: false, 
-      errore: errore.message 
-    };
+    console.log('✅ Interface language updated:', languageCode);
+  } catch (error) {
+    console.error('❌ Language update error:', error);
+    throw error;
   }
-}
-
-/**
- * Aggiorna preferenze utente parziali
- * @param {string} idUtente - UID Firebase
- * @param {Object} preferenze - Oggetto con preferenze da aggiornare
- * @returns {Promise<Object>}
- */
-export async function aggiornaPreferenze(idUtente, preferenze) {
-  try {
-    const riferimentoUtente = doc(database, COLLEZIONE_UTENTI, idUtente);
-    
-    await updateDoc(riferimentoUtente, {
-      ...preferenze,
-      dataAggiornamento: new Date().toISOString()
-    });
-
-    console.log('✅ Preferenze aggiornate');
-    
-    return { successo: true };
-
-  } catch (errore) {
-    console.error('❌ Errore aggiornamento preferenze:', errore);
-    return { 
-      successo: false, 
-      errore: errore.message 
-    };
-  }
-}
-
-/**
- * Inizializza un profilo base per l'utente
- * (chiamata al primo login, prima dell'onboarding)
- * @param {string} idUtente - UID Firebase
- * @param {string} email - Email utente
- * @returns {Promise<Object>}
- */
-export async function inizializzaProfiloBase(idUtente, email) {
-  try {
-    const riferimentoUtente = doc(database, COLLEZIONE_UTENTI, idUtente);
-    
-    const profiloBase = {
-      email,
-      dataCreazione: new Date().toISOString(),
-      onboardingCompletato: false,
-      linguaMadre: null,
-      linguaObiettivo: null
-    };
-
-    await setDoc(riferimentoUtente, profiloBase, { merge: true });
-
-    console.log('✅ Profilo base inizializzato');
-    
-    return { successo: true };
-
-  } catch (errore) {
-    console.error('❌ Errore inizializzazione profilo:', errore);
-    return { 
-      successo: false, 
-      errore: errore.message 
-    };
-  }
-}
+};

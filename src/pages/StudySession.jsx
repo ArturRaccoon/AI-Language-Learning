@@ -6,10 +6,10 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
+import { useAutenticazione } from '../contexts/AuthenticationContext';
 import { ottieniFlashcardPerRevisione, registraRevisione } from '../services/flashcardService';
-import FlashcardRevisione from '../components/FlashcardRevisione';
-import './SessioneStudio.css';
+import FlashcardRevisione from '../components/FlashcardReview';
+import './StudySession.css';
 
 function SessioneStudio() {
     const { utenteCorrente, logout } = useAutenticazione();

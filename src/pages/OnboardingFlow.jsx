@@ -1,49 +1,24 @@
 /**
  * FILE: src/pages/OnboardingFlow.jsx
- * DATA CREAZIONE: 2024-12-26 00:55
- * DESCRIZIONE: Onboarding pubblico prima di registrazione (salva in localStorage)
+ * DATA ULTIMA MODIFICA: 2025-01-19
+ * DESCRIZIONE: Onboarding pubblico i18n-ready con cambio lingua automatico
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAutenticazione } from '../contexts/AutenticazioneContext';
 import '../styles/OnboardingFlow.css';
 
-// Lista lingue
+// Lista lingue (codici per profilo + API)
 const LINGUE = [
-  { codice: 'it-IT', nome: '🇮🇹 Italiano', traduzioneAPI: 'it' },
-  { codice: 'en-US', nome: '🇺🇸 Inglese (US)', traduzioneAPI: 'en' },
-  { codice: 'en-GB', nome: '🇬🇧 Inglese (UK)', traduzioneAPI: 'en' },
-  { codice: 'es-ES', nome: '🇪🇸 Spagnolo', traduzioneAPI: 'es' },
-  { codice: 'fr-FR', nome: '🇫🇷 Francese', traduzioneAPI: 'fr' },
-  { codice: 'de-DE', nome: '🇩🇪 Tedesco', traduzioneAPI: 'de' },
-  { codice: 'pt-BR', nome: '🇧🇷 Portoghese', traduzioneAPI: 'pt' },
-  { codice: 'ja-JP', nome: '🇯🇵 Giapponese', traduzioneAPI: 'ja' },
-  { codice: 'ko-KR', nome: '🇰🇷 Coreano', traduzioneAPI: 'ko' },
-  { codice: 'zh-CN', nome: '🇨🇳 Cinese', traduzioneAPI: 'zh' },
-  { codice: 'ar-XA', nome: '🇸🇦 Arabo', traduzioneAPI: 'ar' }
-];
-
-// Obiettivi
-const OBIETTIVI = [
-  { id: 'viaggio', label: '✈️ Viaggio', descrizione: 'Comunicare in viaggio' },
-  { id: 'lavoro', label: '💼 Lavoro', descrizione: 'Uso professionale' },
-  { id: 'studio', label: '📚 Studio', descrizione: 'Esami e certificazioni' },
-  { id: 'cultura', label: '🎭 Cultura', descrizione: 'Film, libri, musica' },
-  { id: 'conversazione', label: '💬 Conversazione', descrizione: 'Parlare con nativi' },
-  { id: 'altro', label: '🎯 Altro', descrizione: 'Obiettivi personali' }
-];
-
-// Livelli
-const LIVELLI = [
-  { id: 'principiante', label: 'Principiante', emoji: '🌱', descrizione: 'Conosco poche parole' },
-  { id: 'elementare', label: 'Elementare', emoji: '🌿', descrizione: 'Frasi semplici' },
-  { id: 'intermedio', label: 'Intermedio', emoji: '🌳', descrizione: 'Conversazioni base' },
-  { id: 'avanzato', label: 'Avanzato', emoji: '🌲', descrizione: 'Fluente' },
-  { id: 'madrelingua', label: 'Madrelingua', emoji: '🏆', descrizione: 'Competenza nativa' }
-];
+  { codice: 'it-IT', nome: 'languages.it-IT', traduzioneAPI: 'it', i18nCode: 'it' },
+  { codice: 'en-US', nome: 'languages.en-US', traduzioneAPI: 'en', i18nCode: 'en' },
+  { codice: 'es-ES', nome: 'languages.es-ES', traduzioneAPI: 'es', i18nCode: 'es' },
+  { codice: 'fr-FR', nome: 'languages.fr-FR', traduzioneAPI: 'fr', i18nCode: 'fr' }];
 
 function OnboardingFlow() {
+  const { t, i18n } = useTranslation();
   const { utenteCorrente } = useAutenticazione();
   const naviga = useNavigate();
 
@@ -56,15 +31,7 @@ function OnboardingFlow() {
   const [obiettivi, setObiettivi] = useState([]);
   const [livelloConoscenza, setLivelloConoscenza] = useState('');
 
-  /**
-   * Se utente è già loggato con profilo completo → redirect home
-   */
-  useEffect(() => {
-    if (utenteCorrente) {
-      console.log('ℹ️ Utente già loggato, skip onboarding pubblico');
-      naviga('/home');
-    }
-  }, [utenteCorrente, naviga]);
+
 
   /**
    * Carica dati salvati da localStorage (se tornano indietro)
@@ -77,7 +44,14 @@ function OnboardingFlow() {
         const datiSalvati = JSON.parse(datiSalvatiJSON);
         console.log('📦 Dati onboarding caricati da localStorage:', datiSalvati);
         
-        if (datiSalvati.linguaMadre) setLinguaMadre(datiSalvati.linguaMadre);
+        if (datiSalvati.linguaMadre) {
+          setLinguaMadre(datiSalvati.linguaMadre);
+          // Cambia anche la lingua UI
+          const lingua = LINGUE.find(l => l.codice === datiSalvati.linguaMadre);
+          if (lingua) {
+            i18n.changeLanguage(lingua.i18nCode);
+          }
+        }
         if (datiSalvati.linguaObiettivo) setLinguaObiettivo(datiSalvati.linguaObiettivo);
         if (datiSalvati.obiettivi) setObiettivi(datiSalvati.obiettivi);
         if (datiSalvati.livelloConoscenza) setLivelloConoscenza(datiSalvati.livelloConoscenza);
@@ -86,6 +60,20 @@ function OnboardingFlow() {
       }
     }
   }, []);
+
+  /**
+   * Cambia lingua UI quando utente seleziona lingua madre
+   */
+  function handleLinguaMadreChange(codiceLingua) {
+    setLinguaMadre(codiceLingua);
+    
+    // Trova i18n code e cambia lingua interfaccia
+    const lingua = LINGUE.find(l => l.codice === codiceLingua);
+    if (lingua && lingua.i18nCode) {
+      console.log('🔄 Cambio lingua UI a:', lingua.i18nCode);
+      i18n.changeLanguage(lingua.i18nCode);
+    }
+  }
 
   /**
    * Toggle obiettivo
@@ -106,25 +94,25 @@ function OnboardingFlow() {
     
     if (step === 1) {
       if (!linguaMadre || !linguaObiettivo) {
-        setErrore('Seleziona entrambe le lingue');
+        setErrore(t('onboarding.errors.select_both_languages'));
         return false;
       }
       if (linguaMadre === linguaObiettivo) {
-        setErrore('Le lingue devono essere diverse');
+        setErrore(t('onboarding.errors.languages_must_differ'));
         return false;
       }
     }
 
     if (step === 2) {
       if (obiettivi.length === 0) {
-        setErrore('Seleziona almeno un obiettivo');
+        setErrore(t('onboarding.errors.select_at_least_one_goal'));
         return false;
       }
     }
 
     if (step === 3) {
       if (!livelloConoscenza) {
-        setErrore('Seleziona il tuo livello');
+        setErrore(t('onboarding.errors.select_level'));
         return false;
       }
     }
@@ -168,13 +156,32 @@ function OnboardingFlow() {
     }
   }
 
+  // Obiettivi con chiavi i18n
+  const OBIETTIVI = [
+    { id: 'viaggio', labelKey: 'onboarding.step2.goals.travel', descKey: 'onboarding.step2.goals.travel_desc' },
+    { id: 'lavoro', labelKey: 'onboarding.step2.goals.work', descKey: 'onboarding.step2.goals.work_desc' },
+    { id: 'studio', labelKey: 'onboarding.step2.goals.study', descKey: 'onboarding.step2.goals.study_desc' },
+    { id: 'cultura', labelKey: 'onboarding.step2.goals.culture', descKey: 'onboarding.step2.goals.culture_desc' },
+    { id: 'conversazione', labelKey: 'onboarding.step2.goals.conversation', descKey: 'onboarding.step2.goals.conversation_desc' },
+    { id: 'altro', labelKey: 'onboarding.step2.goals.other', descKey: 'onboarding.step2.goals.other_desc' }
+  ];
+
+  // Livelli con chiavi i18n
+  const LIVELLI = [
+    { id: 'principiante', emoji: '🌱', labelKey: 'onboarding.step3.levels.beginner', descKey: 'onboarding.step3.levels.beginner_desc' },
+    { id: 'elementare', emoji: '🌿', labelKey: 'onboarding.step3.levels.elementary', descKey: 'onboarding.step3.levels.elementary_desc' },
+    { id: 'intermedio', emoji: '🌳', labelKey: 'onboarding.step3.levels.intermediate', descKey: 'onboarding.step3.levels.intermediate_desc' },
+    { id: 'avanzato', emoji: '🌲', labelKey: 'onboarding.step3.levels.advanced', descKey: 'onboarding.step3.levels.advanced_desc' },
+    { id: 'madrelingua', emoji: '🏆', labelKey: 'onboarding.step3.levels.native', descKey: 'onboarding.step3.levels.native_desc' }
+  ];
+
   return (
     <div className="onboarding-flow-container">
       <div className="onboarding-flow-card">
         {/* HEADER */}
         <div className="onboarding-flow-header">
-          <h1>👋 Benvenuto!</h1>
-          <p>Iniziamo a configurare la tua esperienza</p>
+          <h1>{t('onboarding.welcome')}</h1>
+          <p>{t('onboarding.subtitle')}</p>
           
           <div className="progress-bar-flow">
             <div 
@@ -182,7 +189,9 @@ function OnboardingFlow() {
               style={{ width: `${(step / 3) * 100}%` }}
             ></div>
           </div>
-          <p className="step-indicator-flow">Step {step} di 3</p>
+          <p className="step-indicator-flow">
+            {t('onboarding.step_indicator', { current: step, total: 3 })}
+          </p>
         </div>
 
         {errore && (
@@ -194,21 +203,21 @@ function OnboardingFlow() {
         {/* STEP 1: LINGUE */}
         {step === 1 && (
           <div className="onboarding-step-flow">
-            <h2>🌍 Che lingue vuoi imparare?</h2>
+            <h2>{t('onboarding.step1.title')}</h2>
             <p className="step-subtitle-flow">
-              Scegli la tua lingua madre e quella che vuoi studiare
+              {t('onboarding.step1.subtitle')}
             </p>
 
             <div className="form-group-flow">
-              <label>La tua lingua madre</label>
+              <label>{t('onboarding.step1.native_language')}</label>
               <select
                 value={linguaMadre}
-                onChange={(e) => setLinguaMadre(e.target.value)}
+                onChange={(e) => handleLinguaMadreChange(e.target.value)}
                 className="language-select-flow"
               >
                 {LINGUE.map(lingua => (
                   <option key={lingua.codice} value={lingua.codice}>
-                    {lingua.nome}
+                    {t(lingua.nome)}
                   </option>
                 ))}
               </select>
@@ -217,7 +226,7 @@ function OnboardingFlow() {
             <div className="separator-flow">➡️</div>
 
             <div className="form-group-flow">
-              <label>Lingua che vuoi imparare</label>
+              <label>{t('onboarding.step1.target_language')}</label>
               <select
                 value={linguaObiettivo}
                 onChange={(e) => setLinguaObiettivo(e.target.value)}
@@ -225,7 +234,7 @@ function OnboardingFlow() {
               >
                 {LINGUE.map(lingua => (
                   <option key={lingua.codice} value={lingua.codice}>
-                    {lingua.nome}
+                    {t(lingua.nome)}
                   </option>
                 ))}
               </select>
@@ -236,9 +245,9 @@ function OnboardingFlow() {
         {/* STEP 2: OBIETTIVI */}
         {step === 2 && (
           <div className="onboarding-step-flow">
-            <h2>🎯 Perché vuoi imparare?</h2>
+            <h2>{t('onboarding.step2.title')}</h2>
             <p className="step-subtitle-flow">
-              Seleziona uno o più obiettivi
+              {t('onboarding.step2.subtitle')}
             </p>
 
             <div className="obiettivi-grid-flow">
@@ -250,8 +259,8 @@ function OnboardingFlow() {
                     obiettivi.includes(obiettivo.id) ? 'selected' : ''
                   }`}
                 >
-                  <div className="obiettivo-label-flow">{obiettivo.label}</div>
-                  <div className="obiettivo-descrizione-flow">{obiettivo.descrizione}</div>
+                  <div className="obiettivo-label-flow">{t(obiettivo.labelKey)}</div>
+                  <div className="obiettivo-descrizione-flow">{t(obiettivo.descKey)}</div>
                   {obiettivi.includes(obiettivo.id) && (
                     <div className="check-icon-flow">✓</div>
                   )}
@@ -264,9 +273,9 @@ function OnboardingFlow() {
         {/* STEP 3: LIVELLO */}
         {step === 3 && (
           <div className="onboarding-step-flow">
-            <h2>📊 Qual è il tuo livello?</h2>
+            <h2>{t('onboarding.step3.title')}</h2>
             <p className="step-subtitle-flow">
-              Nella lingua che vuoi imparare
+              {t('onboarding.step3.subtitle')}
             </p>
 
             <div className="livelli-list-flow">
@@ -280,8 +289,8 @@ function OnboardingFlow() {
                 >
                   <span className="livello-emoji-flow">{livello.emoji}</span>
                   <div className="livello-info-flow">
-                    <div className="livello-label-flow">{livello.label}</div>
-                    <div className="livello-descrizione-flow">{livello.descrizione}</div>
+                    <div className="livello-label-flow">{t(livello.labelKey)}</div>
+                    <div className="livello-descrizione-flow">{t(livello.descKey)}</div>
                   </div>
                   {livelloConoscenza === livello.id && (
                     <div className="check-icon-flow">✓</div>
@@ -299,7 +308,7 @@ function OnboardingFlow() {
               onClick={indietro}
               className="btn-secondary-flow"
             >
-              ← Indietro
+              {t('common.back')}
             </button>
           )}
 
@@ -307,19 +316,19 @@ function OnboardingFlow() {
             onClick={avanti}
             className="btn-primary-flow"
           >
-            {step === 3 ? 'Vai alla Registrazione →' : 'Avanti →'}
+            {step === 3 ? t('onboarding.continue_to_register') : t('common.next')}
           </button>
         </div>
 
         {/* LINK LOGIN */}
         {step === 1 && (
           <p className="testo-link-flow">
-            Hai già un account?{' '}
+            {t('auth.have_account')}{' '}
             <button 
               onClick={() => naviga('/login')}
               className="btn-link-flow"
             >
-              Accedi
+              {t('common.login')}
             </button>
           </p>
         )}

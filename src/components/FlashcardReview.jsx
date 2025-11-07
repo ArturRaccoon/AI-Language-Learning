@@ -6,7 +6,7 @@
 
 import { useState } from 'react';
 import AudioButton from './AudioButton';
-import './FlashcardRevisione.css';
+import './FlashcardReview.css';
 
 function FlashcardRevisione({ card, onValutazione }) {
   const [girato, setGirato] = useState(false);

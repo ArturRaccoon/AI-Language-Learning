@@ -1,67 +1,62 @@
-// src/services/translationService.js
-
 /**
- * Servizio di traduzione usando MyMemory API
- * Limite: 1000 richieste/giorno (sufficiente per MVP)
- * Nessuna API key richiesta per uso base
+ * FILE: src/services/translationService.js
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: Translation service using MyMemory API with caching
  */
 
 const MYMEMORY_API_URL = 'https://api.mymemory.translated.net/get';
 
-// Cache delle traduzioni per evitare richieste duplicate
-const cacheTraduzioni = new Map();
+// Translation cache to avoid duplicate requests
+const translationCache = new Map();
 
-// Mappa codici lingua comuni
-const CODICI_LINGUA = {
-  'inglese': 'en',
-  'italiano': 'it',
-  'spagnolo': 'es',
-  'francese': 'fr',
-  'tedesco': 'de',
-  'portoghese': 'pt',
-  'giapponese': 'ja',
-  'cinese': 'zh',
-  'coreano': 'ko',
-  'arabo': 'ar',
-  'olandese': 'nl',
-  'polacco': 'pl',
-  'turco': 'tr'
+// Common language code mappings
+const LANGUAGE_CODES = {
+  'english': 'en',
+  'italian': 'it',
+  'spanish': 'es',
+  'french': 'fr',
+  'german': 'de',
+  'portuguese': 'pt',
+  'japanese': 'ja',
+  'chinese': 'zh',
+  'korean': 'ko',
+  'arabic': 'ar',
+  'dutch': 'nl',
+  'polish': 'pl',
+  'turkish': 'tr',
+  'ukrainian': 'uk'
 };
 
 /**
- * Traduce un testo da una lingua all'altra
- * @param {string} testo - Testo da tradurre
- * @param {string} linguaDa - Codice lingua sorgente (es. 'en', 'it')
- * @param {string} linguaA - Codice lingua destinazione
- * @returns {Promise<Object>} - Risultato con traduzione e alternative
+ * Translate text from one language to another
  */
-export async function traduciTesto(testo, linguaDa = 'en', linguaA = 'it') {
+export async function translateText(text, fromLang = 'en', toLang = 'it') {
   try {
-    // Validazione input
-    if (!testo || testo.trim().length === 0) {
-      throw new Error('Testo vuoto');
+    // Input validation
+    if (!text || text.trim().length === 0) {
+      throw new Error('Empty text');
     }
 
-    if (testo.length > 500) {
-      throw new Error('Testo troppo lungo (max 500 caratteri)');
+    if (text.length > 500) {
+      throw new Error('Text too long (max 500 characters)');
     }
 
-    // Controlla cache
-    const chiaveCache = `${testo}-${linguaDa}-${linguaA}`;
-    if (cacheTraduzioni.has(chiaveCache)) {
-      console.log('✅ Traduzione da cache');
-      return cacheTraduzioni.get(chiaveCache);
+    // Check cache
+    const cacheKey = `${text}-${fromLang}-${toLang}`;
+    if (translationCache.has(cacheKey)) {
+      console.log('✅ Translation from cache');
+      return translationCache.get(cacheKey);
     }
 
-    // Costruisci URL
+    // Build URL
     const params = new URLSearchParams({
-      q: testo,
-      langpair: `${linguaDa}|${linguaA}`
+      q: text,
+      langpair: `${fromLang}|${toLang}`
     });
 
     const url = `${MYMEMORY_API_URL}?${params.toString()}`;
 
-    // Chiamata API
+    // API call
     const response = await fetch(url);
     
     if (!response.ok) {
@@ -70,179 +65,163 @@ export async function traduciTesto(testo, linguaDa = 'en', linguaA = 'it') {
 
     const data = await response.json();
 
-    // Verifica risposta
+    // Verify response
     if (data.responseStatus !== 200) {
-      throw new Error(data.responseDetails || 'Errore API');
+      throw new Error(data.responseDetails || 'API error');
     }
 
-    // Prepara risultato
-    const risultato = {
-      successo: true,
-      testoOriginale: testo,
-      traduzione: data.responseData.translatedText,
-      affidabilita: parseFloat(data.responseData.match || 0),
-      linguaDa,
-      linguaA,
-      alternative: [],
+    // Prepare result
+    const result = {
+      success: true,
+      originalText: text,
+      translation: data.responseData.translatedText,
+      confidence: parseFloat(data.responseData.match || 0),
+      fromLang,
+      toLang,
+      alternatives: [],
       metadata: {
         timestamp: new Date().toISOString(),
-        fonte: 'MyMemory'
+        source: 'MyMemory'
       }
     };
 
-    // Aggiungi traduzioni alternative (se disponibili)
+    // Add alternative translations (if available)
     if (data.matches && Array.isArray(data.matches)) {
-      risultato.alternative = data.matches
-        .filter(m => m.translation !== risultato.traduzione) // Escludi duplicati
-        .slice(0, 3) // Max 3 alternative
+      result.alternatives = data.matches
+        .filter(m => m.translation !== result.translation)
+        .slice(0, 3)
         .map(m => ({
-          testo: m.translation,
-          affidabilita: parseFloat(m.match || 0),
-          fonte: m.reference || 'Community'
+          text: m.translation,
+          confidence: parseFloat(m.match || 0),
+          source: m.reference || 'Community'
         }));
     }
 
-    // Salva in cache
-    cacheTraduzioni.set(chiaveCache, risultato);
+    // Save to cache
+    translationCache.set(cacheKey, result);
 
-    // Limita dimensione cache (max 100 elementi)
-    if (cacheTraduzioni.size > 100) {
-      const primaChiave = cacheTraduzioni.keys().next().value;
-      cacheTraduzioni.delete(primaChiave);
+    // Limit cache size (max 100 items)
+    if (translationCache.size > 100) {
+      const firstKey = translationCache.keys().next().value;
+      translationCache.delete(firstKey);
     }
 
-    console.log('🌐 Traduzione completata:', risultato.traduzione);
+    console.log('🌐 Translation completed:', result.translation);
 
-    return risultato;
+    return result;
 
-  } catch (errore) {
-    console.error('❌ Errore traduzione:', errore);
+  } catch (error) {
+    console.error('❌ Translation error:', error);
     
     return {
-      successo: false,
-      errore: errore.message,
-      testoOriginale: testo,
-      traduzione: null,
-      alternative: []
+      success: false,
+      error: error.message,
+      originalText: text,
+      translation: null,
+      alternatives: []
     };
   }
 }
 
 /**
- * Rileva automaticamente la lingua di un testo
- * @param {string} testo
- * @returns {Promise<string>} - Codice lingua rilevato
+ * Automatically detect text language
  */
-export async function rilevaLingua(testo) {
+export async function detectLanguage(text) {
   try {
-    // MyMemory non ha endpoint dedicato, usiamo euristica
-    // Traduciamo in inglese e vediamo se cambia
-    const risultato = await traduciTesto(testo, 'auto', 'en');
+    // MyMemory doesn't have dedicated endpoint, use heuristics
+    const result = await translateText(text, 'auto', 'en');
     
-    if (risultato.successo && risultato.traduzione !== testo) {
-      // Il testo è cambiato, probabilmente non è inglese
+    if (result.success && result.translation !== text) {
       return 'unknown';
     }
     
     return 'en';
-  } catch (errore) {
-    console.error('Errore rilevamento lingua:', errore);
+  } catch (error) {
+    console.error('Language detection error:', error);
     return 'unknown';
   }
 }
 
 /**
- * Traduce con rilevamento automatico lingua sorgente
- * @param {string} testo
- * @param {string} linguaA - Lingua destinazione
+ * Translate with automatic source language detection
  */
-export async function traduciAuto(testo, linguaA = 'it') {
-  // MyMemory supporta 'auto' come lingua sorgente
-  return traduciTesto(testo, 'auto', linguaA);
+export async function translateAuto(text, toLang = 'it') {
+  return translateText(text, 'auto', toLang);
 }
 
 /**
- * Ottieni traduzioni multiple simultanee (per confronto)
- * @param {string} testo
- * @param {string} linguaDa
- * @param {Array<string>} lingueA - Array di lingue destinazione
+ * Get multiple simultaneous translations (for comparison)
  */
-export async function traduciMultiplo(testo, linguaDa, lingueA) {
+export async function translateMultiple(text, fromLang, toLangs) {
   try {
-    const promesse = lingueA.map(lingua => 
-      traduciTesto(testo, linguaDa, lingua)
+    const promises = toLangs.map(lang => 
+      translateText(text, fromLang, lang)
     );
 
-    const risultati = await Promise.all(promesse);
+    const results = await Promise.all(promises);
 
     return {
-      successo: true,
-      traduzioni: risultati.map((r, i) => ({
-        lingua: lingueA[i],
-        traduzione: r.traduzione,
-        affidabilita: r.affidabilita
+      success: true,
+      translations: results.map((r, i) => ({
+        language: toLangs[i],
+        translation: r.translation,
+        confidence: r.confidence
       }))
     };
-  } catch (errore) {
+  } catch (error) {
     return {
-      successo: false,
-      errore: errore.message
+      success: false,
+      error: error.message
     };
   }
 }
 
 /**
- * Suggerisci traduzioni durante la digitazione (con debounce)
- * @param {string} testo
- * @param {string} linguaDa
- * @param {string} linguaA
- * @param {number} delay - Millisecondi di attesa (default 500ms)
+ * Suggest translations during typing (with debounce)
  */
-let timeoutSuggerimenti = null;
+let suggestionTimeout = null;
 
-export function suggerisciTraduzione(testo, linguaDa, linguaA, callback, delay = 500) {
-  // Cancella timer precedente
-  if (timeoutSuggerimenti) {
-    clearTimeout(timeoutSuggerimenti);
+export function suggestTranslation(text, fromLang, toLang, callback, delay = 500) {
+  // Cancel previous timer
+  if (suggestionTimeout) {
+    clearTimeout(suggestionTimeout);
   }
 
-  // Non suggerire per testi troppo corti
-  if (testo.trim().length < 3) {
+  // Don't suggest for very short texts
+  if (text.trim().length < 3) {
     callback(null);
     return;
   }
 
-  // Imposta nuovo timer
-  timeoutSuggerimenti = setTimeout(async () => {
-    const risultato = await traduciTesto(testo, linguaDa, linguaA);
-    callback(risultato);
+  // Set new timer
+  suggestionTimeout = setTimeout(async () => {
+    const result = await translateText(text, fromLang, toLang);
+    callback(result);
   }, delay);
 }
 
 /**
- * Pulisci cache traduzioni
+ * Clear translation cache
  */
-export function pulisciCache() {
-  cacheTraduzioni.clear();
-  console.log('🧹 Cache traduzioni pulita');
+export function clearCache() {
+  translationCache.clear();
+  console.log('🧹 Translation cache cleared');
 }
 
 /**
- * Ottieni statistiche cache
+ * Get cache statistics
  */
-export function statisticheCache() {
+export function getCacheStats() {
   return {
-    dimensione: cacheTraduzioni.size,
-    limite: 100
+    size: translationCache.size,
+    limit: 100
   };
 }
 
 /**
- * Converti nome lingua in codice (helper)
- * @param {string} nomeLingua - Nome completo (es. "Inglese")
- * @returns {string} - Codice (es. "en")
+ * Convert language name to code (helper)
  */
-export function ottieniCodiceLingua(nomeLingua) {
-  const nome = nomeLingua.toLowerCase();
-  return CODICI_LINGUA[nome] || 'en';
+export function getLanguageCode(languageName) {
+  const name = languageName.toLowerCase();
+  return LANGUAGE_CODES[name] || 'en';
 }
