@@ -1,284 +1,223 @@
 /**
  * FILE: src/components/FlashcardForm.jsx
- * DATA ULTIMA MODIFICA: 2024-12-25 23:50
- * DESCRIZIONE: Form creazione flashcard con lingue automatiche dal profilo
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: Form for creating/editing flashcards with auto-translation
  */
 
 import { useState } from 'react';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
-import { creaFlashcard } from '../services/flashcardService';
-import { traduciTesto } from '../services/translationService';
 import './FlashcardForm.css';
 
-// Mappa codici lingua per API traduzione
-const LINGUA_API_MAP = {
-  'it-IT': 'it',
-  'en-US': 'en',
-  'en-GB': 'en',
-  'es-ES': 'es',
-  'fr-FR': 'fr',
-  'de-DE': 'de',
-  'pt-BR': 'pt',
-  'ja-JP': 'ja',
-  'ko-KR': 'ko',
-  'zh-CN': 'zh',
-  'ru-RU': 'ru',
-  'ar-XA': 'ar'
-};
+function FlashcardForm({ 
+  initialData = null, 
+  onSubmit, 
+  onCancel, 
+  onTranslate,
+  isEditing = false 
+}) {
+  // Form state
+  const [originalWord, setOriginalWord] = useState(initialData?.originalWord || '');
+  const [translation, setTranslation] = useState(initialData?.translation || '');
+  const [notes, setNotes] = useState(initialData?.notes || '');
+  const [category, setCategory] = useState(initialData?.category || '');
 
-function FlashcardForm({ onFlashcardAggiunta }) {
-  const { utenteCorrente, profiloUtente } = useAutenticazione();
-
-  // Verifica profilo disponibile
-  if (!profiloUtente) {
-    return (
-      <div className="alert-errore">
-        ⚠️ Profilo non caricato. Riprova o completa l'onboarding.
-      </div>
-    );
-  }
-
-  // Estrai lingue dal profilo
-  const linguaMadre = profiloUtente.linguaMadre;
-  const linguaObiettivo = profiloUtente.linguaObiettivo;
-
-  // Codici per API traduzione
-  const linguaMadreAPI = LINGUA_API_MAP[linguaMadre] || 'it';
-  const linguaObiettivoAPI = LINGUA_API_MAP[linguaObiettivo] || 'en';
-
-  // Stati form
-  const [testoOriginale, setTestoOriginale] = useState('');
-  const [traduzione, setTraduzione] = useState('');
-  const [note, setNote] = useState('');
-  const [categoria, setCategoria] = useState('');
-
-  // Stati UI
-  const [caricamento, setCaricamento] = useState(false);
-  const [errore, setErrore] = useState('');
-  const [successo, setSuccesso] = useState(false);
-  const [traduzioneAutomatica, setTraduzioneAutomatica] = useState(false);
+  // UI state
+  const [loading, setLoading] = useState(false);
+  const [translating, setTranslating] = useState(false);
+  const [error, setError] = useState('');
 
   /**
-   * Traduzione automatica
+   * Auto-translate original word
    */
-  async function ottieniTraduzione() {
-    if (!testoOriginale.trim()) {
-      setErrore('Inserisci il testo da tradurre');
+  const handleAutoTranslate = async () => {
+    if (!originalWord.trim()) {
+      setError('Enter text to translate');
       return;
     }
 
-    setTraduzioneAutomatica(true);
-    setErrore('');
+    if (!onTranslate) {
+      setError('Translation service not available');
+      return;
+    }
+
+    setTranslating(true);
+    setError('');
 
     try {
-      const risultato = await traduciTesto(
-        testoOriginale,
-        linguaObiettivoAPI,
-        linguaMadreAPI
-      );
-
-      if (risultato.successo) {
-        setTraduzione(risultato.traduzione);
-        console.log('✅ Traduzione ottenuta');
+      const translatedText = await onTranslate(originalWord);
+      
+      if (translatedText) {
+        setTranslation(translatedText);
+        console.log('✅ Auto-translation successful');
       } else {
-        setErrore('Errore traduzione. Inserisci manualmente.');
+        setError('Translation failed. Please enter manually.');
       }
     } catch (err) {
-      console.error('❌ Errore traduzione:', err);
-      setErrore('Errore traduzione. Riprova.');
+      console.error('❌ Translation error:', err);
+      setError('Translation error. Please try again.');
     } finally {
-      setTraduzioneAutomatica(false);
+      setTranslating(false);
     }
-  }
+  };
 
   /**
-   * Salva flashcard
+   * Submit form
    */
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setErrore('');
-    setSuccesso(false);
+    setError('');
 
-    // Validazione
-    if (!testoOriginale.trim()) {
-      setErrore('Il testo originale è obbligatorio');
+    // Validation
+    if (!originalWord.trim()) {
+      setError('Original word is required');
       return;
     }
 
-    if (!traduzione.trim()) {
-      setErrore('La traduzione è obbligatoria');
+    if (!translation.trim()) {
+      setError('Translation is required');
       return;
     }
 
-    setCaricamento(true);
+    setLoading(true);
 
     try {
-      const nuovaFlashcard = {
-        parolaOriginale: testoOriginale.trim(),
-        traduzione: traduzione.trim(),
-        note: note.trim(),
-        categoria: categoria.trim() || 'generale',
-        linguaOriginale: linguaMadre,
-        linguaTraduzione: linguaObiettivo
+      const flashcardData = {
+        originalWord: originalWord.trim(),
+        translation: translation.trim(),
+        notes: notes.trim(),
+        category: category.trim() || 'general'
       };
 
-      const risultato = await creaFlashcard(utenteCorrente.uid, nuovaFlashcard);
-
-      if (risultato.successo) {
-        setSuccesso(true);
-        
-        // Reset form
-        setTestoOriginale('');
-        setTraduzione('');
-        setNote('');
-        setCategoria('');
-
-        // Callback parent
-        if (onFlashcardAggiunta) {
-          onFlashcardAggiunta(risultato.dati);
-        }
-
-        // Nascondi messaggio successo dopo 3s
-        setTimeout(() => setSuccesso(false), 3000);
-      } else {
-        setErrore('Errore nel salvataggio. Riprova.');
+      await onSubmit(flashcardData);
+      
+      // Reset form if creating new card
+      if (!isEditing) {
+        setOriginalWord('');
+        setTranslation('');
+        setNotes('');
+        setCategory('');
       }
     } catch (err) {
-      console.error('❌ Errore salvataggio flashcard:', err);
-      setErrore('Errore imprevisto. Riprova.');
+      console.error('❌ Form submission error:', err);
+      setError('Failed to save flashcard. Please try again.');
     } finally {
-      setCaricamento(false);
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="flashcard-form-container">
-      <div className="lingue-info">
-        <div className="lingua-badge">
-          <span className="label">Dalla tua lingua:</span>
-          <span className="valore">{getLinguaNome(linguaMadre)}</span>
-        </div>
-        <span className="arrow">→</span>
-        <div className="lingua-badge">
-          <span className="label">Verso:</span>
-          <span className="valore">{getLinguaNome(linguaObiettivo)}</span>
-        </div>
+      <div className="form-header">
+        <h2>{isEditing ? '✏️ Edit Flashcard' : '➕ New Flashcard'}</h2>
       </div>
 
-      {errore && (
-        <div className="alert-errore">
-          {errore}
-        </div>
-      )}
-
-      {successo && (
-        <div className="alert-successo">
-          ✅ Flashcard salvata con successo!
+      {error && (
+        <div className="error-message">
+          ⚠️ {error}
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="flashcard-form">
         <div className="form-group">
-          <label htmlFor="testoOriginale">
-            Testo originale ({getLinguaNome(linguaMadre)}) *
+          <label htmlFor="originalWord">
+            Original Word / Phrase *
           </label>
           <textarea
-            id="testoOriginale"
-            value={testoOriginale}
-            onChange={(e) => setTestoOriginale(e.target.value)}
-            placeholder="Es: Hello world"
-            rows={3}
-            disabled={caricamento}
+            id="originalWord"
+            value={originalWord}
+            onChange={(e) => setOriginalWord(e.target.value)}
+            placeholder="Enter word or phrase to learn"
+            rows={2}
+            disabled={loading}
+            required
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="traduzione">
-            Traduzione ({getLinguaNome(linguaObiettivo)}) *
+          <label htmlFor="translation">
+            Translation *
           </label>
-          <div className="traduzione-group">
+          <div className="translation-group">
             <textarea
-              id="traduzione"
-              value={traduzione}
-              onChange={(e) => setTraduzione(e.target.value)}
-              placeholder="Es: Ciao mondo"
-              rows={3}
-              disabled={caricamento}
+              id="translation"
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+              placeholder="Enter translation"
+              rows={2}
+              disabled={loading}
+              required
             />
-            <button
-              type="button"
-              onClick={ottieniTraduzione}
-              disabled={caricamento || traduzioneAutomatica || !testoOriginale.trim()}
-              className="btn-traduzione"
-            >
-              {traduzioneAutomatica ? '⏳ Traduzione...' : '🔄 Traduci automaticamente'}
-            </button>
+            {onTranslate && (
+              <button
+                type="button"
+                onClick={handleAutoTranslate}
+                disabled={loading || translating || !originalWord.trim()}
+                className="btn-translate"
+              >
+                {translating ? '⏳ Translating...' : '🔄 Auto-translate'}
+              </button>
+            )}
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="categoria">Categoria (opzionale)</label>
+          <label htmlFor="category">
+            Category (optional)
+          </label>
           <input
             type="text"
-            id="categoria"
-            value={categoria}
-            onChange={(e) => setCategoria(e.target.value)}
-            placeholder="Es: viaggio, lavoro, quotidiano"
-            disabled={caricamento}
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            placeholder="e.g., travel, work, daily"
+            disabled={loading}
           />
         </div>
 
         <div className="form-group">
-          <label htmlFor="note">Note (opzionali)</label>
+          <label htmlFor="notes">
+            Notes (optional)
+          </label>
           <textarea
-            id="note"
-            value={note}
-            onChange={(e) => setNote(e.target.value)}
-            placeholder="Aggiungi contesto o esempi d'uso"
-            rows={2}
-            disabled={caricamento}
+            id="notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Add context, examples, or usage notes"
+            rows={3}
+            disabled={loading}
           />
         </div>
 
-        <button
-          type="submit"
-          disabled={caricamento}
-          className="btn-primary"
-        >
-          {caricamento ? (
-            <>
-              <div className="spinner-small"></div>
-              Salvataggio...
-            </>
-          ) : (
-            '💾 Salva Flashcard'
+        <div className="form-actions">
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              disabled={loading}
+              className="btn-cancel"
+            >
+              Cancel
+            </button>
           )}
-        </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-submit"
+          >
+            {loading ? (
+              <>
+                <span className="spinner-small"></span>
+                {isEditing ? 'Updating...' : 'Saving...'}
+              </>
+            ) : (
+              <>
+                {isEditing ? '💾 Update' : '💾 Save'}
+              </>
+            )}
+          </button>
+        </div>
       </form>
     </div>
   );
-}
-
-/**
- * Helper: ottieni nome leggibile lingua
- */
-function getLinguaNome(codice) {
-  const NOMI_LINGUE = {
-    'it-IT': '🇮🇹 Italiano',
-    'en-US': '🇺🇸 Inglese (US)',
-    'en-GB': '🇬🇧 Inglese (UK)',
-    'es-ES': '🇪🇸 Spagnolo',
-    'fr-FR': '🇫🇷 Francese',
-    'de-DE': '🇩🇪 Tedesco',
-    'pt-BR': '🇧🇷 Portoghese',
-    'ja-JP': '🇯🇵 Giapponese',
-    'ko-KR': '🇰🇷 Coreano',
-    'zh-CN': '🇨🇳 Cinese',
-    'ru-RU': '🇷🇺 Russo',
-    'ar-XA': '🇸🇦 Arabo'
-  };
-
-  return NOMI_LINGUE[codice] || codice;
 }
 
 export default FlashcardForm;

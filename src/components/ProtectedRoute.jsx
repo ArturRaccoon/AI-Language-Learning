@@ -4,13 +4,13 @@
  * DESCRIPTION: Protected routes with:
  *   - Authentication verification
  *   - Onboarding redirect if necessary
- *   - Exception for `/onboarding` route itself
+ *   - Option to skip onboarding check for the onboarding route itself
  */
 
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, requireOnboarding = true }) {
   const { currentUser, userProfile, loading } = useAuthentication();
   const location = useLocation();
 
@@ -21,9 +21,14 @@ function ProtectedRoute({ children }) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: '100vh'
+        minHeight: '100vh',
+        fontSize: '1.2rem',
+        color: '#667eea'
       }}>
-        Loading...
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ marginBottom: '1rem' }}>🔄</div>
+          Loading...
+        </div>
       </div>
     );
   }
@@ -33,23 +38,22 @@ function ProtectedRoute({ children }) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // 2. User logged in but onboarding not completed
-  if (!userProfile?.onboardingCompleted) {
-    // Exception: if already on onboarding route, don't redirect
-    if (location.pathname === '/onboarding') {
-      return children;
+  // 2. For onboarding route (requireOnboarding = false)
+  if (!requireOnboarding) {
+    // If already completed onboarding, redirect to home
+    if (userProfile?.onboardingCompleted) {
+      console.log('✅ Onboarding already completed, redirecting to home');
+      return <Navigate to="/home" replace />;
     }
-
-    // Otherwise redirect to onboarding
-    console.log('🔄 Redirecting to onboarding');
-    return <Navigate to="/onboarding" replace />;
+    // Otherwise, show the onboarding page
+    return children;
   }
 
-  // 3. User logged in with completed onboarding
-  // But if trying to access /onboarding → redirect to home
-  if (location.pathname === '/onboarding') {
-    console.log('✅ Onboarding already completed, redirecting to home');
-    return <Navigate to="/home" replace />;
+  // 3. For regular protected routes (requireOnboarding = true)
+  // If onboarding not completed, redirect to onboarding
+  if (!userProfile?.onboardingCompleted) {
+    console.log('🔄 Redirecting to onboarding');
+    return <Navigate to="/onboarding" replace />;
   }
 
   // 4. All good → show content

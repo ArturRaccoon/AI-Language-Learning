@@ -5,11 +5,11 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import '../styles/Dashboard.css';
 
 function Revisione() {
-  const { logout } = useAutenticazione();
+  const { logout } = useAuthentication();
   const naviga = useNavigate();
 
   async function handleLogout() {

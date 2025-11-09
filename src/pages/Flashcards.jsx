@@ -1,294 +1,296 @@
 /**
  * FILE: src/pages/Flashcards.jsx
- * DATA ULTIMA MODIFICA: 2024-12-26 02:00
- * DESCRIZIONE: Pagina gestione completa flashcards (creazione + lista)
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: Flashcard management page - create, view, edit, delete cards
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
-import { ottieniFlashcards, eliminaFlashcard, ottieniStatistiche } from '../services/flashcardService';
-import Flashcard from '../components/Flashcard';
+import { useAuthentication } from '../contexts/AuthenticationContext';
+import { 
+  createFlashcard, 
+  getFlashcards, 
+  updateFlashcard, 
+  deleteFlashcard 
+} from '../services/flashcardService';
+import { translateText } from '../services/translationService';
 import FlashcardForm from '../components/FlashcardForm';
-import '../styles/Home.css'; // Riusa gli stessi stili
+import Flashcard from '../components/Flashcard';
+import '../styles/Flashcards.css';
 
 function Flashcards() {
-  const { utenteCorrente, logout } = useAutenticazione();
-  const naviga = useNavigate();
-
-  // Stati lista flashcard
   const [flashcards, setFlashcards] = useState([]);
-  const [caricamento, setCaricamento] = useState(true);
-  const [caricamentoPagina, setCaricamentoPagina] = useState(false);
-  
-  // Stati paginazione
-  const [ultimoDocumento, setUltimoDocumento] = useState(null);
-  const [haAltrePagine, setHaAltrePagine] = useState(false);
-  
-  // Stati feedback
-  const [errore, setErrore] = useState('');
-  
-  // Stati statistiche (per aggiornamento dopo operazioni)
-  const [statistiche, setStatistiche] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [showForm, setShowForm] = useState(false);
+  const [editingCard, setEditingCard] = useState(null);
+  const [filter, setFilter] = useState('all'); // all, new, review, mastered
+  const [searchTerm, setSearchTerm] = useState('');
 
-  /**
-   * Carica prima pagina e statistiche all'avvio
-   */
+  const { currentUser, userProfile } = useAuthentication();
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (!utenteCorrente) return;
-    caricaPrimaPagina();
-    caricaStatistiche();
-  }, [utenteCorrente]);
+    loadFlashcards();
+  }, [currentUser]);
 
-  /**
-   * Carica statistiche
-   */
-  async function caricaStatistiche() {
+  const loadFlashcards = async () => {
+    if (!currentUser) return;
+
     try {
-      const risultato = await ottieniStatistiche(utenteCorrente.uid);
+      setLoading(true);
+      const result = await getFlashcards(currentUser.uid);
       
-      if (risultato.successo) {
-        setStatistiche(risultato.dati);
+      if (result.success) {
+        setFlashcards(result.data);
       }
-    } catch (err) {
-      console.error('❌ Errore caricamento statistiche:', err);
+    } catch (error) {
+      console.error('Error loading flashcards:', error);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  /**
-   * Carica la prima pagina di flashcard
-   */
-  async function caricaPrimaPagina() {
-    setCaricamento(true);
-    setErrore('');
-    
-    const risultato = await ottieniFlashcards(utenteCorrente.uid);
-    
-    if (risultato.successo) {
-      setFlashcards(risultato.dati);
-      setUltimoDocumento(risultato.ultimoDocumento);
-      setHaAltrePagine(risultato.haAltrePagine);
-    } else {
-      setErrore('Errore nel caricamento delle flashcard');
-    }
-    
-    setCaricamento(false);
-  }
-
-  /**
-   * Carica la pagina successiva (append)
-   */
-  async function caricaPaginaSuccessiva() {
-    if (!ultimoDocumento) return;
-    
-    setCaricamentoPagina(true);
-    
-    const risultato = await ottieniFlashcards(utenteCorrente.uid, ultimoDocumento);
-    
-    if (risultato.successo) {
-      setFlashcards(prev => [...prev, ...risultato.dati]);
-      setUltimoDocumento(risultato.ultimoDocumento);
-      setHaAltrePagine(risultato.haAltrePagine);
-    } else {
-      setErrore('Errore nel caricamento delle altre flashcard');
-    }
-    
-    setCaricamentoPagina(false);
-  }
-
-  /**
-   * Callback quando flashcard creata
-   */
-  function gestisciFlashcardAggiunta(nuovaCard) {
-    // Aggiungi in testa
-    setFlashcards(prev => [nuovaCard, ...prev]);
-    
-    // Ricarica statistiche
-    caricaStatistiche();
-
-    // Scroll verso l'alto per vedere la nuova card
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  
-  /**
-   * Elimina flashcard
-   */
-  async function gestisciElimina(idFlashcard) {
-    const risultato = await eliminaFlashcard(idFlashcard);
-    
-    if (risultato.successo) {
-      // Rimuovi dalla lista
-      setFlashcards(prev => prev.filter(card => card.id !== idFlashcard));
-      
-      // Ricarica statistiche
-      caricaStatistiche();
-    } else {
-      setErrore('Errore nell\'eliminazione della flashcard');
-    }
-  }
-
-  /**
-   * Logout
-   */
-  async function gestisciLogout() {
+  const handleCreateCard = async (cardData) => {
     try {
-      await logout();
-      naviga('/login');
-    } catch (errore) {
-      console.error("❌ Errore nel logout:", errore);
-      setErrore('Errore durante il logout');
+      const result = await createFlashcard(currentUser.uid, {
+        ...cardData,
+        originalLanguage: userProfile?.targetLanguage || 'en',
+        translationLanguage: userProfile?.nativeLanguage || 'it'
+      });
+
+      if (result.success) {
+        setFlashcards([result.data, ...flashcards]);
+        setShowForm(false);
+        console.log('✅ Flashcard created successfully');
+      }
+    } catch (error) {
+      console.error('Error creating flashcard:', error);
     }
-  }
+  };
+
+  const handleUpdateCard = async (cardId, newData) => {
+    try {
+      const result = await updateFlashcard(cardId, newData);
+
+      if (result.success) {
+        setFlashcards(flashcards.map(card => 
+          card.id === cardId ? { ...card, ...newData } : card
+        ));
+        setEditingCard(null);
+        console.log('✅ Flashcard updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating flashcard:', error);
+    }
+  };
+
+  const handleDeleteCard = async (cardId) => {
+    if (!confirm('Are you sure you want to delete this flashcard?')) {
+      return;
+    }
+
+    try {
+      const result = await deleteFlashcard(cardId);
+
+      if (result.success) {
+        setFlashcards(flashcards.filter(card => card.id !== cardId));
+        console.log('✅ Flashcard deleted successfully');
+      }
+    } catch (error) {
+      console.error('Error deleting flashcard:', error);
+    }
+  };
+
+  const handleQuickTranslate = async (text) => {
+    try {
+      const result = await translateText(
+        text,
+        userProfile?.targetLanguage || 'en',
+        userProfile?.nativeLanguage || 'it'
+      );
+
+      if (result.success) {
+        return result.translation;
+      }
+    } catch (error) {
+      console.error('Translation error:', error);
+    }
+    return '';
+  };
+
+  // Filter flashcards
+  const filteredFlashcards = flashcards.filter(card => {
+    // Apply search filter
+    const matchesSearch = searchTerm === '' || 
+      card.originalWord.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      card.translation.toLowerCase().includes(searchTerm.toLowerCase());
+
+    if (!matchesSearch) return false;
+
+    // Apply category filter
+    switch (filter) {
+      case 'new':
+        return card.reviewCount === 0;
+      case 'review':
+        return card.reviewCount > 0 && card.knowledgeLevel < 4;
+      case 'mastered':
+        return card.knowledgeLevel >= 4;
+      default:
+        return true;
+    }
+  });
 
   return (
-    <div className="home-contenitore">
-      {/* HEADER */}
-      <header className="home-header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <button 
-            onClick={() => naviga('/home')} 
-            className="btn-back"
-            style={{
-              background: 'white',
-              color: '#667eea',
-              border: '2px solid #667eea',
-              padding: '0.5rem 1rem',
-              borderRadius: '8px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              transition: 'all 0.2s'
-            }}
-          >
-            ← Home
-          </button>
-          <h1>📚 Gestione Flashcard</h1>
+    <div className="flashcards-container">
+      {/* Header */}
+      <header className="flashcards-header">
+        <div className="header-content">
+          <h1>📇 My Flashcards</h1>
+          <p>{flashcards.length} total cards</p>
         </div>
-        <div className="header-user">
-          <span className="user-email">
-            {utenteCorrente && utenteCorrente.email}
-          </span>
-          <button onClick={gestisciLogout} className="btn-logout">
-            Logout
-          </button>
-        </div>
+        <button 
+          onClick={() => setShowForm(true)}
+          className="btn-primary"
+        >
+          ➕ New Card
+        </button>
       </header>
 
-      <main className="home-main">
-        {/* STATISTICHE VELOCI */}
-        {statistiche && (
-          <div className="statistiche-veloci" style={{ marginBottom: '2rem' }}>
-            <div className="stat-card">
-              <div className="stat-icon">📚</div>
-              <div className="stat-content">
-                <div className="stat-label">Totale</div>
-                <div className="stat-value">{statistiche.totale}</div>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">🆕</div>
-              <div className="stat-content">
-                <div className="stat-label">Nuove</div>
-                <div className="stat-value">{statistiche.nuove}</div>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">🔄</div>
-              <div className="stat-content">
-                <div className="stat-label">Da Rivedere</div>
-                <div className="stat-value">{statistiche.daRivedere}</div>
-              </div>
-            </div>
-
-            <div className="stat-card">
-              <div className="stat-icon">⭐</div>
-              <div className="stat-content">
-                <div className="stat-label">Padroneggiate</div>
-                <div className="stat-value">{statistiche.padroneggiate}</div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* SEZIONE CREAZIONE */}
-        <div className="sezione-creazione">
-          <h2>✨ Crea Nuova Flashcard</h2>
-          <FlashcardForm 
-            onFlashcardAggiunta={gestisciFlashcardAggiunta}
+      {/* Filters */}
+      <div className="flashcards-filters">
+        <div className="search-bar">
+          <span className="search-icon">🔍</span>
+          <input
+            type="text"
+            placeholder="Search flashcards..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="search-input"
           />
         </div>
 
-        {/* SEZIONE LISTA */}
-        <div className="sezione-lista">
-          <div className="lista-header">
-            <h2>📋 Le tue Flashcard</h2>
-            {flashcards.length > 0 && (
-              <span className="counter">
-                {flashcards.length} card{flashcards.length !== 1 ? 's' : ''}
-              </span>
+        <div className="filter-buttons">
+          <button
+            className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            📚 All ({flashcards.length})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'new' ? 'active' : ''}`}
+            onClick={() => setFilter('new')}
+          >
+            ✨ New ({flashcards.filter(c => c.reviewCount === 0).length})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'review' ? 'active' : ''}`}
+            onClick={() => setFilter('review')}
+          >
+            🔄 Review ({flashcards.filter(c => c.reviewCount > 0 && c.knowledgeLevel < 4).length})
+          </button>
+          <button
+            className={`filter-btn ${filter === 'mastered' ? 'active' : ''}`}
+            onClick={() => setFilter('mastered')}
+          >
+            🏆 Mastered ({flashcards.filter(c => c.knowledgeLevel >= 4).length})
+          </button>
+        </div>
+      </div>
+
+      {/* Flashcard Form Modal */}
+      {showForm && (
+        <div className="modal-overlay" onClick={() => setShowForm(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <FlashcardForm
+              onSubmit={handleCreateCard}
+              onCancel={() => setShowForm(false)}
+              onTranslate={handleQuickTranslate}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Edit Form Modal */}
+      {editingCard && (
+        <div className="modal-overlay" onClick={() => setEditingCard(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <FlashcardForm
+              initialData={editingCard}
+              onSubmit={(data) => handleUpdateCard(editingCard.id, data)}
+              onCancel={() => setEditingCard(null)}
+              onTranslate={handleQuickTranslate}
+              isEditing
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Flashcard Grid */}
+      <div className="flashcards-content">
+        {loading ? (
+          <div className="loading-state">
+            <div className="spinner"></div>
+            <p>Loading flashcards...</p>
+          </div>
+        ) : filteredFlashcards.length === 0 ? (
+          <div className="empty-state">
+            <div className="empty-icon">📭</div>
+            <h2>
+              {searchTerm || filter !== 'all' 
+                ? 'No flashcards match your filters' 
+                : 'No flashcards yet'}
+            </h2>
+            <p>
+              {searchTerm || filter !== 'all'
+                ? 'Try adjusting your search or filters'
+                : 'Create your first flashcard to start learning!'}
+            </p>
+            {!searchTerm && filter === 'all' && (
+              <button 
+                onClick={() => setShowForm(true)}
+                className="btn-primary"
+              >
+                ➕ Create First Card
+              </button>
             )}
           </div>
-          
-          {/* Loading iniziale */}
-          {caricamento && (
-            <div className="caricamento">
-              <div className="spinner"></div>
-              <p>Caricamento flashcard...</p>
-            </div>
-          )}
-          
-          {/* Errore */}
-          {errore && (
-            <div className="alert-errore">
-              {errore}
-            </div>
-          )}
-          
-          {/* Lista flashcard */}
-          {!caricamento && flashcards.length > 0 && (
-            <>
-              <div className="griglia-flashcard">
-                {flashcards.map(card => (
-                  <Flashcard 
-                    key={card.id} 
-                    card={card} 
-                    onElimina={gestisciElimina} 
-                  />
-                ))}
-              </div>
-              
-              {/* Bottone "Carica Altro" */}
-              {haAltrePagine && (
-                <div className="paginazione">
-                  <button 
-                    onClick={caricaPaginaSuccessiva} 
-                    disabled={caricamentoPagina}
-                    className="btn-carica-altro"
-                  >
-                    {caricamentoPagina ? (
-                      <>
-                        <div className="spinner-small"></div>
-                        Caricamento...
-                      </>
-                    ) : (
-                      '⬇️ Carica Altro'
-                    )}
-                  </button>
-                </div>
-              )}
-            </>
-          )}
-          
-          {/* Stato vuoto */}
-          {!caricamento && flashcards.length === 0 && !errore && (
-            <div className="stato-vuoto">
-              <p>📝 Nessuna flashcard ancora.</p>
-              <p>Crea la tua prima card qui sopra!</p>
-            </div>
-          )}
-        </div>
-      </main>
+        ) : (
+          <div className="flashcard-grid">
+            {filteredFlashcards.map(card => (
+              <Flashcard
+                key={card.id}
+                flashcard={card}
+                onEdit={() => setEditingCard(card)}
+                onDelete={() => handleDeleteCard(card.id)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Navigation */}
+      <nav className="bottom-nav">
+        <button onClick={() => navigate('/home')} className="nav-item">
+          <span>🏠</span>
+          <span>Home</span>
+        </button>
+        <button onClick={() => navigate('/flashcards')} className="nav-item active">
+          <span>📇</span>
+          <span>Cards</span>
+        </button>
+        <button onClick={() => navigate('/study')} className="nav-item">
+          <span>📖</span>
+          <span>Study</span>
+        </button>
+        <button onClick={() => navigate('/statistics')} className="nav-item">
+          <span>📊</span>
+          <span>Stats</span>
+        </button>
+        <button onClick={() => navigate('/settings')} className="nav-item">
+          <span>⚙️</span>
+          <span>Settings</span>
+        </button>
+      </nav>
     </div>
   );
 }

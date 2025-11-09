@@ -1,336 +1,318 @@
 /**
  * FILE: src/pages/OnboardingFlow.jsx
- * DATA ULTIMA MODIFICA: 2025-01-19
- * DESCRIZIONE: Onboarding pubblico i18n-ready con cambio lingua automatico
+ * LAST MODIFIED: 2025-01-19
+ * DESCRIPTION: Multi-step onboarding to configure user language preferences
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
-import '../styles/OnboardingFlow.css';
+import { useAuthentication } from '../contexts/AuthenticationContext';
+import { completeOnboarding, AVAILABLE_LANGUAGES, INTERFACE_LANGUAGES } from '../services/userService';
+import '../styles/Onboarding.css';
 
-// Lista lingue (codici per profilo + API)
-const LINGUE = [
-  { codice: 'it-IT', nome: 'languages.it-IT', traduzioneAPI: 'it', i18nCode: 'it' },
-  { codice: 'en-US', nome: 'languages.en-US', traduzioneAPI: 'en', i18nCode: 'en' },
-  { codice: 'es-ES', nome: 'languages.es-ES', traduzioneAPI: 'es', i18nCode: 'es' },
-  { codice: 'fr-FR', nome: 'languages.fr-FR', traduzioneAPI: 'fr', i18nCode: 'fr' }];
+const STEPS = {
+  WELCOME: 0,
+  NATIVE_LANGUAGE: 1,
+  TARGET_LANGUAGE: 2,
+  LEVEL: 3,
+  INTERFACE_LANGUAGE: 4,
+  GOALS: 5
+};
+
+const LEVELS = [
+  { code: 'A1', name: 'Beginner', description: 'Just starting out' },
+  { code: 'A2', name: 'Elementary', description: 'Basic conversations' },
+  { code: 'B1', name: 'Intermediate', description: 'Comfortable conversations' },
+  { code: 'B2', name: 'Upper Intermediate', description: 'Fluent in most situations' },
+  { code: 'C1', name: 'Advanced', description: 'Very fluent' },
+  { code: 'C2', name: 'Proficient', description: 'Native-like fluency' }
+];
 
 function OnboardingFlow() {
-  const { t, i18n } = useTranslation();
-  const { utenteCorrente } = useAutenticazione();
-  const naviga = useNavigate();
+  const [currentStep, setCurrentStep] = useState(STEPS.WELCOME);
+  const [preferences, setPreferences] = useState({
+    nativeLanguage: 'en',
+    targetLanguage: 'it',
+    interfaceLanguage: 'en',
+    level: 'A1',
+    dailyGoals: 10
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const [step, setStep] = useState(1);
-  const [errore, setErrore] = useState('');
+  const { currentUser, setUserProfile } = useAuthentication();
+  const navigate = useNavigate();
 
-  // Dati onboarding
-  const [linguaMadre, setLinguaMadre] = useState('it-IT');
-  const [linguaObiettivo, setLinguaObiettivo] = useState('en-US');
-  const [obiettivi, setObiettivi] = useState([]);
-  const [livelloConoscenza, setLivelloConoscenza] = useState('');
+  const totalSteps = Object.keys(STEPS).length;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
 
-
-
-  /**
-   * Carica dati salvati da localStorage (se tornano indietro)
-   */
-  useEffect(() => {
-    const datiSalvatiJSON = localStorage.getItem('onboardingData');
-    
-    if (datiSalvatiJSON) {
-      try {
-        const datiSalvati = JSON.parse(datiSalvatiJSON);
-        console.log('📦 Dati onboarding caricati da localStorage:', datiSalvati);
-        
-        if (datiSalvati.linguaMadre) {
-          setLinguaMadre(datiSalvati.linguaMadre);
-          // Cambia anche la lingua UI
-          const lingua = LINGUE.find(l => l.codice === datiSalvati.linguaMadre);
-          if (lingua) {
-            i18n.changeLanguage(lingua.i18nCode);
-          }
-        }
-        if (datiSalvati.linguaObiettivo) setLinguaObiettivo(datiSalvati.linguaObiettivo);
-        if (datiSalvati.obiettivi) setObiettivi(datiSalvati.obiettivi);
-        if (datiSalvati.livelloConoscenza) setLivelloConoscenza(datiSalvati.livelloConoscenza);
-      } catch (err) {
-        console.error('❌ Errore parsing dati localStorage:', err);
-      }
+  const handleNext = () => {
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1);
     }
-  }, []);
+  };
 
-  /**
-   * Cambia lingua UI quando utente seleziona lingua madre
-   */
-  function handleLinguaMadreChange(codiceLingua) {
-    setLinguaMadre(codiceLingua);
-    
-    // Trova i18n code e cambia lingua interfaccia
-    const lingua = LINGUE.find(l => l.codice === codiceLingua);
-    if (lingua && lingua.i18nCode) {
-      console.log('🔄 Cambio lingua UI a:', lingua.i18nCode);
-      i18n.changeLanguage(lingua.i18nCode);
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
     }
-  }
+  };
 
-  /**
-   * Toggle obiettivo
-   */
-  function toggleObiettivo(id) {
-    if (obiettivi.includes(id)) {
-      setObiettivi(obiettivi.filter(o => o !== id));
-    } else {
-      setObiettivi([...obiettivi, id]);
-    }
-  }
-
-  /**
-   * Valida step corrente
-   */
-  function validaStep() {
-    setErrore('');
-    
-    if (step === 1) {
-      if (!linguaMadre || !linguaObiettivo) {
-        setErrore(t('onboarding.errors.select_both_languages'));
-        return false;
-      }
-      if (linguaMadre === linguaObiettivo) {
-        setErrore(t('onboarding.errors.languages_must_differ'));
-        return false;
-      }
+  const handleComplete = async () => {
+    if (!currentUser) {
+      setError('You must be logged in to complete onboarding');
+      navigate('/login');
+      return;
     }
 
-    if (step === 2) {
-      if (obiettivi.length === 0) {
-        setErrore(t('onboarding.errors.select_at_least_one_goal'));
-        return false;
-      }
+    setLoading(true);
+    setError('');
+
+    try {
+      await completeOnboarding(currentUser.uid, preferences);
+      
+      // Update local profile state
+      setUserProfile(prev => ({
+        ...prev,
+        ...preferences,
+        onboardingCompleted: true
+      }));
+
+      console.log('✅ Onboarding completed successfully');
+      navigate('/home');
+    } catch (err) {
+      console.error('❌ Onboarding completion error:', err);
+      setError('Failed to save preferences. Please try again.');
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (step === 3) {
-      if (!livelloConoscenza) {
-        setErrore(t('onboarding.errors.select_level'));
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  /**
-   * Avanti step
-   */
-  function avanti() {
-    if (!validaStep()) return;
-
-    // Salva in localStorage
-    const datiOnboarding = {
-      linguaMadre,
-      linguaObiettivo,
-      obiettivi,
-      livelloConoscenza
-    };
-
-    localStorage.setItem('onboardingData', JSON.stringify(datiOnboarding));
-    console.log('💾 Dati onboarding salvati in localStorage');
-
-    if (step < 3) {
-      setStep(step + 1);
-    } else {
-      // Step 3 completato → vai a registrazione
-      console.log('✅ Onboarding completato, redirect registrazione');
-      naviga('/registrazione');
-    }
-  }
-
-  /**
-   * Indietro step
-   */
-  function indietro() {
-    if (step > 1) {
-      setStep(step - 1);
-      setErrore('');
-    }
-  }
-
-  // Obiettivi con chiavi i18n
-  const OBIETTIVI = [
-    { id: 'viaggio', labelKey: 'onboarding.step2.goals.travel', descKey: 'onboarding.step2.goals.travel_desc' },
-    { id: 'lavoro', labelKey: 'onboarding.step2.goals.work', descKey: 'onboarding.step2.goals.work_desc' },
-    { id: 'studio', labelKey: 'onboarding.step2.goals.study', descKey: 'onboarding.step2.goals.study_desc' },
-    { id: 'cultura', labelKey: 'onboarding.step2.goals.culture', descKey: 'onboarding.step2.goals.culture_desc' },
-    { id: 'conversazione', labelKey: 'onboarding.step2.goals.conversation', descKey: 'onboarding.step2.goals.conversation_desc' },
-    { id: 'altro', labelKey: 'onboarding.step2.goals.other', descKey: 'onboarding.step2.goals.other_desc' }
-  ];
-
-  // Livelli con chiavi i18n
-  const LIVELLI = [
-    { id: 'principiante', emoji: '🌱', labelKey: 'onboarding.step3.levels.beginner', descKey: 'onboarding.step3.levels.beginner_desc' },
-    { id: 'elementare', emoji: '🌿', labelKey: 'onboarding.step3.levels.elementary', descKey: 'onboarding.step3.levels.elementary_desc' },
-    { id: 'intermedio', emoji: '🌳', labelKey: 'onboarding.step3.levels.intermediate', descKey: 'onboarding.step3.levels.intermediate_desc' },
-    { id: 'avanzato', emoji: '🌲', labelKey: 'onboarding.step3.levels.advanced', descKey: 'onboarding.step3.levels.advanced_desc' },
-    { id: 'madrelingua', emoji: '🏆', labelKey: 'onboarding.step3.levels.native', descKey: 'onboarding.step3.levels.native_desc' }
-  ];
+  const updatePreference = (key, value) => {
+    setPreferences(prev => ({ ...prev, [key]: value }));
+  };
 
   return (
-    <div className="onboarding-flow-container">
-      <div className="onboarding-flow-card">
-        {/* HEADER */}
-        <div className="onboarding-flow-header">
-          <h1>{t('onboarding.welcome')}</h1>
-          <p>{t('onboarding.subtitle')}</p>
-          
-          <div className="progress-bar-flow">
+    <div className="onboarding-container">
+      <div className="onboarding-card">
+        {/* Progress Bar */}
+        <div className="progress-container">
+          <div className="progress-bar">
             <div 
-              className="progress-fill-flow" 
-              style={{ width: `${(step / 3) * 100}%` }}
-            ></div>
+              className="progress-fill" 
+              style={{ width: `${progress}%` }}
+            />
           </div>
-          <p className="step-indicator-flow">
-            {t('onboarding.step_indicator', { current: step, total: 3 })}
-          </p>
+          <span className="progress-text">
+            Step {currentStep + 1} of {totalSteps}
+          </span>
         </div>
 
-        {errore && (
-          <div className="alert-errore">
-            {errore}
+        {error && (
+          <div className="error-message">
+            ⚠️ {error}
           </div>
         )}
 
-        {/* STEP 1: LINGUE */}
-        {step === 1 && (
-          <div className="onboarding-step-flow">
-            <h2>{t('onboarding.step1.title')}</h2>
-            <p className="step-subtitle-flow">
-              {t('onboarding.step1.subtitle')}
-            </p>
+        {/* Step Content */}
+        <div className="step-content">
+          {currentStep === STEPS.WELCOME && (
+            <div className="step welcome-step">
+              <h1>🌍 Welcome to Language Learning!</h1>
+              <p className="subtitle">
+                Let's personalize your learning experience
+              </p>
+              <div className="welcome-features">
+                <div className="feature">
+                  <span className="feature-icon">🎯</span>
+                  <h3>Personalized Learning</h3>
+                  <p>Tailored to your level and goals</p>
+                </div>
+                <div className="feature">
+                  <span className="feature-icon">🧠</span>
+                  <h3>Smart Repetition</h3>
+                  <p>AI-powered spaced repetition system</p>
+                </div>
+                <div className="feature">
+                  <span className="feature-icon">📈</span>
+                  <h3>Track Progress</h3>
+                  <p>Monitor your improvement over time</p>
+                </div>
+              </div>
+            </div>
+          )}
 
-            <div className="form-group-flow">
-              <label>{t('onboarding.step1.native_language')}</label>
-              <select
-                value={linguaMadre}
-                onChange={(e) => handleLinguaMadreChange(e.target.value)}
-                className="language-select-flow"
-              >
-                {LINGUE.map(lingua => (
-                  <option key={lingua.codice} value={lingua.codice}>
-                    {t(lingua.nome)}
-                  </option>
+          {currentStep === STEPS.NATIVE_LANGUAGE && (
+            <div className="step">
+              <h2>🏠 What's your native language?</h2>
+              <p>This helps us provide better translations</p>
+              <div className="language-grid">
+                {AVAILABLE_LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    className={`language-option ${
+                      preferences.nativeLanguage === lang.code ? 'selected' : ''
+                    }`}
+                    onClick={() => updatePreference('nativeLanguage', lang.code)}
+                  >
+                    <span className="language-name">{lang.name}</span>
+                    <span className="language-native">{lang.native}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
+          )}
 
-            <div className="separator-flow">➡️</div>
-
-            <div className="form-group-flow">
-              <label>{t('onboarding.step1.target_language')}</label>
-              <select
-                value={linguaObiettivo}
-                onChange={(e) => setLinguaObiettivo(e.target.value)}
-                className="language-select-flow"
-              >
-                {LINGUE.map(lingua => (
-                  <option key={lingua.codice} value={lingua.codice}>
-                    {t(lingua.nome)}
-                  </option>
+          {currentStep === STEPS.TARGET_LANGUAGE && (
+            <div className="step">
+              <h2>🎯 Which language do you want to learn?</h2>
+              <p>Choose your target language</p>
+              <div className="language-grid">
+                {AVAILABLE_LANGUAGES.filter(
+                  lang => lang.code !== preferences.nativeLanguage
+                ).map(lang => (
+                  <button
+                    key={lang.code}
+                    className={`language-option ${
+                      preferences.targetLanguage === lang.code ? 'selected' : ''
+                    }`}
+                    onClick={() => updatePreference('targetLanguage', lang.code)}
+                  >
+                    <span className="language-name">{lang.name}</span>
+                    <span className="language-native">{lang.native}</span>
+                  </button>
                 ))}
-              </select>
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 2: OBIETTIVI */}
-        {step === 2 && (
-          <div className="onboarding-step-flow">
-            <h2>{t('onboarding.step2.title')}</h2>
-            <p className="step-subtitle-flow">
-              {t('onboarding.step2.subtitle')}
-            </p>
-
-            <div className="obiettivi-grid-flow">
-              {OBIETTIVI.map(obiettivo => (
-                <button
-                  key={obiettivo.id}
-                  onClick={() => toggleObiettivo(obiettivo.id)}
-                  className={`obiettivo-card-flow ${
-                    obiettivi.includes(obiettivo.id) ? 'selected' : ''
-                  }`}
-                >
-                  <div className="obiettivo-label-flow">{t(obiettivo.labelKey)}</div>
-                  <div className="obiettivo-descrizione-flow">{t(obiettivo.descKey)}</div>
-                  {obiettivi.includes(obiettivo.id) && (
-                    <div className="check-icon-flow">✓</div>
-                  )}
-                </button>
-              ))}
+          {currentStep === STEPS.LEVEL && (
+            <div className="step">
+              <h2>📊 What's your current level?</h2>
+              <p>Be honest - this helps us personalize your learning</p>
+              <div className="level-grid">
+                {LEVELS.map(level => (
+                  <button
+                    key={level.code}
+                    className={`level-option ${
+                      preferences.level === level.code ? 'selected' : ''
+                    }`}
+                    onClick={() => updatePreference('level', level.code)}
+                  >
+                    <span className="level-code">{level.code}</span>
+                    <span className="level-name">{level.name}</span>
+                    <span className="level-description">{level.description}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 3: LIVELLO */}
-        {step === 3 && (
-          <div className="onboarding-step-flow">
-            <h2>{t('onboarding.step3.title')}</h2>
-            <p className="step-subtitle-flow">
-              {t('onboarding.step3.subtitle')}
-            </p>
+          {currentStep === STEPS.INTERFACE_LANGUAGE && (
+            <div className="step">
+              <h2>🌐 Choose your interface language</h2>
+              <p>The language for menus and instructions</p>
+              <div className="language-grid">
+                {INTERFACE_LANGUAGES.map(lang => (
+                  <button
+                    key={lang.code}
+                    className={`language-option ${
+                      preferences.interfaceLanguage === lang.code ? 'selected' : ''
+                    }`}
+                    onClick={() => updatePreference('interfaceLanguage', lang.code)}
+                  >
+                    <span className="language-name">{lang.name}</span>
+                    <span className="language-native">{lang.native}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
-            <div className="livelli-list-flow">
-              {LIVELLI.map(livello => (
-                <button
-                  key={livello.id}
-                  onClick={() => setLivelloConoscenza(livello.id)}
-                  className={`livello-card-flow ${
-                    livelloConoscenza === livello.id ? 'selected' : ''
-                  }`}
-                >
-                  <span className="livello-emoji-flow">{livello.emoji}</span>
-                  <div className="livello-info-flow">
-                    <div className="livello-label-flow">{t(livello.labelKey)}</div>
-                    <div className="livello-descrizione-flow">{t(livello.descKey)}</div>
+          {currentStep === STEPS.GOALS && (
+            <div className="step">
+              <h2>🎯 Set your daily goal</h2>
+              <p>How many new words do you want to learn per day?</p>
+              <div className="goals-container">
+                <div className="goal-slider">
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="5"
+                    value={preferences.dailyGoals}
+                    onChange={(e) => updatePreference('dailyGoals', parseInt(e.target.value))}
+                    className="slider"
+                  />
+                  <div className="goal-value">
+                    <span className="goal-number">{preferences.dailyGoals}</span>
+                    <span className="goal-label">words per day</span>
                   </div>
-                  {livelloConoscenza === livello.id && (
-                    <div className="check-icon-flow">✓</div>
-                  )}
-                </button>
-              ))}
+                </div>
+                <div className="goal-suggestions">
+                  <button 
+                    className={`suggestion ${preferences.dailyGoals === 10 ? 'active' : ''}`}
+                    onClick={() => updatePreference('dailyGoals', 10)}
+                  >
+                    🐢 Relaxed (10/day)
+                  </button>
+                  <button 
+                    className={`suggestion ${preferences.dailyGoals === 20 ? 'active' : ''}`}
+                    onClick={() => updatePreference('dailyGoals', 20)}
+                  >
+                    🚶 Regular (20/day)
+                  </button>
+                  <button 
+                    className={`suggestion ${preferences.dailyGoals === 30 ? 'active' : ''}`}
+                    onClick={() => updatePreference('dailyGoals', 30)}
+                  >
+                    🏃 Intense (30/day)
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* PULSANTI NAVIGAZIONE */}
-        <div className="onboarding-actions-flow">
-          {step > 1 && (
+        {/* Navigation Buttons */}
+        <div className="onboarding-actions">
+          {currentStep > STEPS.WELCOME && (
             <button 
-              onClick={indietro}
-              className="btn-secondary-flow"
+              onClick={handleBack}
+              className="btn-secondary"
+              disabled={loading}
             >
-              {t('common.back')}
+              ← Back
             </button>
           )}
 
-          <button 
-            onClick={avanti}
-            className="btn-primary-flow"
-          >
-            {step === 3 ? t('onboarding.continue_to_register') : t('common.next')}
-          </button>
+          {currentStep < STEPS.GOALS ? (
+            <button 
+              onClick={handleNext}
+              className="btn-primary"
+              disabled={loading}
+            >
+              Next →
+            </button>
+          ) : (
+            <button 
+              onClick={handleComplete}
+              className="btn-primary"
+              disabled={loading}
+            >
+              {loading ? '⏳ Saving...' : '🚀 Start Learning!'}
+            </button>
+          )}
         </div>
 
-        {/* LINK LOGIN */}
-        {step === 1 && (
-          <p className="testo-link-flow">
-            {t('auth.have_account')}{' '}
-            <button 
-              onClick={() => naviga('/login')}
-              className="btn-link-flow"
-            >
-              {t('common.login')}
-            </button>
-          </p>
+        {/* Skip option for Welcome step */}
+        {currentStep === STEPS.WELCOME && (
+          <button 
+            onClick={handleNext}
+            className="skip-link"
+          >
+            Skip intro →
+          </button>
         )}
       </div>
     </div>

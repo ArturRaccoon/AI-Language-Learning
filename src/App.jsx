@@ -1,13 +1,14 @@
 /**
  * FILE: src/App.jsx
  * LAST MODIFIED: 2025-01-19
- * DESCRIPTION: Main application router with public onboarding flow before registration
+ * DESCRIPTION: Main application router with authentication flow
  */
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthenticationProvider } from './contexts/AuthenticationContext';
 
 // Pages
+import PublicLanding from './pages/PublicLanding';
 import Login from './pages/Login';
 import Registration from './pages/Registration';
 import OnboardingFlow from './pages/OnboardingFlow';
@@ -16,7 +17,7 @@ import StudySession from './pages/StudySession';
 import Flashcards from './pages/Flashcards';
 import Review from './pages/Review';
 import Statistics from './pages/Statistics';
-import Settings from './pages/Settings';g
+import Settings from './pages/Settings';
 import Chat from './pages/Chat';
 
 // Components
@@ -28,11 +29,19 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
+          <Route path="/" element={<PublicLanding />} />
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
 
-          {/* PUBLIC ONBOARDING - Accessible without login */}
-          <Route path="/onboarding" element={<OnboardingFlow />} />
+          {/* Onboarding - requires authentication but NOT completed onboarding */}
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute requireOnboarding={false}>
+                <OnboardingFlow />
+              </ProtectedRoute>
+            }
+          />
 
           {/* Protected routes (require auth + completed onboarding) */}
           <Route
@@ -98,11 +107,8 @@ function App() {
             }
           />
 
-          {/* Redirect root → onboarding (to start the flow) */}
-          <Route path="/" element={<Navigate to="/onboarding" replace />} />
-
-          {/* 404 → onboarding */}
-          <Route path="*" element={<Navigate to="/onboarding" replace />} />
+          {/* 404 → landing */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthenticationProvider>

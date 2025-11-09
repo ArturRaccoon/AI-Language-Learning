@@ -1,35 +1,35 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
-import { completaOnboarding, LINGUE_DISPONIBILI, LINGUE_INTERFACCIA } from '../services/userService';
+import { useAuthentication } from '../contexts/AuthenticationContext';
+import { completeOnboarding, AVAILABLE_LANGUAGES, INTERFACE_LANGUAGES } from '../services/userService';
 import './Onboarding.css';
 
 function Onboarding() {
-  const { utenteCorrente, setProfiloUtente } = useAutenticazione();
+  const { currentUser, setUserProfile } = useAuthentication();
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [errore, setErrore] = useState('');
+  const [error, setError] = useState('');
 
   const [formData, setFormData] = useState({
-    linguaMadre: 'it',
-    linguaTarget: 'en',
-    linguaInterfaccia: 'it',
-    livello: 'A1',
-    obiettiviGiornalieri: 10
+    nativeLanguage: 'it',
+    targetLanguage: 'en',
+    interfaceLanguage: 'it',
+    level: 'A1',
+    dailyGoals: 10
   });
 
-  const livelli = [
-    { codice: 'A1', nome: 'Principiante', desc: 'Conosco pochissime parole' },
-    { codice: 'A2', nome: 'Elementare', desc: 'So dire frasi semplici' },
-    { codice: 'B1', nome: 'Intermedio', desc: 'Riesco a conversare' },
-    { codice: 'B2', nome: 'Intermedio Alto', desc: 'Parlo abbastanza bene' },
-    { codice: 'C1', nome: 'Avanzato', desc: 'Ho ottima padronanza' }
+  const levels = [
+    { code: 'A1', name: 'Principiante', desc: 'Conosco pochissime parole' },
+    { code: 'A2', name: 'Elementare', desc: 'So dire frasi semplici' },
+    { code: 'B1', name: 'Intermedio', desc: 'Riesco a conversare' },
+    { code: 'B2', name: 'Intermedio Alto', desc: 'Parlo abbastanza bene' },
+    { code: 'C1', name: 'Avanzato', desc: 'Ho ottima padronanza' }
   ];
 
-  const handleChange = (campo, valore) => {
-    setFormData(prev => ({ ...prev, [campo]: valore }));
+  const handleChange = (field, value) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleNext = () => {
@@ -47,27 +47,27 @@ function Onboarding() {
   const handleSubmit = async () => {
     try {
       setLoading(true);
-      setErrore('');
+      setError('');
 
-      if (!utenteCorrente) {
+      if (!currentUser) {
         throw new Error('Utente non autenticato');
       }
 
-      // Salva preferenze e completa onboarding
-      await completaOnboarding(utenteCorrente.uid, formData);
+      // Save preferences and complete onboarding
+      await completeOnboarding(currentUser.uid, formData);
 
-      // Aggiorna context locale
-      setProfiloUtente(prev => ({
+      // Update local context
+      setUserProfile(prev => ({
         ...prev,
         ...formData,
-        onboardingCompletato: true
+        onboardingCompleted: true
       }));
 
-      // Reindirizza alla dashboard
-      navigate('/dashboard', { replace: true });
+      // Redirect to dashboard
+      navigate('/home', { replace: true });
     } catch (error) {
       console.error('Errore completamento onboarding:', error);
-      setErrore('Errore durante il salvataggio. Riprova.');
+      setError('Errore durante il salvataggio. Riprova.');
     } finally {
       setLoading(false);
     }
@@ -86,9 +86,9 @@ function Onboarding() {
           <p className="progress-text">Passo {step} di 4</p>
         </div>
 
-        {errore && <div className="errore-messaggio">{errore}</div>}
+        {error && <div className="errore-messaggio">{error}</div>}
 
-        {/* STEP 1: Lingua Madre */}
+        {/* STEP 1: Native Language */}
         {step === 1 && (
           <div className="onboarding-step">
             <h2>Qual è la tua lingua madre?</h2>
@@ -97,22 +97,22 @@ function Onboarding() {
             </p>
 
             <div className="lingua-grid">
-              {LINGUE_DISPONIBILI.map((lingua) => (
+              {AVAILABLE_LANGUAGES.map((language) => (
                 <button
-                  key={lingua.codice}
-                  className={`lingua-card ${formData.linguaMadre === lingua.codice ? 'selected' : ''}`}
-                  onClick={() => handleChange('linguaMadre', lingua.codice)}
+                  key={language.code}
+                  className={`lingua-card ${formData.nativeLanguage === language.code ? 'selected' : ''}`}
+                  onClick={() => handleChange('nativeLanguage', language.code)}
                   type="button"
                 >
-                  <span className="lingua-bandiera">{lingua.bandiera}</span>
-                  <span className="lingua-nome">{lingua.nativo}</span>
+                  <span className="lingua-bandiera">🌍</span>
+                  <span className="lingua-nome">{language.native}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* STEP 2: Lingua da Studiare */}
+        {/* STEP 2: Target Language */}
         {step === 2 && (
           <div className="onboarding-step">
             <h2>Quale lingua vuoi imparare?</h2>
@@ -121,22 +121,22 @@ function Onboarding() {
             </p>
 
             <div className="lingua-grid">
-              {LINGUE_DISPONIBILI.filter(l => l.codice !== formData.linguaMadre).map((lingua) => (
+              {AVAILABLE_LANGUAGES.filter(l => l.code !== formData.nativeLanguage).map((language) => (
                 <button
-                  key={lingua.codice}
-                  className={`lingua-card ${formData.linguaTarget === lingua.codice ? 'selected' : ''}`}
-                  onClick={() => handleChange('linguaTarget', lingua.codice)}
+                  key={language.code}
+                  className={`lingua-card ${formData.targetLanguage === language.code ? 'selected' : ''}`}
+                  onClick={() => handleChange('targetLanguage', language.code)}
                   type="button"
                 >
-                  <span className="lingua-bandiera">{lingua.bandiera}</span>
-                  <span className="lingua-nome">{lingua.nativo}</span>
+                  <span className="lingua-bandiera">🌍</span>
+                  <span className="lingua-nome">{language.native}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* STEP 3: Lingua Interfaccia */}
+        {/* STEP 3: Interface Language */}
         {step === 3 && (
           <div className="onboarding-step">
             <h2>In quale lingua vuoi l'interfaccia?</h2>
@@ -145,43 +145,43 @@ function Onboarding() {
             </p>
 
             <div className="lingua-grid">
-              {LINGUE_INTERFACCIA.map((lingua) => (
+              {INTERFACE_LANGUAGES.map((language) => (
                 <button
-                  key={lingua.codice}
-                  className={`lingua-card ${formData.linguaInterfaccia === lingua.codice ? 'selected' : ''}`}
-                  onClick={() => handleChange('linguaInterfaccia', lingua.codice)}
+                  key={language.code}
+                  className={`lingua-card ${formData.interfaceLanguage === language.code ? 'selected' : ''}`}
+                  onClick={() => handleChange('interfaceLanguage', language.code)}
                   type="button"
                 >
-                  <span className="lingua-bandiera">{lingua.bandiera}</span>
-                  <span className="lingua-nome">{lingua.nativo}</span>
+                  <span className="lingua-bandiera">🌍</span>
+                  <span className="lingua-nome">{language.native}</span>
                 </button>
               ))}
             </div>
           </div>
         )}
 
-        {/* STEP 4: Livello e Obiettivi */}
+        {/* STEP 4: Level and Goals */}
         {step === 4 && (
           <div className="onboarding-step">
             <h2>Il tuo livello attuale</h2>
             <p className="step-description">
               Come valuteresti la tua conoscenza di{' '}
-              {LINGUE_DISPONIBILI.find(l => l.codice === formData.linguaTarget)?.nativo}?
+              {AVAILABLE_LANGUAGES.find(l => l.code === formData.targetLanguage)?.native}?
             </p>
 
             <div className="livello-list">
-              {livelli.map((livello) => (
+              {levels.map((level) => (
                 <button
-                  key={livello.codice}
-                  className={`livello-card ${formData.livello === livello.codice ? 'selected' : ''}`}
-                  onClick={() => handleChange('livello', livello.codice)}
+                  key={level.code}
+                  className={`livello-card ${formData.level === level.code ? 'selected' : ''}`}
+                  onClick={() => handleChange('level', level.code)}
                   type="button"
                 >
                   <div className="livello-header">
-                    <span className="livello-codice">{livello.codice}</span>
-                    <span className="livello-nome">{livello.nome}</span>
+                    <span className="livello-codice">{level.code}</span>
+                    <span className="livello-nome">{level.name}</span>
                   </div>
-                  <p className="livello-desc">{livello.desc}</p>
+                  <p className="livello-desc">{level.desc}</p>
                 </button>
               ))}
             </div>
@@ -195,15 +195,15 @@ function Onboarding() {
                 type="number"
                 min="5"
                 max="50"
-                value={formData.obiettiviGiornalieri}
-                onChange={(e) => handleChange('obiettiviGiornalieri', parseInt(e.target.value))}
+                value={formData.dailyGoals}
+                onChange={(e) => handleChange('dailyGoals', parseInt(e.target.value))}
                 className="obiettivi-input"
               />
             </div>
           </div>
         )}
 
-        {/* Pulsanti Navigazione */}
+        {/* Navigation Buttons */}
         <div className="onboarding-actions">
           {step > 1 && (
             <button

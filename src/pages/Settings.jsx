@@ -5,11 +5,11 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useAutenticazione } from '../contexts/AutenticazioneContext';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import '../styles/Dashboard.css';
 
 function Impostazioni() {
-  const { logout, profiloUtente } = useAutenticazione();
+  const { logout, userProfile } = useAuthentication();
   const naviga = useNavigate();
 
   async function handleLogout() {
@@ -30,7 +30,7 @@ function Impostazioni() {
         <div className="sezione-lista">
           <h2>🚧 Pagina in Costruzione</h2>
 
-          {profiloUtente && (
+          {userProfile && (
             <div style={{
               background: 'white',
               padding: '1.5rem',
@@ -38,10 +38,10 @@ function Impostazioni() {
               marginTop: '1rem'
             }}>
               <h3>Il Tuo Profilo</h3>
-              <p><strong>Lingua Madre:</strong> {profiloUtente.linguaMadre}</p>
-              <p><strong>Lingua Obiettivo:</strong> {profiloUtente.linguaObiettivo}</p>
-              <p><strong>Livello:</strong> {profiloUtente.livelloConoscenza}</p>
-              <p><strong>Obiettivi:</strong> {profiloUtente.obiettivi?.join(', ')}</p>
+              <p><strong>Lingua Madre:</strong> {userProfile.nativeLanguage}</p>
+              <p><strong>Lingua Obiettivo:</strong> {userProfile.targetLanguage}</p>
+              <p><strong>Livello:</strong> {userProfile.level}</p>
+              <p><strong>Obiettivi:</strong> {userProfile.goals?.join(', ')}</p>
             </div>
           )}
 

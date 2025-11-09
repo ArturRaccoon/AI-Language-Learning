@@ -244,5 +244,19 @@
     "title": "📊 Statistics and Progress",
     "under_construction": "🚧 Under Construction",
     "coming_soon": "Detailed statistics will be available soon!"
+  },
+
+  "landing": {
+    "title": "The world's most fun and famous way to learn Italian online",
+    "getStarted": "GET STARTED",
+    "login": "I ALREADY HAVE AN ACCOUNT"
+  },
+
+  "cookies": {
+    "title": "Duo loves cookies",
+    "description": "Both Duolingo and third parties, such as our advertising partners and service providers, use cookies and similar technologies to provide our services, help personalize content, and analyze ads. By clicking 'Accept Cookies', you consent to our Cookie Policy.",
+    "accept": "ACCEPT COOKIES",
+    "reject": "REJECT ALL",
+    "readMore": "Read our Cookie Policy"
   }
 }
