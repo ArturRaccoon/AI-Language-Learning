@@ -1,8 +1,8 @@
-/**
- * FILE: src/App.jsx
- * LAST MODIFIED: 2025-01-19
- * DESCRIPTION: Main application router with authentication flow
- */
+// File: src/App.jsx
+// Created: 2025-01-19
+// Last-Updated: 2025-11-12
+// Author: Claude
+// Description: Main application router with authentication flow
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthenticationProvider } from './contexts/AuthenticationContext';
@@ -11,7 +11,7 @@ import { AuthenticationProvider } from './contexts/AuthenticationContext';
 import PublicLanding from './pages/PublicLanding';
 import Login from './pages/Login';
 import Registration from './pages/Registration';
-import OnboardingFlow from './pages/OnboardingFlow';
+import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import StudySession from './pages/StudySession';
 import Flashcards from './pages/Flashcards';
@@ -33,8 +33,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
 
-          {/* Onboarding - now PUBLIC (no authentication required) */}
-          <Route path="/onboarding" element={<OnboardingFlow />} />
+          {/* Onboarding - PUBLIC (no authentication required) */}
+          <Route path="/onboarding" element={<Onboarding />} />
 
           {/* Protected routes (require auth + completed onboarding) */}
           <Route

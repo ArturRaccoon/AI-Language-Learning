@@ -1,240 +1,237 @@
+// File: src/pages/Onboarding.jsx
+// Created: 2025-11-09
+// Last-Updated: 2025-11-12
+// Author: Claude
+// Description: Public onboarding flow - Language selection, goals, and level (no auth required)
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthentication } from '../contexts/AuthenticationContext';
-import { completeOnboarding, AVAILABLE_LANGUAGES, INTERFACE_LANGUAGES } from '../services/userService';
-import './Onboarding.css';
+import { useTranslation } from 'react-i18next';
+import '../styles/Onboarding.css';
+
+const STEPS = {
+  LANGUAGE: 0,
+  GOALS: 1,
+  LEVEL: 2
+};
+
+const AVAILABLE_LANGUAGES = [
+  { code: 'fr', name: 'French', native: 'Français', flag: '🇫🇷' },
+  { code: 'it', name: 'Italian', native: 'Italiano', flag: '🇮🇹' },
+  { code: 'en', name: 'English', native: 'English', flag: '🇬🇧' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська', flag: '🇺🇦' }
+];
+
+const GOALS = [
+  { id: 'travel', icon: '✈️', key: 'goals.travel' },
+  { id: 'work', icon: '💼', key: 'goals.work' },
+  { id: 'study', icon: '📚', key: 'goals.study' },
+  { id: 'culture', icon: '🎭', key: 'goals.culture' },
+  { id: 'conversation', icon: '💬', key: 'goals.conversation' },
+  { id: 'other', icon: '🎯', key: 'goals.other' }
+];
+
+const LEVELS = [
+  { code: 'beginner', icon: '🌱', key: 'levels.beginner' },
+  { code: 'elementary', icon: '📖', key: 'levels.elementary' },
+  { code: 'intermediate', icon: '💪', key: 'levels.intermediate' },
+  { code: 'advanced', icon: '🚀', key: 'levels.advanced' },
+  { code: 'native', icon: '⭐', key: 'levels.native' }
+];
 
 function Onboarding() {
-  const { currentUser, setUserProfile } = useAuthentication();
+  const { t } = useTranslation();
   const navigate = useNavigate();
-
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const [formData, setFormData] = useState({
-    nativeLanguage: 'it',
-    targetLanguage: 'en',
-    interfaceLanguage: 'it',
-    level: 'A1',
-    dailyGoals: 10
+  const [currentStep, setCurrentStep] = useState(STEPS.LANGUAGE);
+  const [preferences, setPreferences] = useState({
+    targetLanguage: '',
+    goals: [],
+    level: ''
   });
 
-  const levels = [
-    { code: 'A1', name: 'Principiante', desc: 'Conosco pochissime parole' },
-    { code: 'A2', name: 'Elementare', desc: 'So dire frasi semplici' },
-    { code: 'B1', name: 'Intermedio', desc: 'Riesco a conversare' },
-    { code: 'B2', name: 'Intermedio Alto', desc: 'Parlo abbastanza bene' },
-    { code: 'C1', name: 'Avanzato', desc: 'Ho ottima padronanza' }
-  ];
+  const totalSteps = Object.keys(STEPS).length;
+  const progress = ((currentStep + 1) / totalSteps) * 100;
 
-  const handleChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleLanguageSelect = (langCode) => {
+    setPreferences(prev => ({ ...prev, targetLanguage: langCode }));
+  };
+
+  const handleGoalToggle = (goalId) => {
+    setPreferences(prev => ({
+      ...prev,
+      goals: prev.goals.includes(goalId)
+        ? prev.goals.filter(g => g !== goalId)
+        : [...prev.goals, goalId]
+    }));
+  };
+
+  const handleLevelSelect = (levelCode) => {
+    setPreferences(prev => ({ ...prev, level: levelCode }));
   };
 
   const handleNext = () => {
-    if (step < 4) {
-      setStep(step + 1);
+    if (currentStep === STEPS.LANGUAGE && !preferences.targetLanguage) {
+      alert(t('publicOnboarding.errors.selectLanguage', 'Please select a language'));
+      return;
+    }
+    if (currentStep === STEPS.GOALS && preferences.goals.length === 0) {
+      alert(t('publicOnboarding.errors.selectGoal', 'Please select at least one goal'));
+      return;
+    }
+    if (currentStep === STEPS.LEVEL && !preferences.level) {
+      alert(t('publicOnboarding.errors.selectLevel', 'Please select your level'));
+      return;
+    }
+
+    if (currentStep < totalSteps - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      sessionStorage.setItem('onboardingPreferences', JSON.stringify(preferences));
+      navigate('/registration');
     }
   };
 
-  const handlePrev = () => {
-    if (step > 1) {
-      setStep(step - 1);
+  const handleBack = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    } else {
+      navigate('/');
     }
   };
 
-  const handleSubmit = async () => {
-    try {
-      setLoading(true);
-      setError('');
-
-      if (!currentUser) {
-        throw new Error('Utente non autenticato');
-      }
-
-      // Save preferences and complete onboarding
-      await completeOnboarding(currentUser.uid, formData);
-
-      // Update local context
-      setUserProfile(prev => ({
-        ...prev,
-        ...formData,
-        onboardingCompleted: true
-      }));
-
-      // Redirect to dashboard
-      navigate('/home', { replace: true });
-    } catch (error) {
-      console.error('Errore completamento onboarding:', error);
-      setError('Errore durante il salvataggio. Riprova.');
-    } finally {
-      setLoading(false);
-    }
+  const canProceed = () => {
+    if (currentStep === STEPS.LANGUAGE) return preferences.targetLanguage !== '';
+    if (currentStep === STEPS.GOALS) return preferences.goals.length > 0;
+    if (currentStep === STEPS.LEVEL) return preferences.level !== '';
+    return false;
   };
 
   return (
-    <div className="onboarding-container">
-      <div className="onboarding-card">
-        <div className="onboarding-progress">
+    <div className="public-onboarding-container">
+      <div className="public-onboarding-card">
+        <div className="onboarding-header">
+          <img src="/logo.svg" alt="Logo" className="header-logo" />
+          <span className="header-title">duolingo</span>
+        </div>
+
+        <div className="progress-container">
           <div className="progress-bar">
             <div 
               className="progress-fill" 
-              style={{ width: `${(step / 4) * 100}%` }}
+              style={{ width: `${progress}%` }}
             />
           </div>
-          <p className="progress-text">Passo {step} di 4</p>
+          <span className="progress-text">
+            {currentStep + 1} / {totalSteps}
+          </span>
         </div>
 
-        {error && <div className="errore-messaggio">{error}</div>}
-
-        {/* STEP 1: Native Language */}
-        {step === 1 && (
-          <div className="onboarding-step">
-            <h2>Qual è la tua lingua madre?</h2>
-            <p className="step-description">
-              La lingua che parli meglio
-            </p>
-
-            <div className="lingua-grid">
-              {AVAILABLE_LANGUAGES.map((language) => (
-                <button
-                  key={language.code}
-                  className={`lingua-card ${formData.nativeLanguage === language.code ? 'selected' : ''}`}
-                  onClick={() => handleChange('nativeLanguage', language.code)}
-                  type="button"
-                >
-                  <span className="lingua-bandiera">🌍</span>
-                  <span className="lingua-nome">{language.native}</span>
-                </button>
-              ))}
+        <div className="step-content">
+          {currentStep === STEPS.LANGUAGE && (
+            <div className="step">
+              <h1>{t('publicOnboarding.language.title', 'Which language do you want to learn?')}</h1>
+              <p className="subtitle">
+                {t('publicOnboarding.language.subtitle', 'Choose the language you want to study')}
+              </p>
+              
+              <div className="language-selection-grid">
+                {AVAILABLE_LANGUAGES.map((lang) => (
+                  <button
+                    key={lang.code}
+                    className={`language-card ${
+                      preferences.targetLanguage === lang.code ? 'selected' : ''
+                    }`}
+                    onClick={() => handleLanguageSelect(lang.code)}
+                  >
+                    <span className="language-flag-big">{lang.flag}</span>
+                    <span className="language-name-big">{lang.name}</span>
+                    <span className="language-native-big">{lang.native}</span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 2: Target Language */}
-        {step === 2 && (
-          <div className="onboarding-step">
-            <h2>Quale lingua vuoi imparare?</h2>
-            <p className="step-description">
-              La lingua che vuoi studiare con questa app
-            </p>
-
-            <div className="lingua-grid">
-              {AVAILABLE_LANGUAGES.filter(l => l.code !== formData.nativeLanguage).map((language) => (
-                <button
-                  key={language.code}
-                  className={`lingua-card ${formData.targetLanguage === language.code ? 'selected' : ''}`}
-                  onClick={() => handleChange('targetLanguage', language.code)}
-                  type="button"
-                >
-                  <span className="lingua-bandiera">🌍</span>
-                  <span className="lingua-nome">{language.native}</span>
-                </button>
-              ))}
+          {currentStep === STEPS.GOALS && (
+            <div className="step">
+              <h1>{t('publicOnboarding.goals.title', 'Why do you want to learn?')}</h1>
+              <p className="subtitle">
+                {t('publicOnboarding.goals.subtitle', 'Select one or more goals')}
+              </p>
+              
+              <div className="goals-grid">
+                {GOALS.map((goal) => (
+                  <button
+                    key={goal.id}
+                    className={`goal-card ${
+                      preferences.goals.includes(goal.id) ? 'selected' : ''
+                    }`}
+                    onClick={() => handleGoalToggle(goal.id)}
+                  >
+                    <span className="goal-icon">{goal.icon}</span>
+                    <span className="goal-title">
+                      {t(`publicOnboarding.${goal.key}`, goal.id)}
+                    </span>
+                    <span className="goal-desc">
+                      {t(`publicOnboarding.${goal.key}_desc`, '')}
+                    </span>
+                    {preferences.goals.includes(goal.id) && (
+                      <span className="checkmark">✓</span>
+                    )}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
-        {/* STEP 3: Interface Language */}
-        {step === 3 && (
-          <div className="onboarding-step">
-            <h2>In quale lingua vuoi l'interfaccia?</h2>
-            <p className="step-description">
-              La lingua dell'app (menu, pulsanti, ecc.)
-            </p>
-
-            <div className="lingua-grid">
-              {INTERFACE_LANGUAGES.map((language) => (
-                <button
-                  key={language.code}
-                  className={`lingua-card ${formData.interfaceLanguage === language.code ? 'selected' : ''}`}
-                  onClick={() => handleChange('interfaceLanguage', language.code)}
-                  type="button"
-                >
-                  <span className="lingua-bandiera">🌍</span>
-                  <span className="lingua-nome">{language.native}</span>
-                </button>
-              ))}
+          {currentStep === STEPS.LEVEL && (
+            <div className="step">
+              <h1>{t('publicOnboarding.level.title', "What's your level?")}</h1>
+              <p className="subtitle">
+                {t('publicOnboarding.level.subtitle', 'In the language you want to learn')}
+              </p>
+              
+              <div className="levels-grid">
+                {LEVELS.map((level) => (
+                  <button
+                    key={level.code}
+                    className={`level-card ${
+                      preferences.level === level.code ? 'selected' : ''
+                    }`}
+                    onClick={() => handleLevelSelect(level.code)}
+                  >
+                    <span className="level-icon">{level.icon}</span>
+                    <span className="level-title">
+                      {t(`publicOnboarding.${level.key}`, level.code)}
+                    </span>
+                    <span className="level-desc">
+                      {t(`publicOnboarding.${level.key}_desc`, '')}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* STEP 4: Level and Goals */}
-        {step === 4 && (
-          <div className="onboarding-step">
-            <h2>Il tuo livello attuale</h2>
-            <p className="step-description">
-              Come valuteresti la tua conoscenza di{' '}
-              {AVAILABLE_LANGUAGES.find(l => l.code === formData.targetLanguage)?.native}?
-            </p>
-
-            <div className="livello-list">
-              {levels.map((level) => (
-                <button
-                  key={level.code}
-                  className={`livello-card ${formData.level === level.code ? 'selected' : ''}`}
-                  onClick={() => handleChange('level', level.code)}
-                  type="button"
-                >
-                  <div className="livello-header">
-                    <span className="livello-codice">{level.code}</span>
-                    <span className="livello-nome">{level.name}</span>
-                  </div>
-                  <p className="livello-desc">{level.desc}</p>
-                </button>
-              ))}
-            </div>
-
-            <div className="obiettivi-section">
-              <label htmlFor="obiettivi">
-                Flashcard giornaliere da rivedere
-              </label>
-              <input
-                id="obiettivi"
-                type="number"
-                min="5"
-                max="50"
-                value={formData.dailyGoals}
-                onChange={(e) => handleChange('dailyGoals', parseInt(e.target.value))}
-                className="obiettivi-input"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Navigation Buttons */}
         <div className="onboarding-actions">
-          {step > 1 && (
-            <button
-              onClick={handlePrev}
-              className="btn-secondary"
-              disabled={loading}
-              type="button"
-            >
-              Indietro
-            </button>
-          )}
+          <button 
+            onClick={handleBack}
+            className="btn-back"
+          >
+            {currentStep === 0 ? '← Back to Home' : '← Back'}
+          </button>
 
-          {step < 4 ? (
-            <button
-              onClick={handleNext}
-              className="btn-primary"
-              disabled={loading}
-              type="button"
-            >
-              Avanti
-            </button>
-          ) : (
-            <button
-              onClick={handleSubmit}
-              className="btn-primary"
-              disabled={loading}
-              type="button"
-            >
-              {loading ? 'Salvataggio...' : 'Inizia!'}
-            </button>
-          )}
+          <button 
+            onClick={handleNext}
+            className={`btn-continue ${canProceed() ? '' : 'disabled'}`}
+            disabled={!canProceed()}
+          >
+            {currentStep === totalSteps - 1 
+              ? t('publicOnboarding.continue', 'Continue →')
+              : t('common.next', 'Next →')
+            }
+          </button>
         </div>
       </div>
     </div>
