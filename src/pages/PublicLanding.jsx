@@ -164,7 +164,7 @@ function PublicLanding() {
             <div className="cta-buttons">
               <button 
                 className="btn-get-started"
-                onClick={() => navigate('/registration')}
+                onClick={() => navigate('/onboarding')}
               >
                 {t('landing.getStarted', 'INIZIA ORA')}
               </button>

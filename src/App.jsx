@@ -33,15 +33,8 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/registration" element={<Registration />} />
 
-          {/* Onboarding - requires authentication but NOT completed onboarding */}
-          <Route
-            path="/onboarding"
-            element={
-              <ProtectedRoute requireOnboarding={false}>
-                <OnboardingFlow />
-              </ProtectedRoute>
-            }
-          />
+          {/* Onboarding - now PUBLIC (no authentication required) */}
+          <Route path="/onboarding" element={<OnboardingFlow />} />
 
           {/* Protected routes (require auth + completed onboarding) */}
           <Route
