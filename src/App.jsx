@@ -15,7 +15,6 @@ import Onboarding from './pages/Onboarding';
 import Home from './pages/Home';
 import StudySession from './pages/StudySession';
 import Flashcards from './pages/Flashcards';
-import Review from './pages/Review';
 import Statistics from './pages/Statistics';
 import Settings from './pages/Settings';
 import Chat from './pages/Chat';
@@ -60,15 +59,6 @@ function App() {
             element={
               <ProtectedRoute>
                 <Flashcards />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/review"
-            element={
-              <ProtectedRoute>
-                <Review />
               </ProtectedRoute>
             }
           />

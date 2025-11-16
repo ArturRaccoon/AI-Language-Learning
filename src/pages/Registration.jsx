@@ -1,15 +1,17 @@
 /**
  * FILE: src/pages/Registration.jsx
- * LAST MODIFIED: 2025-01-19
+ * LAST MODIFIED: 2025-11-16
  * DESCRIPTION: User registration page with email/password and Google authentication
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import '../styles/Auth.css';
 
 function Registration() {
+  const { t } = useTranslation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -37,17 +39,17 @@ function Registration() {
 
     // Validation
     if (password !== confirmPassword) {
-      setLocalError('Passwords do not match');
+      setLocalError(t('registration.errors.password_mismatch', 'Passwords do not match'));
       return;
     }
 
     if (password.length < 6) {
-      setLocalError('Password must be at least 6 characters');
+      setLocalError(t('registration.errors.password_length', 'Password must be at least 6 characters'));
       return;
     }
 
     if (name.trim().length < 2) {
-      setLocalError('Name must be at least 2 characters');
+      setLocalError(t('registration.errors.name_length', 'Name must be at least 2 characters'));
       return;
     }
 
@@ -81,8 +83,8 @@ function Registration() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>🎓 Create Account</h1>
-          <p>Start your language learning adventure</p>
+          <h1>{t('registration.title', '🎓 Create Account')}</h1>
+          <p>{t('registration.subtitle', 'Start your language learning adventure')}</p>
         </div>
 
         {displayError && (
@@ -93,54 +95,54 @@ function Registration() {
 
         <form onSubmit={handleSubmit} className="auth-form">
           <div className="form-group">
-            <label htmlFor="name">Full Name</label>
+            <label htmlFor="name">{t('registration.name_label', 'Full Name')}</label>
             <input
               id="name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="John Doe"
+              placeholder={t('registration.name_placeholder', 'John Doe')}
               required
               disabled={loading}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="email">Email</label>
+            <label htmlFor="email">{t('registration.email_label', 'Email')}</label>
             <input
               id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="your@email.com"
+              placeholder={t('registration.email_placeholder', 'your@email.com')}
               required
               disabled={loading}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">Password</label>
+            <label htmlFor="password">{t('registration.password_label', 'Password')}</label>
             <input
               id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t('registration.password_placeholder', '••••••••')}
               required
               disabled={loading}
               minLength={6}
             />
-            <small>Minimum 6 characters</small>
+            <small>{t('registration.password_hint', 'Minimum 6 characters')}</small>
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmPassword">Confirm Password</label>
+            <label htmlFor="confirmPassword">{t('registration.confirm_password_label', 'Confirm Password')}</label>
             <input
               id="confirmPassword"
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder={t('registration.confirm_password_placeholder', '••••••••')}
               required
               disabled={loading}
             />
@@ -151,12 +153,14 @@ function Registration() {
             className="btn-primary"
             disabled={loading}
           >
-            {loading ? '⏳ Creating account...' : '🚀 Sign Up'}
+            {loading 
+              ? t('registration.creating', '⏳ Creating account...') 
+              : t('registration.submit', '🚀 Sign Up')}
           </button>
         </form>
 
         <div className="divider">
-          <span>OR</span>
+          <span>{t('registration.or', 'OR')}</span>
         </div>
 
         <button 
@@ -168,13 +172,13 @@ function Registration() {
             src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" 
             alt="Google" 
           />
-          Sign up with Google
+          {t('registration.google', 'Sign up with Google')}
         </button>
 
         <div className="auth-footer">
           <p>
-            Already have an account?{' '}
-            <Link to="/login">Log in</Link>
+            {t('registration.have_account', 'Already have an account?')}{' '}
+            <Link to="/login">{t('registration.log_in', 'Log in')}</Link>
           </p>
         </div>
       </div>

@@ -61,12 +61,15 @@ export const createUserProfile = async (uid, data) => {
 
 /**
  * Complete onboarding and save preferences
+ * Uses setDoc with merge to avoid race condition with createUserProfile
  */
 export const completeOnboarding = async (uid, preferences) => {
   try {
     const userRef = doc(db, 'users', uid);
     
-    await updateDoc(userRef, {
+    // Use setDoc with merge: true to create OR update the document
+    // This prevents "No document to update" errors from race conditions
+    await setDoc(userRef, {
       nativeLanguage: preferences.nativeLanguage,
       targetLanguage: preferences.targetLanguage,
       interfaceLanguage: preferences.interfaceLanguage,
@@ -74,7 +77,7 @@ export const completeOnboarding = async (uid, preferences) => {
       dailyGoals: preferences.dailyGoals || 10,
       onboardingCompleted: true, // CRITICAL: set to true
       updatedAt: serverTimestamp()
-    });
+    }, { merge: true });
 
     console.log('✅ Onboarding completed for:', uid);
     return true;

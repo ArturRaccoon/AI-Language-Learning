@@ -1,11 +1,12 @@
 /**
  * FILE: src/pages/Flashcards.jsx
- * LAST MODIFIED: 2025-01-19
+ * LAST MODIFIED: 2025-11-16
  * DESCRIPTION: Flashcard management page - create, view, edit, delete cards
  */
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuthentication } from '../contexts/AuthenticationContext';
 import { 
   createFlashcard, 
@@ -19,6 +20,7 @@ import Flashcard from '../components/Flashcard';
 import '../styles/Flashcards.css';
 
 function Flashcards() {
+  const { t } = useTranslation();
   const [flashcards, setFlashcards] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -31,6 +33,7 @@ function Flashcards() {
 
   useEffect(() => {
     loadFlashcards();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUser]);
 
   const loadFlashcards = async () => {
@@ -85,7 +88,7 @@ function Flashcards() {
   };
 
   const handleDeleteCard = async (cardId) => {
-    if (!confirm('Are you sure you want to delete this flashcard?')) {
+    if (!confirm(t('flashcards.delete_confirm', 'Are you sure you want to delete this flashcard?'))) {
       return;
     }
 
@@ -140,19 +143,23 @@ function Flashcards() {
     }
   });
 
+  const newCount = flashcards.filter(c => c.reviewCount === 0).length;
+  const reviewCount = flashcards.filter(c => c.reviewCount > 0 && c.knowledgeLevel < 4).length;
+  const masteredCount = flashcards.filter(c => c.knowledgeLevel >= 4).length;
+
   return (
     <div className="flashcards-container">
       {/* Header */}
       <header className="flashcards-header">
         <div className="header-content">
-          <h1>📇 My Flashcards</h1>
-          <p>{flashcards.length} total cards</p>
+          <h1>{t('flashcards.title', '📇 My Flashcards')}</h1>
+          <p>{t('flashcards.total_cards', '{{count}} total cards', { count: flashcards.length })}</p>
         </div>
         <button 
           onClick={() => setShowForm(true)}
           className="btn-primary"
         >
-          ➕ New Card
+          {t('flashcards.new_card', '➕ New Card')}
         </button>
       </header>
 
@@ -162,7 +169,7 @@ function Flashcards() {
           <span className="search-icon">🔍</span>
           <input
             type="text"
-            placeholder="Search flashcards..."
+            placeholder={t('flashcards.search_placeholder', 'Search flashcards...')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="search-input"
@@ -174,25 +181,25 @@ function Flashcards() {
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            📚 All ({flashcards.length})
+            {t('flashcards.filters.all', '📚 All ({{count}})', { count: flashcards.length })}
           </button>
           <button
             className={`filter-btn ${filter === 'new' ? 'active' : ''}`}
             onClick={() => setFilter('new')}
           >
-            ✨ New ({flashcards.filter(c => c.reviewCount === 0).length})
+            {t('flashcards.filters.new', '✨ New ({{count}})', { count: newCount })}
           </button>
           <button
             className={`filter-btn ${filter === 'review' ? 'active' : ''}`}
             onClick={() => setFilter('review')}
           >
-            🔄 Review ({flashcards.filter(c => c.reviewCount > 0 && c.knowledgeLevel < 4).length})
+            {t('flashcards.filters.review', '🔄 Review ({{count}})', { count: reviewCount })}
           </button>
           <button
             className={`filter-btn ${filter === 'mastered' ? 'active' : ''}`}
             onClick={() => setFilter('mastered')}
           >
-            🏆 Mastered ({flashcards.filter(c => c.knowledgeLevel >= 4).length})
+            {t('flashcards.filters.mastered', '🏆 Mastered ({{count}})', { count: masteredCount })}
           </button>
         </div>
       </div>
@@ -230,27 +237,27 @@ function Flashcards() {
         {loading ? (
           <div className="loading-state">
             <div className="spinner"></div>
-            <p>Loading flashcards...</p>
+            <p>{t('flashcards.loading', 'Loading flashcards...')}</p>
           </div>
         ) : filteredFlashcards.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📭</div>
             <h2>
               {searchTerm || filter !== 'all' 
-                ? 'No flashcards match your filters' 
-                : 'No flashcards yet'}
+                ? t('flashcards.empty.no_match', 'No flashcards match your filters')
+                : t('flashcards.empty.no_cards', 'No flashcards yet')}
             </h2>
             <p>
               {searchTerm || filter !== 'all'
-                ? 'Try adjusting your search or filters'
-                : 'Create your first flashcard to start learning!'}
+                ? t('flashcards.empty.adjust_filters', 'Try adjusting your search or filters')
+                : t('flashcards.empty.create_first', 'Create your first flashcard to start learning!')}
             </p>
             {!searchTerm && filter === 'all' && (
               <button 
                 onClick={() => setShowForm(true)}
                 className="btn-primary"
               >
-                ➕ Create First Card
+                {t('flashcards.empty.create_button', '➕ Create First Card')}
               </button>
             )}
           </div>
@@ -272,23 +279,23 @@ function Flashcards() {
       <nav className="bottom-nav">
         <button onClick={() => navigate('/home')} className="nav-item">
           <span>🏠</span>
-          <span>Home</span>
+          <span>{t('nav.home', 'Home')}</span>
         </button>
         <button onClick={() => navigate('/flashcards')} className="nav-item active">
           <span>📇</span>
-          <span>Cards</span>
+          <span>{t('nav.cards', 'Cards')}</span>
         </button>
         <button onClick={() => navigate('/study')} className="nav-item">
           <span>📖</span>
-          <span>Study</span>
+          <span>{t('nav.study', 'Study')}</span>
         </button>
         <button onClick={() => navigate('/statistics')} className="nav-item">
           <span>📊</span>
-          <span>Stats</span>
+          <span>{t('nav.stats', 'Stats')}</span>
         </button>
         <button onClick={() => navigate('/settings')} className="nav-item">
           <span>⚙️</span>
-          <span>Settings</span>
+          <span>{t('nav.settings', 'Settings')}</span>
         </button>
       </nav>
     </div>

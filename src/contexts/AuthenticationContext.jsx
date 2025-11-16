@@ -1,7 +1,8 @@
 /**
  * FILE: src/contexts/AuthenticationContext.jsx
- * LAST MODIFIED: 2025-01-19
- * DESCRIPTION: Global authentication context managing user auth state and Firebase integration
+ * LAST MODIFIED: 2025-11-16
+ * DESCRIPTION: Global auth context. FIX: Added createProfileWithPreferences 
+ * to read sessionStorage and fix infinite onboarding loop.
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
@@ -35,23 +36,61 @@ export const AuthenticationProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // --- NUOVA FUNZIONE HELPER ---
+  // Legge sessionStorage e crea il profilo utente completo.
+  // RESTITUISCE il nuovo profilo per l'aggiornamento dello stato locale.
+  const createProfileWithPreferences = async (uid, baseData) => {
+    const prefsJSON = sessionStorage.getItem('onboardingPreferences');
+    let finalProfileData = {
+      ...baseData,
+      onboardingCompleted: false
+    };
+
+    if (prefsJSON) {
+      try {
+        console.log('📦 Onboarding preferences found! Creating full profile.');
+        const prefs = JSON.parse(prefsJSON);
+        
+        finalProfileData = {
+          ...baseData,
+          nativeLanguage: prefs.nativeLanguage || 'en',
+          targetLanguage: prefs.targetLanguage || 'it',
+          interfaceLanguage: prefs.interfaceLanguage || 'en',
+          level: prefs.level || 'A1',
+          dailyGoals: prefs.dailyGoals || 10,
+          onboardingCompleted: true // Imposta a true!
+        };
+        
+        sessionStorage.removeItem('onboardingPreferences');
+
+      } catch (e) {
+        console.error("Error parsing sessionStorage preferences:", e);
+      }
+    } else {
+      console.log('⚠️ No preferences in sessionStorage, creating base profile.');
+    }
+
+    await createUserProfile(uid, finalProfileData);
+    return finalProfileData; // Restituisce il profilo
+  };
+  // --- FINE FUNZIONE HELPER ---
+
   // Registration with email/password
   const register = async (email, password, name) => {
     try {
       setError(null);
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
       
-      // Update display name
       await updateProfile(user, { displayName: name });
 
-      // Create base profile (onboarding NOT completed)
-      await createUserProfile(user.uid, {
+      // MODIFICATO: Usa la nuova funzione helper e imposta lo stato
+      const newProfile = await createProfileWithPreferences(user.uid, {
         email,
         name,
         displayName: name,
-        onboardingCompleted: false,
         authenticationMethods: ['password']
       });
+      setUserProfile(newProfile); // <-- QUESTO RISOLVE IL BUG
 
       return user;
     } catch (error) {
@@ -68,18 +107,17 @@ export const AuthenticationProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Check if user already exists
       let profile = await getUserProfile(user.uid);
 
       if (!profile) {
-        // First Google login: create base profile
-        await createUserProfile(user.uid, {
+        // Primo login Google: MODIFICATO
+        const newProfile = await createProfileWithPreferences(user.uid, {
           email: user.email,
           name: user.displayName,
           displayName: user.displayName,
-          onboardingCompleted: false, // Must complete onboarding
           authenticationMethods: ['google']
         });
+        setUserProfile(newProfile); // <-- QUESTO RISOLVE IL BUG
       }
 
       return user;
@@ -90,7 +128,8 @@ export const AuthenticationProvider = ({ children }) => {
     }
   };
 
-  // Login with email/password
+  // ... (login, logout, useEffect e translateFirebaseError rimangono invariati) ...
+    // Login with email/password
   const login = async (email, password) => {
     try {
       setError(null);
@@ -120,13 +159,15 @@ export const AuthenticationProvider = ({ children }) => {
       setCurrentUser(user);
 
       if (user) {
-        try {
-          // Load user profile from Firestore
-          const profile = await getUserProfile(user.uid);
-          setUserProfile(profile);
-        } catch (error) {
-          console.error('Profile loading error:', error);
-          setUserProfile(null);
+        // Se lo stato locale è già stato impostato da register/loginGoogle, non sovrascriverlo
+        if (!userProfile) { 
+          try {
+            const profile = await getUserProfile(user.uid);
+            setUserProfile(profile);
+          } catch (error) {
+            console.error('Profile loading error:', error);
+            setUserProfile(null);
+          }
         }
       } else {
         setUserProfile(null);
@@ -136,12 +177,12 @@ export const AuthenticationProvider = ({ children }) => {
     });
 
     return unsubscribe;
-  }, []);
+  }, [userProfile]); // Aggiunto userProfile come dipendenza
 
   const value = {
     currentUser,
     userProfile,
-    setUserProfile, // Allows update after onboarding
+    setUserProfile,
     loading,
     error,
     register,
