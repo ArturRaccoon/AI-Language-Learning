@@ -1,12 +1,14 @@
 // File: src/pages/Onboarding.jsx
 // Created: 2025-11-09
-// Last-Updated: 2025-11-12
+// Last-Updated: 2025-11-16
 // Author: Claude
 // Description: Public onboarding flow - Language selection, goals, and level (no auth required)
 
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuthentication } from '../contexts/AuthenticationContext';
+import { completeOnboarding } from '../services/userService';
 import '../styles/Onboarding.css';
 
 const STEPS = {
@@ -40,14 +42,25 @@ const LEVELS = [
 ];
 
 function Onboarding() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const { currentUser, userProfile, setUserProfile } = useAuthentication();
   const [currentStep, setCurrentStep] = useState(STEPS.LANGUAGE);
   const [preferences, setPreferences] = useState({
     targetLanguage: '',
     goals: [],
     level: ''
   });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const isAuthenticated = Boolean(currentUser);
+  const resolvedInterfaceLanguage = userProfile?.interfaceLanguage || i18n.language || 'en';
+
+  useEffect(() => {
+    if (isAuthenticated && userProfile?.onboardingCompleted) {
+      navigate('/home', { replace: true });
+    }
+  }, [isAuthenticated, userProfile, navigate]);
 
   const totalSteps = Object.keys(STEPS).length;
   const progress = ((currentStep + 1) / totalSteps) * 100;
@@ -69,7 +82,7 @@ function Onboarding() {
     setPreferences(prev => ({ ...prev, level: levelCode }));
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentStep === STEPS.LANGUAGE && !preferences.targetLanguage) {
       alert(t('publicOnboarding.errors.selectLanguage', 'Please select a language'));
       return;
@@ -85,10 +98,50 @@ function Onboarding() {
 
     if (currentStep < totalSteps - 1) {
       setCurrentStep(currentStep + 1);
-    } else {
-      sessionStorage.setItem('onboardingPreferences', JSON.stringify(preferences));
-      navigate('/registration');
+      return;
     }
+
+    if (isAuthenticated) {
+      try {
+        setIsSubmitting(true);
+        await completeOnboarding(currentUser.uid, {
+          nativeLanguage: userProfile?.nativeLanguage || 'en',
+          targetLanguage: preferences.targetLanguage,
+          interfaceLanguage: resolvedInterfaceLanguage,
+          level: preferences.level,
+          dailyGoals: userProfile?.dailyGoals || 10,
+          goals: preferences.goals
+        });
+
+        setUserProfile(prev => ({
+          ...(prev || {}),
+          nativeLanguage: userProfile?.nativeLanguage || 'en',
+          targetLanguage: preferences.targetLanguage,
+          interfaceLanguage: resolvedInterfaceLanguage,
+          level: preferences.level,
+          goals: preferences.goals,
+          onboardingCompleted: true
+        }));
+
+        navigate('/home', { replace: true });
+      } catch (error) {
+        console.error('Onboarding completion error:', error);
+        alert(t('publicOnboarding.errors.generic', 'We could not save your preferences. Please try again.'));
+      } finally {
+        setIsSubmitting(false);
+      }
+
+      return;
+    }
+
+    const payload = {
+      ...preferences,
+      interfaceLanguage: resolvedInterfaceLanguage,
+      nativeLanguage: 'en',
+      dailyGoals: 10
+    };
+    sessionStorage.setItem('onboardingPreferences', JSON.stringify(payload));
+    navigate('/registration');
   };
 
   const handleBack = () => {
@@ -224,14 +277,26 @@ function Onboarding() {
 
           <button 
             onClick={handleNext}
-            className={`btn-continue ${canProceed() ? '' : 'disabled'}`}
-            disabled={!canProceed()}
+            className={`btn-continue ${canProceed() && !isSubmitting ? '' : 'disabled'}`}
+            disabled={!canProceed() || isSubmitting}
           >
             {currentStep === totalSteps - 1 
-              ? t('publicOnboarding.continue', 'Continue →')
+              ? (isAuthenticated 
+                  ? t('publicOnboarding.finish', 'Save preferences →')
+                  : t('publicOnboarding.continue', 'Continue →'))
               : t('common.next', 'Next →')
             }
           </button>
+        </div>
+
+        {/* Already have account link */}
+        <div className="auth-footer" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          <p>
+            {t('publicOnboarding.hasAccount', 'Already have an account?')}{' '}
+            <Link to="/login" style={{ color: '#58CC02', fontWeight: '600', textDecoration: 'none' }}>
+              {t('publicOnboarding.signIn', 'Sign in')}
+            </Link>
+          </p>
         </div>
       </div>
     </div>

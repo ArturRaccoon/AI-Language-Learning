@@ -101,6 +101,55 @@
       "select_level": "Seleziona il tuo livello"
     }
   },
+  
+  "publicOnboarding": {
+    "language": {
+      "title": "Quale lingua vuoi imparare?",
+      "subtitle": "Scegli la lingua che vuoi studiare"
+    },
+    "goals": {
+      "title": "Perché vuoi imparare?",
+      "subtitle": "Seleziona uno o più obiettivi",
+      "travel": "✈️ Viaggio",
+      "travel_desc": "Comunicare in viaggio",
+      "work": "💼 Lavoro",
+      "work_desc": "Crescita professionale",
+      "study": "📚 Studio",
+      "study_desc": "Esami e certificazioni",
+      "culture": "🎭 Cultura",
+      "culture_desc": "Film, libri, musica",
+      "conversation": "💬 Conversazione",
+      "conversation_desc": "Parla con i madrelingua",
+      "other": "🎯 Altro",
+      "other_desc": "Obiettivi personali"
+    },
+    "level": {
+      "title": "Qual è il tuo livello?",
+      "subtitle": "Nella lingua che vuoi imparare"
+    },
+    "levels": {
+      "beginner": "Principiante",
+      "beginner_desc": "Conosco poche parole",
+      "elementary": "Elementare",
+      "elementary_desc": "Frasi semplici",
+      "intermediate": "Intermedio",
+      "intermediate_desc": "Conversazioni base",
+      "advanced": "Avanzato",
+      "advanced_desc": "A tuo agio quasi ovunque",
+      "native": "Madrelingua",
+      "native_desc": "Competenza nativa"
+    },
+    "hasAccount": "Hai già un account?",
+    "signIn": "Accedi",
+    "continue": "Continua →",
+    "finish": "Salva preferenze →",
+    "errors": {
+      "selectLanguage": "Seleziona una lingua",
+      "selectGoal": "Seleziona almeno un obiettivo",
+      "selectLevel": "Seleziona il tuo livello",
+      "generic": "Impossibile salvare le preferenze. Riprova."
+    }
+  },
 
   "home": {
     "title": "🏠 Home",

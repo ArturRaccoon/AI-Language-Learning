@@ -1,8 +1,8 @@
 /**
  * FILE: src/contexts/AuthenticationContext.jsx
  * LAST MODIFIED: 2025-11-16
- * DESCRIPTION: Global auth context. FIX: Added createProfileWithPreferences 
- * to read sessionStorage and fix infinite onboarding loop.
+ * DESCRIPTION: Global auth context with auto-fix for onboarding loop
+ *   FIX: createUserProfile called in onAuthStateChanged to auto-fix existing profiles
  */
 
 import { createContext, useContext, useState, useEffect } from 'react';
@@ -36,9 +36,7 @@ export const AuthenticationProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- NUOVA FUNZIONE HELPER ---
-  // Legge sessionStorage e crea il profilo utente completo.
-  // RESTITUISCE il nuovo profilo per l'aggiornamento dello stato locale.
+  // Helper function to create profile with onboarding preferences
   const createProfileWithPreferences = async (uid, baseData) => {
     const prefsJSON = sessionStorage.getItem('onboardingPreferences');
     let finalProfileData = {
@@ -58,7 +56,8 @@ export const AuthenticationProvider = ({ children }) => {
           interfaceLanguage: prefs.interfaceLanguage || 'en',
           level: prefs.level || 'A1',
           dailyGoals: prefs.dailyGoals || 10,
-          onboardingCompleted: true // Imposta a true!
+          goals: prefs.goals || [],
+          onboardingCompleted: true
         };
         
         sessionStorage.removeItem('onboardingPreferences');
@@ -71,9 +70,8 @@ export const AuthenticationProvider = ({ children }) => {
     }
 
     await createUserProfile(uid, finalProfileData);
-    return finalProfileData; // Restituisce il profilo
+    return finalProfileData;
   };
-  // --- FINE FUNZIONE HELPER ---
 
   // Registration with email/password
   const register = async (email, password, name) => {
@@ -83,14 +81,13 @@ export const AuthenticationProvider = ({ children }) => {
       
       await updateProfile(user, { displayName: name });
 
-      // MODIFICATO: Usa la nuova funzione helper e imposta lo stato
       const newProfile = await createProfileWithPreferences(user.uid, {
         email,
         name,
         displayName: name,
         authenticationMethods: ['password']
       });
-      setUserProfile(newProfile); // <-- QUESTO RISOLVE IL BUG
+      setUserProfile(newProfile);
 
       return user;
     } catch (error) {
@@ -107,17 +104,16 @@ export const AuthenticationProvider = ({ children }) => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      let profile = await getUserProfile(user.uid);
+      const existingProfile = await getUserProfile(user.uid);
 
-      if (!profile) {
-        // Primo login Google: MODIFICATO
+      if (!existingProfile) {
         const newProfile = await createProfileWithPreferences(user.uid, {
           email: user.email,
           name: user.displayName,
           displayName: user.displayName,
           authenticationMethods: ['google']
         });
-        setUserProfile(newProfile); // <-- QUESTO RISOLVE IL BUG
+        setUserProfile(newProfile);
       }
 
       return user;
@@ -128,12 +124,13 @@ export const AuthenticationProvider = ({ children }) => {
     }
   };
 
-  // ... (login, logout, useEffect e translateFirebaseError rimangono invariati) ...
-    // Login with email/password
+  // Login with email/password
   const login = async (email, password) => {
     try {
       setError(null);
+      console.log('🔑 Login attempt for:', email);
       const { user } = await signInWithEmailAndPassword(auth, email, password);
+      console.log('✅ Firebase Auth successful');
       return user;
     } catch (error) {
       console.error('Login error:', error);
@@ -156,18 +153,22 @@ export const AuthenticationProvider = ({ children }) => {
   // Monitor authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log('🔍 onAuthStateChanged triggered:', user ? user.email : 'no user');
       setCurrentUser(user);
 
       if (user) {
-        // Se lo stato locale è già stato impostato da register/loginGoogle, non sovrascriverlo
-        if (!userProfile) { 
-          try {
-            const profile = await getUserProfile(user.uid);
-            setUserProfile(profile);
-          } catch (error) {
-            console.error('Profile loading error:', error);
-            setUserProfile(null);
-          }
+        try {
+          console.log('📁 Loading profile for:', user.uid);
+          const profile = await createUserProfile(user.uid, { email: user.email });
+          console.log('✅ Profile loaded:', {
+            email: profile.email,
+            onboardingCompleted: profile.onboardingCompleted,
+            targetLanguage: profile.targetLanguage
+          });
+          setUserProfile(profile);
+        } catch (error) {
+          console.error('❌ Profile loading error:', error);
+          setUserProfile(null);
         }
       } else {
         setUserProfile(null);
@@ -177,7 +178,7 @@ export const AuthenticationProvider = ({ children }) => {
     });
 
     return unsubscribe;
-  }, [userProfile]); // Aggiunto userProfile come dipendenza
+  }, []);
 
   const value = {
     currentUser,
@@ -213,3 +214,5 @@ function translateFirebaseError(errorCode) {
 
   return errors[errorCode] || 'Unknown error';
 }
+
+export default AuthenticationContext;

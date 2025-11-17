@@ -1,7 +1,8 @@
 /**
  * FILE: src/services/userService.js
- * LAST MODIFIED: 2025-01-19
+ * LAST MODIFIED: 2025-11-16
  * DESCRIPTION: User profile management and onboarding flow
+ *   FIX: Existing profiles are treated as onboarding completed
  */
 
 import { doc, setDoc, getDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
@@ -25,18 +26,33 @@ export const INTERFACE_LANGUAGES = [
 
 /**
  * Create or update user profile after registration/login
+ * FIX: If user already exists, ensure onboardingCompleted is true
  */
 export const createUserProfile = async (uid, data) => {
   try {
     const userRef = doc(db, 'users', uid);
     const userSnap = await getDoc(userRef);
 
-    // If user already exists, don't overwrite existing data
+    // If user already exists, ensure onboarding is marked complete
     if (userSnap.exists()) {
-      console.log('User already exists, skipping creation');
-      return userSnap.data();
+      console.log('User already exists, checking onboarding status');
+      const existingData = userSnap.data();
+      
+      // If onboardingCompleted is false but profile exists, fix it
+      if (!existingData.onboardingCompleted) {
+        console.log('⚠️ Fixing onboardingCompleted flag for existing user');
+        await updateDoc(userRef, {
+          onboardingCompleted: true,
+          updatedAt: serverTimestamp()
+        });
+        return { ...existingData, onboardingCompleted: true };
+      }
+      
+      return existingData;
     }
 
+    // CRITICAL: onboardingCompleted should ONLY be true if explicitly passed as true
+    // This ensures new registrations without onboarding preferences get redirected
     const profile = {
       email: data.email || '',
       name: data.displayName || data.name || '',
@@ -44,7 +60,8 @@ export const createUserProfile = async (uid, data) => {
       targetLanguage: data.targetLanguage || 'it',
       interfaceLanguage: data.interfaceLanguage || 'en',
       level: data.level || 'A1',
-      onboardingCompleted: data.onboardingCompleted || false,
+      goals: data.goals || [],
+      onboardingCompleted: data.onboardingCompleted === true, // Only true if explicitly set
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
       authenticationMethods: data.authenticationMethods || ['password']
@@ -75,6 +92,7 @@ export const completeOnboarding = async (uid, preferences) => {
       interfaceLanguage: preferences.interfaceLanguage,
       level: preferences.level,
       dailyGoals: preferences.dailyGoals || 10,
+      goals: preferences.goals || [],
       onboardingCompleted: true, // CRITICAL: set to true
       updatedAt: serverTimestamp()
     }, { merge: true });

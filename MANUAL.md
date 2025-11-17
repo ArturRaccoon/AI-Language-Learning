@@ -1,6 +1,6 @@
 // File: MANUAL.md
 // Created: 2025-11-13
-// Last-Updated: 2025-11-13
+// Last-Updated: 2025-11-16
 // Author: Claude
 // Description: Technical documentation and source of truth for project conventions
 
@@ -24,6 +24,8 @@ A modern language learning application built with React, Firebase, and i18next.
 2. **Public Onboarding** (`/onboarding`) → Collects preferences (language, goals, level) WITHOUT authentication
 3. **Registration** (`/registration`) → Creates Firebase Auth user + merges onboarding preferences
 4. **Protected Routes** → Require auth + `onboardingCompleted: true`
+
+**📖 For complete onboarding flow documentation, see:** `ONBOARDING_FLOW.md`
 
 ### Onboarding Preferences Storage
 - Preferences collected in `/onboarding` are stored in **sessionStorage** as JSON
@@ -184,6 +186,18 @@ npm run lint
 **Cause**: `onboardingCompleted` not set to `true` in profile
 **Solution**: Ensure `createProfileWithPreferences` sets flag correctly
 
+### Issue: Infinite onboarding loop - users with existing accounts trapped in onboarding
+**Cause**: `/onboarding` page had no "Already have an account?" link to navigate back to `/login`
+**Solution**: Added Link component at bottom of onboarding page pointing to `/login` (Fixed 2025-11-16)
+**Location**: `src/pages/Onboarding.jsx` - auth-footer div with Link to `/login`
+
+### Issue: Users with existing profiles always redirected to onboarding after login
+**Cause**: `onboardingCompleted` was set to `false` by default for existing users
+**Solution**: Modified `createUserProfile` in `userService.js` to:
+  1. Auto-fix existing profiles with `onboardingCompleted: false` → set to `true` on login
+  2. Only set `onboardingCompleted: true` for NEW profiles when explicitly passed (via sessionStorage)
+**Location**: `src/services/userService.js` - createUserProfile function (Fixed 2025-11-16)
+
 ## Future Enhancements
 - [ ] Email verification
 - [ ] Password reset flow
@@ -193,5 +207,5 @@ npm run lint
 - [ ] Leaderboards
 
 ---
-**Last Updated**: 2025-11-13
+**Last Updated**: 2025-11-16
 **Maintained By**: Claude (Senior Developer)

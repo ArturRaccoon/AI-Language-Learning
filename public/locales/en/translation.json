@@ -101,6 +101,55 @@
       "select_level": "Select your level"
     }
   },
+  
+  "publicOnboarding": {
+    "language": {
+      "title": "Which language do you want to learn?",
+      "subtitle": "Choose the language you want to study"
+    },
+    "goals": {
+      "title": "Why do you want to learn?",
+      "subtitle": "Select one or more goals",
+      "travel": "✈️ Travel",
+      "travel_desc": "Communicate while traveling",
+      "work": "💼 Work",
+      "work_desc": "Professional growth",
+      "study": "📚 Study",
+      "study_desc": "Exams and certifications",
+      "culture": "🎭 Culture",
+      "culture_desc": "Films, books, music",
+      "conversation": "💬 Conversation",
+      "conversation_desc": "Talk with natives",
+      "other": "🎯 Other",
+      "other_desc": "Personal goals"
+    },
+    "level": {
+      "title": "What's your level?",
+      "subtitle": "In the language you want to learn"
+    },
+    "levels": {
+      "beginner": "Beginner",
+      "beginner_desc": "I know just a few words",
+      "elementary": "Elementary",
+      "elementary_desc": "Simple sentences",
+      "intermediate": "Intermediate",
+      "intermediate_desc": "Basic conversations",
+      "advanced": "Advanced",
+      "advanced_desc": "Comfortable in most situations",
+      "native": "Native",
+      "native_desc": "Native proficiency"
+    },
+    "hasAccount": "Already have an account?",
+    "signIn": "Sign in",
+    "continue": "Continue →",
+    "finish": "Save preferences →",
+    "errors": {
+      "selectLanguage": "Please select a language",
+      "selectGoal": "Please select at least one goal",
+      "selectLevel": "Please select your level",
+      "generic": "We couldn't save your preferences. Please try again."
+    }
+  },
 
   "home": {
     "title": "🏠 Home",
