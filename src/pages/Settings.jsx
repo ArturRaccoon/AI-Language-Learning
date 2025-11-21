@@ -20,7 +20,7 @@ function Impostazioni() {
   return (
     <div className="dashboard-contenitore">
       <header className="dashboard-header">
-        <h1>⚙️ Impostazioni</h1>
+        <h1> Impostazioni</h1>
         <button onClick={handleLogout} className="btn-logout">
           Logout
         </button>
@@ -28,7 +28,7 @@ function Impostazioni() {
 
       <main className="dashboard-main">
         <div className="sezione-lista">
-          <h2>🚧 Pagina in Costruzione</h2>
+          <h2> Pagina in Costruzione</h2>
 
           {userProfile && (
             <div style={{
@@ -62,7 +62,7 @@ function Impostazioni() {
                 fontSize: '1rem'
               }}
             >
-              ← Torna alla Dashboard
+              Torna alla Dashboard
             </button>
           </div>
         </div>

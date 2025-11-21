@@ -59,13 +59,13 @@ function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>{t('login.title', '🌍 Welcome Back')}</h1>
+          <h1>{t('login.title', ' Welcome Back')}</h1>
           <p>{t('login.subtitle', 'Log in to continue your language learning journey')}</p>
         </div>
 
         {error && (
           <div className="error-message">
-            ⚠️ {error}
+             {error}
           </div>
         )}
 
@@ -102,8 +102,8 @@ function Login() {
             disabled={loading}
           >
             {loading 
-              ? t('login.logging_in', '⏳ Logging in...') 
-              : t('login.submit', '🚀 Log In')}
+              ? t('login.logging_in', ' Logging in...') 
+              : t('login.submit', ' Log In')}
           </button>
         </form>
 

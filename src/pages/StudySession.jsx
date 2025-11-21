@@ -99,7 +99,7 @@ function StudySession() {
   return (
     <div className="sessione-studio-container">
       <header className="sessione-studio-header">
-        <h1>{t('study_session.title', '📚 Study Session')}</h1>
+        <h1>{t('study_session.title', ' Study Session')}</h1>
         <button onClick={handleBackToDashboard} className="btn-back">
           {t('study_session.completed.back_to_dashboard', 'Back to Dashboard')}
         </button>
@@ -150,14 +150,14 @@ function StudySession() {
         {/* No cards */}
         {noCardsToday && !error && (
           <section className="sessione-completata">
-            <div className="completata-icon">🎉</div>
+            <div className="completata-icon"></div>
             <h2>{t('study_session.completed.title', 'Session Completed!')}</h2>
             <p
               className="completata-stats"
               dangerouslySetInnerHTML={{
                 __html: t(
                   'study_session.completed.no_cards',
-                  'No flashcards to review today.<br />Great job! 🌟',
+                  'No flashcards to review today.<br />Great job! ',
                 ),
               }}
             />
@@ -167,7 +167,7 @@ function StudySession() {
               </button>
             </div>
             <div className="completata-motivazione">
-              <p>{t('study_session.completed.motivation', '💪 Consistency is the key to success!')}</p>
+              <p>{t('study_session.completed.motivation', ' Consistency is the key to success!')}</p>
               <p>{t('study_session.completed.come_back', 'Come back tomorrow to continue your learning journey.')}</p>
             </div>
           </section>
@@ -176,7 +176,7 @@ function StudySession() {
         {/* Completed session with cards */}
         {isCompleted && !error && !noCardsToday && (
           <section className="sessione-completata">
-            <div className="completata-icon">🎉</div>
+            <div className="completata-icon"></div>
             <h2>{t('study_session.completed.title', 'Session Completed!')}</h2>
             <p
               className="completata-stats"
@@ -193,7 +193,7 @@ function StudySession() {
               </button>
             </div>
             <div className="completata-motivazione">
-              <p>{t('study_session.completed.motivation', '💪 Consistency is the key to success!')}</p>
+              <p>{t('study_session.completed.motivation', ' Consistency is the key to success!')}</p>
               <p>{t('study_session.completed.come_back', 'Come back tomorrow to continue your learning journey.')}</p>
             </div>
           </section>

@@ -44,7 +44,7 @@ export async function translateText(text, fromLang = 'en', toLang = 'it') {
     // Check cache
     const cacheKey = `${text}-${fromLang}-${toLang}`;
     if (translationCache.has(cacheKey)) {
-      console.log('✅ Translation from cache');
+      console.log(' Translation from cache');
       return translationCache.get(cacheKey);
     }
 
@@ -106,12 +106,12 @@ export async function translateText(text, fromLang = 'en', toLang = 'it') {
       translationCache.delete(firstKey);
     }
 
-    console.log('🌐 Translation completed:', result.translation);
+    console.log(' Translation completed:', result.translation);
 
     return result;
 
   } catch (error) {
-    console.error('❌ Translation error:', error);
+    console.error(' Translation error:', error);
     
     return {
       success: false,
@@ -205,7 +205,7 @@ export function suggestTranslation(text, fromLang, toLang, callback, delay = 500
  */
 export function clearCache() {
   translationCache.clear();
-  console.log('🧹 Translation cache cleared');
+  console.log(' Translation cache cleared');
 }
 
 /**

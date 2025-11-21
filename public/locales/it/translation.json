@@ -20,11 +20,10 @@
     "or": "oppure",
     "continue_with_google": "Continua con Google"
   },
-
   "auth": {
-    "login_title": "🔐 Accedi",
-    "register_title": "📝 Registrati",
-    "reset_password_title": "🔑 Reimposta Password",
+    "login_title": "Accedi",
+    "register_title": "Registrati",
+    "reset_password_title": "Reimposta Password",
     "email_placeholder": "tua@email.com",
     "password_placeholder": "••••••••",
     "login_button": "Accedi",
@@ -34,7 +33,7 @@
     "sending": "Invio...",
     "reset_password_description": "Inserisci la tua email e ti invieremo un link per reimpostare la password.",
     "send_reset_email": "Invia Email Reset",
-    "back_to_login": "← Torna al Login",
+    "back_to_login": "Torna al Login",
     "no_account": "Non hai un account?",
     "have_account": "Hai già un account?",
     "errors": {
@@ -44,40 +43,36 @@
       "invalid_email": "Inserisci un'email valida"
     }
   },
-
   "onboarding": {
-    "welcome": "👋 Benvenuto!",
+    "welcome": "Benvenuto!",
     "subtitle": "Iniziamo a configurare la tua esperienza",
     "step_indicator": "Step {{current}} di {{total}}",
-    
     "step1": {
-      "title": "🌍 Che lingue vuoi imparare?",
+      "title": "Che lingue vuoi imparare?",
       "subtitle": "Scegli la tua lingua madre e quella che vuoi studiare",
       "native_language": "La tua lingua madre",
       "target_language": "Lingua che vuoi imparare"
     },
-    
     "step2": {
-      "title": "🎯 Perché vuoi imparare?",
+      "title": "Perché vuoi imparare?",
       "subtitle": "Seleziona uno o più obiettivi",
       "goals": {
-        "travel": "✈️ Viaggio",
+        "travel": "Viaggio",
         "travel_desc": "Comunicare in viaggio",
-        "work": "💼 Lavoro",
+        "work": "Lavoro",
         "work_desc": "Uso professionale",
-        "study": "📚 Studio",
+        "study": "Studio",
         "study_desc": "Esami e certificazioni",
-        "culture": "🎭 Cultura",
+        "culture": "Cultura",
         "culture_desc": "Film, libri, musica",
-        "conversation": "💬 Conversazione",
+        "conversation": "Conversazione",
         "conversation_desc": "Parlare con nativi",
-        "other": "🎯 Altro",
+        "other": "Altro",
         "other_desc": "Obiettivi personali"
       }
     },
-    
     "step3": {
-      "title": "📊 Qual è il tuo livello?",
+      "title": "Qual è il tuo livello?",
       "subtitle": "Nella lingua che vuoi imparare",
       "levels": {
         "beginner": "Principiante",
@@ -92,8 +87,7 @@
         "native_desc": "Competenza nativa"
       }
     },
-    
-    "continue_to_register": "Vai alla Registrazione →",
+    "continue_to_register": "Vai alla Registrazione",
     "errors": {
       "select_both_languages": "Seleziona entrambe le lingue",
       "languages_must_differ": "Le lingue devono essere diverse",
@@ -101,7 +95,6 @@
       "select_level": "Seleziona il tuo livello"
     }
   },
-  
   "publicOnboarding": {
     "language": {
       "title": "Quale lingua vuoi imparare?",
@@ -110,17 +103,17 @@
     "goals": {
       "title": "Perché vuoi imparare?",
       "subtitle": "Seleziona uno o più obiettivi",
-      "travel": "✈️ Viaggio",
+      "travel": "Viaggio",
       "travel_desc": "Comunicare in viaggio",
-      "work": "💼 Lavoro",
+      "work": "Lavoro",
       "work_desc": "Crescita professionale",
-      "study": "📚 Studio",
+      "study": "Studio",
       "study_desc": "Esami e certificazioni",
-      "culture": "🎭 Cultura",
+      "culture": "Cultura",
       "culture_desc": "Film, libri, musica",
-      "conversation": "💬 Conversazione",
+      "conversation": "Conversazione",
       "conversation_desc": "Parla con i madrelingua",
-      "other": "🎯 Altro",
+      "other": "Altro",
       "other_desc": "Obiettivi personali"
     },
     "level": {
@@ -141,8 +134,8 @@
     },
     "hasAccount": "Hai già un account?",
     "signIn": "Accedi",
-    "continue": "Continua →",
-    "finish": "Salva preferenze →",
+    "continue": "Continua",
+    "finish": "Salva preferenze",
     "errors": {
       "selectLanguage": "Seleziona una lingua",
       "selectGoal": "Seleziona almeno un obiettivo",
@@ -150,18 +143,15 @@
       "generic": "Impossibile salvare le preferenze. Riprova."
     }
   },
-
   "home": {
-    "title": "🏠 Home",
+    "title": "Home",
     "welcome": "Benvenuto",
-    
     "study_widget": {
       "title": "Sessione di Studio",
       "cards_to_review": "{{count}} flashcard da rivedere oggi",
       "subtitle": "Mantieni viva la memoria!",
       "start": "Inizia Ora"
     },
-    
     "stats": {
       "total": "Totale Flashcard",
       "new": "Nuove",
@@ -169,9 +159,8 @@
       "mastered": "Padroneggiate",
       "avg_reviews": "Media Revisioni"
     },
-    
     "menu": {
-      "title": "📋 Menu Principale",
+      "title": "Menu Principale",
       "study_session": "Inizia Sessione di Studio",
       "study_session_desc": "Ripassa le flashcard programmate per oggi",
       "manage_flashcards": "Gestisci le mie Flashcard",
@@ -184,17 +173,15 @@
       "settings_desc": "Modifica preferenze e configurazioni"
     }
   },
-
   "flashcards": {
-    "title": "📚 Gestione Flashcard",
-    "create_new": "✨ Crea Nuova Flashcard",
-    "your_flashcards": "📋 Le tue Flashcard",
+    "title": "Gestione Flashcard",
+    "create_new": "Crea Nuova Flashcard",
+    "your_flashcards": "Le tue Flashcard",
     "count": "{{count}} card",
     "count_plural": "{{count}} cards",
-    "empty_state": "📝 Nessuna flashcard ancora.",
+    "empty_state": "Nessuna flashcard ancora.",
     "empty_state_cta": "Crea la tua prima card qui sopra!",
-    "load_more": "⬇️ Carica Altro",
-    
+    "load_more": "Carica Altro",
     "form": {
       "original_text": "Testo originale",
       "translation": "Traduzione",
@@ -202,44 +189,38 @@
       "category_placeholder": "Es: viaggio, lavoro, quotidiano",
       "notes": "Note (opzionali)",
       "notes_placeholder": "Aggiungi contesto o esempi d'uso",
-      "translate_auto": "🔄 Traduci automaticamente",
-      "translating": "⏳ Traduzione...",
-      "save_card": "💾 Salva Flashcard",
+      "translate_auto": "Traduci automaticamente",
+      "translating": "Traduzione...",
+      "save_card": "Salva Flashcard",
       "saving": "Salvataggio...",
       "from_language": "Dalla tua lingua:",
       "to_language": "Verso:"
     },
-    
     "errors": {
       "original_required": "Il testo originale è obbligatorio",
       "translation_required": "La traduzione è obbligatoria",
       "enter_text_to_translate": "Inserisci il testo da tradurre",
       "translation_error": "Errore traduzione. Inserisci manualmente."
     },
-    
     "success": {
-      "card_saved": "✅ Flashcard salvata con successo!"
+      "card_saved": "Flashcard salvata con successo!"
     },
-    
     "delete_confirm": "Sei sicuro di voler eliminare questa flashcard?"
   },
-
   "study_session": {
-    "title": "📚 Sessione di Studio",
+    "title": "Sessione di Studio",
     "progress": "Progresso",
     "progress_count": "{{current}} / {{total}}",
     "loading": "Caricamento flashcard...",
     "interrupt": "Interrompi Sessione",
-    
     "completed": {
       "title": "Sessione Completata!",
       "studied": "Hai studiato <strong>{{count}}</strong> flashcard",
-      "no_cards": "Non ci sono flashcard da rivedere oggi.<br />Ottimo lavoro! 🌟",
+      "no_cards": "Non ci sono flashcard da rivedere oggi.<br />Ottimo lavoro!",
       "back_to_dashboard": "Torna alla Dashboard",
-      "motivation": "💪 La costanza è la chiave del successo!",
+      "motivation": "La costanza è la chiave del successo!",
       "come_back": "Torna domani per continuare il tuo percorso di apprendimento."
     },
-    
     "evaluation": {
       "question": "Quanto bene l'hai ricordata?",
       "forgot": "Non ricordo",
@@ -251,7 +232,6 @@
       "easy": "Facile",
       "easy_desc": "Perfetto!"
     },
-    
     "card_info": {
       "level": "Livello:",
       "reviews": "Revisioni:",
@@ -259,28 +239,26 @@
       "remember_translation": "Ricordi la traduzione?",
       "original": "Originale",
       "translation": "Traduzione",
-      "click_to_flip": "👆 Clicca per vedere la risposta"
+      "click_to_flip": "Clicca per vedere la risposta"
     }
   },
-
   "languages": {
-    "it-IT": "🇮🇹 Italiano",
-    "en-US": "🇺🇸 Inglese (US)",
-    "en-GB": "🇬🇧 Inglese (UK)",
-    "es-ES": "🇪🇸 Spagnolo",
-    "fr-FR": "🇫🇷 Francese",
-    "de-DE": "🇩🇪 Tedesco",
-    "pt-BR": "🇧🇷 Portoghese",
-    "ja-JP": "🇯🇵 Giapponese",
-    "ko-KR": "🇰🇷 Coreano",
-    "zh-CN": "🇨🇳 Cinese",
-    "ru-RU": "🇷🇺 Russo",
-    "ar-XA": "🇸🇦 Arabo"
+    "it-IT": "Italiano",
+    "en-US": "Inglese (US)",
+    "en-GB": "Inglese (UK)",
+    "es-ES": "Spagnolo",
+    "fr-FR": "Francese",
+    "de-DE": "Tedesco",
+    "pt-BR": "Portoghese",
+    "ja-JP": "Giapponese",
+    "ko-KR": "Coreano",
+    "zh-CN": "Cinese",
+    "ru-RU": "Russo",
+    "ar-XA": "Arabo"
   },
-
   "settings": {
-    "title": "⚙️ Impostazioni",
-    "under_construction": "🚧 Pagina in Costruzione",
+    "title": "Impostazioni",
+    "under_construction": "Pagina in Costruzione",
     "coming_soon": "La possibilità di modificare le impostazioni sarà disponibile presto!",
     "your_profile": "Il Tuo Profilo",
     "native_language": "Lingua Madre:",
@@ -288,19 +266,16 @@
     "level": "Livello:",
     "goals": "Obiettivi:"
   },
-
   "statistics": {
-    "title": "📊 Statistiche e Progressi",
-    "under_construction": "🚧 Pagina in Costruzione",
+    "title": "Statistiche e Progressi",
+    "under_construction": "Pagina in Costruzione",
     "coming_soon": "Le statistiche dettagliate saranno disponibili presto!"
   },
-
   "landing": {
     "title": "Il modo più divertente e famoso al mondo per imparare l'italiano online",
     "getStarted": "INIZIA ORA",
     "login": "HO GIÀ UN ACCOUNT"
   },
-
   "cookies": {
     "title": "Duo adora i cookie",
     "description": "Sia Duolingo che terze parti, come i nostri partner pubblicitari e fornitori di servizi, utilizzano cookie e tecnologie simili per fornire i nostri servizi, aiutare a personalizzare i contenuti e analizzare gli annunci. Cliccando su 'Accetta Cookie', acconsenti alla nostra Informativa sull'uso dei Cookie.",

@@ -31,14 +31,14 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
 
   const handleFlip = () => {
     if (!flipped) {
-      console.log('🔄 Card flipped:', card.originalWord);
+      console.log(' Card flipped:', card.originalWord);
       setFlipped(true);
     }
   };
 
   const handleEvaluation = (quality) => {
     if (disabled) return;
-    console.log('⭐ Evaluation:', quality, 'for card:', card.id);
+    console.log(' Evaluation:', quality, 'for card:', card.id);
     if (onEvaluate) {
       onEvaluate(card.id, quality);
       setFlipped(false);
@@ -78,13 +78,13 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
 
               {card.notes && (
                 <p className="flashcard-revisione-note">
-                  💡 {card.notes}
+                   {card.notes}
                 </p>
               )}
             </div>
 
             <div className="flashcard-revisione-hint">
-              {t('study_session.card_info.click_to_flip', '👆 Click to see answer')}
+              {t('study_session.card_info.click_to_flip', ' Click to see answer')}
             </div>
           </div>
 
@@ -129,7 +129,7 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
               className="btn-valutazione btn-valutazione-male"
               disabled={disabled}
             >
-              <span className="valutazione-emoji">😰</span>
+              <span className="valutazione-emoji"></span>
               <span className="valutazione-label">
                 {t('study_session.evaluation.forgot', 'Forgot')}
               </span>
@@ -144,7 +144,7 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
               className="btn-valutazione btn-valutazione-difficile"
               disabled={disabled}
             >
-              <span className="valutazione-emoji">🤔</span>
+              <span className="valutazione-emoji"></span>
               <span className="valutazione-label">
                 {t('study_session.evaluation.hard', 'Hard')}
               </span>
@@ -159,7 +159,7 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
               className="btn-valutazione btn-valutazione-bene"
               disabled={disabled}
             >
-              <span className="valutazione-emoji">😊</span>
+              <span className="valutazione-emoji"></span>
               <span className="valutazione-label">
                 {t('study_session.evaluation.good', 'Good')}
               </span>
@@ -174,7 +174,7 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
               className="btn-valutazione btn-valutazione-facile"
               disabled={disabled}
             >
-              <span className="valutazione-emoji">🎉</span>
+              <span className="valutazione-emoji"></span>
               <span className="valutazione-label">
                 {t('study_session.evaluation.easy', 'Easy')}
               </span>
@@ -192,7 +192,7 @@ function FlashcardReview({ card, onEvaluate, disabled = false }) {
           <span className="card-info-label">
             {t('study_session.card_info.level', 'Level:')}
           </span>
-          <span className="card-info-value">{'⭐'.repeat(knowledgeLevel)}</span>
+          <span className="card-info-value">{''.repeat(knowledgeLevel)}</span>
         </div>
         <div className="card-info-item">
           <span className="card-info-label">

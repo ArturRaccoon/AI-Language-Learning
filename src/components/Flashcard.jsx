@@ -66,7 +66,7 @@ function Flashcard({ flashcard, onEdit, onDelete }) {
               className="icon-btn"
               title="Edit flashcard"
             >
-              ✏️
+              
             </button>
           )}
           {onDelete && (
@@ -75,7 +75,7 @@ function Flashcard({ flashcard, onEdit, onDelete }) {
               className="icon-btn"
               title="Delete flashcard"
             >
-              🗑️
+              
             </button>
           )}
         </div>
@@ -87,7 +87,7 @@ function Flashcard({ flashcard, onEdit, onDelete }) {
           {flashcard.originalWord}
         </div>
         {!flipped && (
-          <div className="flip-hint">💡 Click to reveal</div>
+          <div className="flip-hint"> Click to reveal</div>
         )}
         {flipped && (
           <>
@@ -106,7 +106,7 @@ function Flashcard({ flashcard, onEdit, onDelete }) {
       {/* Footer with stats */}
       <div className="flashcard-footer">
         <div className="review-count">
-          🔄 {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
+           {reviewCount} {reviewCount === 1 ? 'review' : 'reviews'}
         </div>
         <div className="last-reviewed">
           {formatDate(flashcard.lastReview)}

@@ -52,7 +52,7 @@ function Home() {
       <header className="home-header">
         <div className="header-content">
           <h1>
-            {t('home.header.welcome', '👋 Welcome back, {{name}}!', {
+            {t('home.header.welcome', ' Welcome back, {{name}}!', {
               name: userProfile?.name || t('home.header.default_name', 'Student')
             })}
           </h1>
@@ -64,14 +64,14 @@ function Home() {
           </p>
         </div>
         <button onClick={handleLogout} className="btn-logout">
-          {t('home.header.logout', '🚪 Logout')}
+          {t('home.header.logout', ' Logout')}
         </button>
       </header>
 
       <div className="dashboard-grid">
         {/* Statistics Cards */}
         <div className="stats-section">
-          <h2>{t('home.stats.title', '📊 Your Progress')}</h2>
+          <h2>{t('home.stats.title', ' Your Progress')}</h2>
           
           {loading ? (
             <div className="loading-stats">
@@ -80,7 +80,7 @@ function Home() {
           ) : statistics ? (
             <div className="stats-cards">
               <div className="stat-card">
-                <div className="stat-icon">📚</div>
+                <div className="stat-icon"></div>
                 <div className="stat-content">
                   <h3>{statistics.total}</h3>
                   <p>{t('home.stats.total', 'Total Flashcards')}</p>
@@ -88,7 +88,7 @@ function Home() {
               </div>
 
               <div className="stat-card highlight">
-                <div className="stat-icon">🎯</div>
+                <div className="stat-icon"></div>
                 <div className="stat-content">
                   <h3>{statistics.dueForReview}</h3>
                   <p>{t('home.stats.due', 'Due for Review')}</p>
@@ -96,7 +96,7 @@ function Home() {
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon">✨</div>
+                <div className="stat-icon"></div>
                 <div className="stat-content">
                   <h3>{statistics.new}</h3>
                   <p>{t('home.stats.new', 'New Cards')}</p>
@@ -104,7 +104,7 @@ function Home() {
               </div>
 
               <div className="stat-card success">
-                <div className="stat-icon">🏆</div>
+                <div className="stat-icon"></div>
                 <div className="stat-content">
                   <h3>{statistics.mastered}</h3>
                   <p>{t('home.stats.mastered', 'Mastered')}</p>
@@ -120,7 +120,7 @@ function Home() {
 
         {/* Quick Actions */}
         <div className="actions-section">
-          <h2>{t('home.actions.title', '🚀 Quick Actions')}</h2>
+          <h2>{t('home.actions.title', ' Quick Actions')}</h2>
           
           <div className="action-cards">
             <button 
@@ -128,7 +128,7 @@ function Home() {
               onClick={() => navigate('/study')}
               disabled={!statistics || statistics.dueForReview === 0}
             >
-              <div className="action-icon">📖</div>
+              <div className="action-icon"></div>
               <h3>{t('home.actions.study.title', 'Study Session')}</h3>
               <p>
                 {statistics?.dueForReview > 0 
@@ -141,7 +141,7 @@ function Home() {
               className="action-card"
               onClick={() => navigate('/flashcards')}
             >
-              <div className="action-icon">➕</div>
+              <div className="action-icon"></div>
               <h3>{t('home.actions.create.title', 'Create Flashcard')}</h3>
               <p>{t('home.actions.create.subtitle', 'Add new words to learn')}</p>
             </button>
@@ -150,7 +150,7 @@ function Home() {
               className="action-card"
               onClick={() => navigate('/review')}
             >
-              <div className="action-icon">🔄</div>
+              <div className="action-icon"></div>
               <h3>{t('home.actions.review.title', 'Review All')}</h3>
               <p>{t('home.actions.review.subtitle', 'Browse all flashcards')}</p>
             </button>
@@ -159,7 +159,7 @@ function Home() {
               className="action-card"
               onClick={() => navigate('/statistics')}
             >
-              <div className="action-icon">📈</div>
+              <div className="action-icon"></div>
               <h3>{t('home.actions.statistics.title', 'Statistics')}</h3>
               <p>{t('home.actions.statistics.subtitle', 'View detailed progress')}</p>
             </button>
@@ -169,7 +169,7 @@ function Home() {
         {/* Level Distribution */}
         {statistics && (
           <div className="level-section">
-            <h2>{t('home.levels.title', '⭐ Knowledge Levels')}</h2>
+            <h2>{t('home.levels.title', ' Knowledge Levels')}</h2>
             <div className="level-bars">
               {[1, 2, 3, 4, 5].map(level => {
                 const count = statistics.byLevel[`level${level}`] || 0;
@@ -200,23 +200,23 @@ function Home() {
       {/* Navigation Footer */}
       <nav className="home-nav">
         <button onClick={() => navigate('/home')} className="nav-item active">
-          <span>🏠</span>
+          <span></span>
           <span>{t('nav.home', 'Home')}</span>
         </button>
         <button onClick={() => navigate('/flashcards')} className="nav-item">
-          <span>📇</span>
+          <span></span>
           <span>{t('nav.cards', 'Cards')}</span>
         </button>
         <button onClick={() => navigate('/study')} className="nav-item">
-          <span>📖</span>
+          <span></span>
           <span>{t('nav.study', 'Study')}</span>
         </button>
         <button onClick={() => navigate('/statistics')} className="nav-item">
-          <span>📊</span>
+          <span></span>
           <span>{t('nav.stats', 'Stats')}</span>
         </button>
         <button onClick={() => navigate('/settings')} className="nav-item">
-          <span>⚙️</span>
+          <span></span>
           <span>{t('nav.settings', 'Settings')}</span>
         </button>
       </nav>

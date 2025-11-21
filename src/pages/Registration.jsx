@@ -83,13 +83,13 @@ function Registration() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>{t('registration.title', '🎓 Create Account')}</h1>
+          <h1>{t('registration.title', ' Create Account')}</h1>
           <p>{t('registration.subtitle', 'Start your language learning adventure')}</p>
         </div>
 
         {displayError && (
           <div className="error-message">
-            ⚠️ {displayError}
+             {displayError}
           </div>
         )}
 
@@ -154,8 +154,8 @@ function Registration() {
             disabled={loading}
           >
             {loading 
-              ? t('registration.creating', '⏳ Creating account...') 
-              : t('registration.submit', '🚀 Sign Up')}
+              ? t('registration.creating', ' Creating account...') 
+              : t('registration.submit', ' Sign Up')}
           </button>
         </form>
 

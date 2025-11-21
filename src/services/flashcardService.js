@@ -48,7 +48,7 @@ export async function createFlashcard(userId, flashcardData) {
       interval: 1,
     });
     
-    console.log('✅ Flashcard created with ID:', docRef.id);
+    console.log(' Flashcard created with ID:', docRef.id);
     
     return { 
       success: true, 
@@ -59,7 +59,7 @@ export async function createFlashcard(userId, flashcardData) {
       } 
     };
   } catch (error) {
-    console.error("❌ Flashcard creation error:", error);
+    console.error(" Flashcard creation error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -95,7 +95,7 @@ export async function getFlashcards(userId, lastDocument = null) {
     const lastVisible = snapshot.docs[snapshot.docs.length - 1];
     const hasMore = flashcards.length === PAGE_LIMIT;
     
-    console.log(`✅ Retrieved ${flashcards.length} flashcards`);
+    console.log(` Retrieved ${flashcards.length} flashcards`);
     
     return { 
       success: true, 
@@ -104,7 +104,7 @@ export async function getFlashcards(userId, lastDocument = null) {
       hasMore
     };
   } catch (error) {
-    console.error("❌ Flashcard retrieval error:", error);
+    console.error(" Flashcard retrieval error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -116,7 +116,7 @@ export async function getFlashcardsForReview(userId, maxLimit = STUDY_SESSION_LI
   try {
     const today = new Date().toISOString();
     
-    console.log('🔍 Searching cards for review...');
+    console.log(' Searching cards for review...');
     console.log('  - User:', userId);
     console.log('  - Date limit:', today);
     console.log('  - Max limit:', maxLimit);
@@ -135,7 +135,7 @@ export async function getFlashcardsForReview(userId, maxLimit = STUDY_SESSION_LI
       ...doc.data() 
     }));
     
-    console.log(`✅ ${flashcards.length} flashcards due for review today`);
+    console.log(` ${flashcards.length} flashcards due for review today`);
     
     // Log card details
     flashcards.forEach((card, idx) => {
@@ -148,9 +148,70 @@ export async function getFlashcardsForReview(userId, maxLimit = STUDY_SESSION_LI
       total: flashcards.length
     };
   } catch (error) {
-    console.error("❌ Review retrieval error:", error);
+    console.error(" Review retrieval error:", error);
     return { success: false, error: error.message };
   }
+}
+
+/**
+ * Pure SM-2 calculation helper.
+ * Extracted to make the spaced repetition algorithm testable.
+ *
+ * @param {Object} flashcard - Current flashcard state
+ * @param {number} quality - Response quality (0-5)
+ * @param {Date} [now] - Current date (for testing)
+ * @returns {{
+ *   easiness: number,
+ *   interval: number,
+ *   reviewCount: number,
+ *   knowledgeLevel: number,
+ *   nextReview: string
+ * }}
+ */
+export function calculateSRSParameters(flashcard, quality, now = new Date()) {
+  let {
+    easiness = 2.5,
+    interval = 1,
+    reviewCount = 0
+  } = flashcard;
+
+  // Calculate new easiness (EF - Easiness Factor)
+  // Formula: EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
+  const diff = 5 - quality;
+  easiness = Math.max(1.3, easiness + (0.1 - diff * (0.08 + diff * 0.02)));
+
+  // Reset for complete or near-complete failure
+  if (quality <= 1) {
+    reviewCount = 0;
+    interval = 1;
+  } else if (quality < 3) {
+    // Partial failure: keep count but reset interval
+    reviewCount = 0;
+    interval = 1;
+  } else {
+    // Correct answer: increase interval based on review count
+    if (reviewCount === 0) {
+      interval = 1;
+    } else if (reviewCount === 1) {
+      interval = 6;
+    } else {
+      interval = Math.round(interval * easiness);
+    }
+    reviewCount += 1;
+  }
+
+  const nextReview = new Date(now);
+  nextReview.setDate(nextReview.getDate() + interval);
+
+  const knowledgeLevel = Math.min(5, Math.max(1, Math.round(easiness)));
+
+  return {
+    easiness,
+    interval,
+    reviewCount,
+    knowledgeLevel,
+    nextReview: nextReview.toISOString()
+  };
 }
 
 /**
@@ -166,7 +227,7 @@ export async function getFlashcardsForReview(userId, maxLimit = STUDY_SESSION_LI
  */
 export async function recordReview(flashcardId, quality) {
   try {
-    console.log('🔵 Recording review');
+    console.log(' Recording review');
     console.log('  - Card ID:', flashcardId);
     console.log('  - Quality:', quality);
     
@@ -179,68 +240,46 @@ export async function recordReview(flashcardId, quality) {
     }
     
     const flashcard = flashcardSnap.data();
-    
-    console.log('📦 Current flashcard data:');
+
+    console.log(' Current flashcard data:');
     console.log('  - Easiness:', flashcard.easiness);
     console.log('  - Interval:', flashcard.interval);
     console.log('  - Review count:', flashcard.reviewCount);
-    
-    // SM-2 Algorithm (SuperMemo 2)
-    let { easiness = 2.5, interval = 1, reviewCount = 0 } = flashcard;
-    
-    // Calculate new easiness (EF - Easiness Factor)
-    // Formula: EF' = EF + (0.1 - (5 - q) * (0.08 + (5 - q) * 0.02))
-    easiness = Math.max(1.3, easiness + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)));
-    
-    console.log('📊 New easiness calculated:', easiness);
-    
-    // Calculate new interval
-    if (quality < 3) {
-      // Wrong answer: restart from 1 day
-      interval = 1;
-      console.log('❌ Wrong answer → Interval reset to 1 day');
-    } else {
-      // Correct answer: increase interval
-      if (reviewCount === 0) {
-        interval = 1;
-      } else if (reviewCount === 1) {
-        interval = 6;
-      } else {
-        interval = Math.round(interval * easiness);
-      }
-      console.log('✅ Correct answer → New interval:', interval, 'days');
-    }
-    
-    // Calculate next review
-    const nextReview = new Date();
-    nextReview.setDate(nextReview.getDate() + interval);
-    
-    // Calculate knowledge level (1-5)
-    const newLevel = Math.min(5, Math.max(1, Math.round(easiness)));
-    
-    console.log('📅 Next review:', nextReview.toISOString());
-    console.log('⭐ New knowledge level:', newLevel);
+
+    const {
+      easiness,
+      interval,
+      reviewCount,
+      knowledgeLevel,
+      nextReview
+    } = calculateSRSParameters(flashcard, quality);
+
+    console.log(' New easiness calculated:', easiness);
+    console.log(' New interval:', interval);
+    console.log(' New review count:', reviewCount);
+    console.log(' Next review:', nextReview);
+    console.log(' New knowledge level:', knowledgeLevel);
     
     // Update document
     await updateDoc(flashcardRef, {
       easiness,
       interval,
-      reviewCount: reviewCount + 1,
-      knowledgeLevel: newLevel,
+      reviewCount,
+      knowledgeLevel,
       lastReview: new Date().toISOString(),
-      nextReview: nextReview.toISOString()
+      nextReview
     });
     
-    console.log('✅ Review recorded successfully');
+    console.log(' Review recorded successfully');
     
     return { 
-      success: true, 
-      nextReview: nextReview.toISOString(),
+      success: true,
+      nextReview,
       interval,
-      knowledgeLevel: newLevel
+      knowledgeLevel
     };
   } catch (error) {
-    console.error("❌ Review recording error:", error);
+    console.error(" Review recording error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -256,10 +295,10 @@ export async function updateFlashcard(flashcardId, newData) {
       updatedAt: new Date().toISOString()
     });
     
-    console.log('✅ Flashcard updated:', flashcardId);
+    console.log(' Flashcard updated:', flashcardId);
     return { success: true };
   } catch (error) {
-    console.error("❌ Flashcard update error:", error);
+    console.error(" Flashcard update error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -271,10 +310,10 @@ export async function deleteFlashcard(flashcardId) {
   try {
     await deleteDoc(doc(db, FLASHCARD_COLLECTION, flashcardId));
     
-    console.log('🗑️ Flashcard deleted:', flashcardId);
+    console.log(' Flashcard deleted:', flashcardId);
     return { success: true };
   } catch (error) {
-    console.error("❌ Flashcard deletion error:", error);
+    console.error(" Flashcard deletion error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -284,7 +323,7 @@ export async function deleteFlashcard(flashcardId) {
  */
 export async function getStatistics(userId) {
   try {
-    console.log('📊 Calculating statistics for:', userId);
+    console.log(' Calculating statistics for:', userId);
     
     const q = query(
       collection(db, FLASHCARD_COLLECTION),
@@ -315,11 +354,11 @@ export async function getStatistics(userId) {
       }
     };
     
-    console.log('📊 Statistics calculated:', statistics);
+    console.log(' Statistics calculated:', statistics);
     
     return { success: true, data: statistics };
   } catch (error) {
-    console.error("❌ Statistics calculation error:", error);
+    console.error(" Statistics calculation error:", error);
     return { success: false, error: error.message };
   }
 }

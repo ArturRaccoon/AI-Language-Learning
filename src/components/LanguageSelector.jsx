@@ -8,10 +8,10 @@ import { useTranslation } from 'react-i18next';
 import './LanguageSelector.css';
 
 const AVAILABLE_LANGUAGES = [
-  { code: 'it', label: 'IT', flag: '🇮🇹', name: 'Italiano' },
-  { code: 'en', label: 'EN', flag: '🇬🇧', name: 'English' },
-  { code: 'uk', label: 'UK', flag: '🇺🇦', name: 'Українська' },
-  { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' }
+  { code: 'it', label: 'IT', name: 'Italiano' },
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'uk', label: 'UK', name: 'Українська' },
+  { code: 'fr', label: 'FR', name: 'Français' }
 ];
 
 function LanguageSelector({ variant = 'default' }) {
@@ -19,10 +19,10 @@ function LanguageSelector({ variant = 'default' }) {
 
   function changeLanguage(langCode) {
     i18n.changeLanguage(langCode);
-    console.log('🌐 Lingua cambiata:', langCode);
+    console.log(' Lingua cambiata:', langCode);
   }
 
-  const currentLang = i18n.language.split('-')[0]; // 'it-IT' → 'it'
+  const currentLang = i18n.language.split('-')[0]; // Example: 'it-IT' becomes 'it'
 
   if (variant === 'dropdown') {
     return (
@@ -34,7 +34,7 @@ function LanguageSelector({ variant = 'default' }) {
       >
         {AVAILABLE_LANGUAGES.map(lang => (
           <option key={lang.code} value={lang.code}>
-            {lang.flag} {lang.name}
+            {lang.name}
           </option>
         ))}
       </select>
@@ -53,7 +53,6 @@ function LanguageSelector({ variant = 'default' }) {
           aria-pressed={currentLang === lang.code}
           title={lang.name}
         >
-          <span className="lang-flag">{lang.flag}</span>
           <span className="lang-code">{lang.label}</span>
         </button>
       ))}

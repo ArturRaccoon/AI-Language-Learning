@@ -46,7 +46,7 @@ export const AuthenticationProvider = ({ children }) => {
 
     if (prefsJSON) {
       try {
-        console.log('📦 Onboarding preferences found! Creating full profile.');
+        console.log(' Onboarding preferences found! Creating full profile.');
         const prefs = JSON.parse(prefsJSON);
         
         finalProfileData = {
@@ -66,7 +66,7 @@ export const AuthenticationProvider = ({ children }) => {
         console.error("Error parsing sessionStorage preferences:", e);
       }
     } else {
-      console.log('⚠️ No preferences in sessionStorage, creating base profile.');
+      console.log(' No preferences in sessionStorage, creating base profile.');
     }
 
     await createUserProfile(uid, finalProfileData);
@@ -128,9 +128,9 @@ export const AuthenticationProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       setError(null);
-      console.log('🔑 Login attempt for:', email);
+      console.log(' Login attempt for:', email);
       const { user } = await signInWithEmailAndPassword(auth, email, password);
-      console.log('✅ Firebase Auth successful');
+      console.log(' Firebase Auth successful');
       return user;
     } catch (error) {
       console.error('Login error:', error);
@@ -153,21 +153,21 @@ export const AuthenticationProvider = ({ children }) => {
   // Monitor authentication state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('🔍 onAuthStateChanged triggered:', user ? user.email : 'no user');
+      console.log(' onAuthStateChanged triggered:', user ? user.email : 'no user');
       setCurrentUser(user);
 
       if (user) {
         try {
-          console.log('📁 Loading profile for:', user.uid);
+          console.log(' Loading profile for:', user.uid);
           const profile = await createUserProfile(user.uid, { email: user.email });
-          console.log('✅ Profile loaded:', {
+          console.log(' Profile loaded:', {
             email: profile.email,
             onboardingCompleted: profile.onboardingCompleted,
             targetLanguage: profile.targetLanguage
           });
           setUserProfile(profile);
         } catch (error) {
-          console.error('❌ Profile loading error:', error);
+          console.error(' Profile loading error:', error);
           setUserProfile(null);
         }
       } else {

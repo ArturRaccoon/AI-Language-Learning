@@ -20,11 +20,10 @@
     "or": "ou",
     "continue_with_google": "Continuer avec Google"
   },
-
   "auth": {
-    "login_title": "🔐 Connexion",
-    "register_title": "📝 S'inscrire",
-    "reset_password_title": "🔑 Réinitialiser le mot de passe",
+    "login_title": "Connexion",
+    "register_title": "S'inscrire",
+    "reset_password_title": "Réinitialiser le mot de passe",
     "email_placeholder": "votre@email.com",
     "password_placeholder": "••••••••",
     "login_button": "Se connecter",
@@ -34,7 +33,7 @@
     "sending": "Envoi...",
     "reset_password_description": "Entrez votre email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
     "send_reset_email": "Envoyer l'email de réinitialisation",
-    "back_to_login": "← Retour à la connexion",
+    "back_to_login": "Retour à la connexion",
     "no_account": "Vous n'avez pas de compte?",
     "have_account": "Vous avez déjà un compte?",
     "errors": {
@@ -44,40 +43,36 @@
       "invalid_email": "Entrez un email valide"
     }
   },
-
   "onboarding": {
-    "welcome": "👋 Bienvenue!",
+    "welcome": "Bienvenue!",
     "subtitle": "Configurons votre expérience d'apprentissage",
     "step_indicator": "Étape {{current}} sur {{total}}",
-    
     "step1": {
-      "title": "🌍 Quelles langues voulez-vous apprendre?",
+      "title": "Quelles langues voulez-vous apprendre?",
       "subtitle": "Choisissez votre langue maternelle et celle que vous souhaitez étudier",
       "native_language": "Votre langue maternelle",
       "target_language": "Langue que vous voulez apprendre"
     },
-    
     "step2": {
-      "title": "🎯 Pourquoi voulez-vous apprendre?",
+      "title": "Pourquoi voulez-vous apprendre?",
       "subtitle": "Sélectionnez un ou plusieurs objectifs",
       "goals": {
-        "travel": "✈️ Voyage",
+        "travel": "Voyage",
         "travel_desc": "Communiquer en voyage",
-        "work": "💼 Travail",
+        "work": "Travail",
         "work_desc": "Usage professionnel",
-        "study": "📚 Études",
+        "study": "Études",
         "study_desc": "Examens et certifications",
-        "culture": "🎭 Culture",
+        "culture": "Culture",
         "culture_desc": "Films, livres, musique",
-        "conversation": "💬 Conversation",
+        "conversation": "Conversation",
         "conversation_desc": "Parler avec des natifs",
-        "other": "🎯 Autre",
+        "other": "Autre",
         "other_desc": "Objectifs personnels"
       }
     },
-    
     "step3": {
-      "title": "📊 Quel est votre niveau?",
+      "title": "Quel est votre niveau?",
       "subtitle": "Dans la langue que vous voulez apprendre",
       "levels": {
         "beginner": "Débutant",
@@ -92,8 +87,7 @@
         "native_desc": "Compétence native"
       }
     },
-    
-    "continue_to_register": "Aller à l'inscription →",
+    "continue_to_register": "Aller à l'inscription",
     "errors": {
       "select_both_languages": "Sélectionnez les deux langues",
       "languages_must_differ": "Les langues doivent être différentes",
@@ -101,7 +95,6 @@
       "select_level": "Sélectionnez votre niveau"
     }
   },
-  
   "publicOnboarding": {
     "language": {
       "title": "Quelle langue voulez-vous apprendre?",
@@ -110,17 +103,17 @@
     "goals": {
       "title": "Pourquoi voulez-vous apprendre?",
       "subtitle": "Sélectionnez un ou plusieurs objectifs",
-      "travel": "✈️ Voyage",
+      "travel": "Voyage",
       "travel_desc": "Communiquer en voyage",
-      "work": "💼 Travail",
+      "work": "Travail",
       "work_desc": "Évolution professionnelle",
-      "study": "📚 Études",
+      "study": "Études",
       "study_desc": "Examens et certifications",
-      "culture": "🎭 Culture",
+      "culture": "Culture",
       "culture_desc": "Films, livres, musique",
-      "conversation": "💬 Conversation",
+      "conversation": "Conversation",
       "conversation_desc": "Parler avec des natifs",
-      "other": "🎯 Autre",
+      "other": "Autre",
       "other_desc": "Objectifs personnels"
     },
     "level": {
@@ -141,8 +134,8 @@
     },
     "hasAccount": "Vous avez déjà un compte?",
     "signIn": "Se connecter",
-    "continue": "Continuer →",
-    "finish": "Enregistrer les préférences →",
+    "continue": "Continuer",
+    "finish": "Enregistrer les préférences",
     "errors": {
       "selectLanguage": "Veuillez sélectionner une langue",
       "selectGoal": "Sélectionnez au moins un objectif",
@@ -150,18 +143,15 @@
       "generic": "Impossible d'enregistrer vos préférences. Réessayez."
     }
   },
-
   "home": {
-    "title": "🏠 Accueil",
+    "title": "Accueil",
     "welcome": "Bienvenue",
-    
     "study_widget": {
       "title": "Session d'étude",
       "cards_to_review": "{{count}} cartes à réviser aujourd'hui",
       "subtitle": "Gardez votre mémoire vivante!",
       "start": "Commencer maintenant"
     },
-    
     "stats": {
       "total": "Total des cartes",
       "new": "Nouvelles",
@@ -169,9 +159,8 @@
       "mastered": "Maîtrisées",
       "avg_reviews": "Révisions moy."
     },
-    
     "menu": {
-      "title": "📋 Menu principal",
+      "title": "Menu principal",
       "study_session": "Démarrer une session d'étude",
       "study_session_desc": "Révisez les cartes programmées pour aujourd'hui",
       "manage_flashcards": "Gérer mes cartes",
@@ -184,17 +173,15 @@
       "settings_desc": "Modifier les préférences et configurations"
     }
   },
-
   "flashcards": {
-    "title": "📚 Gestion des cartes",
-    "create_new": "✨ Créer une nouvelle carte",
-    "your_flashcards": "📋 Vos cartes",
+    "title": "Gestion des cartes",
+    "create_new": "Créer une nouvelle carte",
+    "your_flashcards": "Vos cartes",
     "count": "{{count}} carte",
     "count_plural": "{{count}} cartes",
-    "empty_state": "📝 Aucune carte pour le moment.",
+    "empty_state": "Aucune carte pour le moment.",
     "empty_state_cta": "Créez votre première carte ci-dessus!",
-    "load_more": "⬇️ Charger plus",
-    
+    "load_more": "Charger plus",
     "form": {
       "original_text": "Texte original",
       "translation": "Traduction",
@@ -202,44 +189,38 @@
       "category_placeholder": "Ex: voyage, travail, quotidien",
       "notes": "Notes (optionnelles)",
       "notes_placeholder": "Ajouter du contexte ou des exemples d'utilisation",
-      "translate_auto": "🔄 Traduire automatiquement",
-      "translating": "⏳ Traduction...",
-      "save_card": "💾 Enregistrer la carte",
+      "translate_auto": "Traduire automatiquement",
+      "translating": "Traduction...",
+      "save_card": "Enregistrer la carte",
       "saving": "Enregistrement...",
       "from_language": "De votre langue:",
       "to_language": "Vers:"
     },
-    
     "errors": {
       "original_required": "Le texte original est obligatoire",
       "translation_required": "La traduction est obligatoire",
       "enter_text_to_translate": "Entrez le texte à traduire",
       "translation_error": "Erreur de traduction. Entrez manuellement."
     },
-    
     "success": {
-      "card_saved": "✅ Carte enregistrée avec succès!"
+      "card_saved": "Carte enregistrée avec succès!"
     },
-    
     "delete_confirm": "Êtes-vous sûr de vouloir supprimer cette carte?"
   },
-
   "study_session": {
-    "title": "📚 Session d'étude",
+    "title": "Session d'étude",
     "progress": "Progression",
     "progress_count": "{{current}} / {{total}}",
     "loading": "Chargement des cartes...",
     "interrupt": "Interrompre la session",
-    
     "completed": {
       "title": "Session terminée!",
       "studied": "Vous avez étudié <strong>{{count}}</strong> carte",
-      "no_cards": "Aucune carte à réviser aujourd'hui.<br />Excellent travail! 🌟",
+      "no_cards": "Aucune carte à réviser aujourd'hui.<br />Excellent travail!",
       "back_to_dashboard": "Retour au tableau de bord",
-      "motivation": "💪 La constance est la clé du succès!",
+      "motivation": "La constance est la clé du succès!",
       "come_back": "Revenez demain pour continuer votre parcours d'apprentissage."
     },
-    
     "evaluation": {
       "question": "Dans quelle mesure vous en souvenez-vous?",
       "forgot": "Oublié",
@@ -251,7 +232,6 @@
       "easy": "Facile",
       "easy_desc": "Parfait!"
     },
-    
     "card_info": {
       "level": "Niveau:",
       "reviews": "Révisions:",
@@ -259,28 +239,26 @@
       "remember_translation": "Vous souvenez-vous de la traduction?",
       "original": "Original",
       "translation": "Traduction",
-      "click_to_flip": "👆 Cliquez pour voir la réponse"
+      "click_to_flip": "Cliquez pour voir la réponse"
     }
   },
-
   "languages": {
-    "it-IT": "🇮🇹 Italien",
-    "en-US": "🇺🇸 Anglais (US)",
-    "en-GB": "🇬🇧 Anglais (UK)",
-    "es-ES": "🇪🇸 Espagnol",
-    "fr-FR": "🇫🇷 Français",
-    "de-DE": "🇩🇪 Allemand",
-    "pt-BR": "🇧🇷 Portugais",
-    "ja-JP": "🇯🇵 Japonais",
-    "ko-KR": "🇰🇷 Coréen",
-    "zh-CN": "🇨🇳 Chinois",
-    "ru-RU": "🇷🇺 Russe",
-    "ar-XA": "🇸🇦 Arabe"
+    "it-IT": "Italien",
+    "en-US": "Anglais (US)",
+    "en-GB": "Anglais (UK)",
+    "es-ES": "Espagnol",
+    "fr-FR": "Français",
+    "de-DE": "Allemand",
+    "pt-BR": "Portugais",
+    "ja-JP": "Japonais",
+    "ko-KR": "Coréen",
+    "zh-CN": "Chinois",
+    "ru-RU": "Russe",
+    "ar-XA": "Arabe"
   },
-
   "settings": {
-    "title": "⚙️ Paramètres",
-    "under_construction": "🚧 En construction",
+    "title": "Paramètres",
+    "under_construction": "En construction",
     "coming_soon": "La possibilité de modifier les paramètres sera bientôt disponible!",
     "your_profile": "Votre profil",
     "native_language": "Langue maternelle:",
@@ -288,19 +266,16 @@
     "level": "Niveau:",
     "goals": "Objectifs:"
   },
-
   "statistics": {
-    "title": "📊 Statistiques et progrès",
-    "under_construction": "🚧 En construction",
+    "title": "Statistiques et progrès",
+    "under_construction": "En construction",
     "coming_soon": "Les statistiques détaillées seront bientôt disponibles!"
   },
-
   "landing": {
     "title": "La façon la plus amusante et célèbre au monde d'apprendre l'italien en ligne",
     "getStarted": "COMMENCER",
     "login": "J'AI DÉJÀ UN COMPTE"
   },
-
   "cookies": {
     "title": "Duo adore les cookies",
     "description": "Duolingo et des tiers, tels que nos partenaires publicitaires et fournisseurs de services, utilisent des cookies et des technologies similaires pour fournir nos services, aider à personnaliser le contenu et analyser les publicités. En cliquant sur 'Accepter les cookies', vous consentez à notre Politique relative aux cookies.",

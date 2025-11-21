@@ -34,7 +34,7 @@ function LoadingFallback() {
         animation: 'spin 0.8s linear infinite'
       }}></div>
       <p style={{ fontSize: '1.1rem', fontWeight: '600' }}>
-        🌐 Loading translations...
+         Loading translations...
       </p>
       <style>{`
         @keyframes spin {

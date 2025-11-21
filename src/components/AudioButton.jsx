@@ -43,7 +43,7 @@ function AudioButton({
 
     // Valida testo
     if (!testo || testo.trim().length === 0) {
-      console.warn('⚠️ Nessun testo da leggere');
+      console.warn(' Nessun testo da leggere');
       setErrore(true);
       setTimeout(() => setErrore(false), 2000);
       return;
@@ -84,9 +84,9 @@ function AudioButton({
 
   // Icona dinamica
   const getIcona = () => {
-    if (errore) return '⚠️';
-    if (inRiproduzione) return '⏸️';
-    return '🔊';
+    if (errore) return 'ERR';
+    if (inRiproduzione) return 'STOP';
+    return 'PLAY';
   };
 
   // Tooltip dinamico

@@ -1,5 +1,6 @@
 {
   "common": {
+    "app_name": "LinguaCoon",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -20,11 +21,10 @@
     "or": "or",
     "continue_with_google": "Continue with Google"
   },
-
   "auth": {
-    "login_title": "🔐 Login",
-    "register_title": "📝 Register",
-    "reset_password_title": "🔑 Reset Password",
+    "login_title": "Login",
+    "register_title": "Register",
+    "reset_password_title": "Reset Password",
     "email_placeholder": "your@email.com",
     "password_placeholder": "••••••••",
     "login_button": "Login",
@@ -34,7 +34,7 @@
     "sending": "Sending...",
     "reset_password_description": "Enter your email and we'll send you a link to reset your password.",
     "send_reset_email": "Send Reset Email",
-    "back_to_login": "← Back to Login",
+    "back_to_login": "Back to Login",
     "no_account": "Don't have an account?",
     "have_account": "Already have an account?",
     "errors": {
@@ -44,40 +44,36 @@
       "invalid_email": "Enter a valid email"
     }
   },
-
   "onboarding": {
-    "welcome": "👋 Welcome!",
+    "welcome": "Welcome!",
     "subtitle": "Let's set up your learning experience",
     "step_indicator": "Step {{current}} of {{total}}",
-    
     "step1": {
-      "title": "🌍 Which languages do you want to learn?",
+      "title": "Which languages do you want to learn?",
       "subtitle": "Choose your native language and the one you want to study",
       "native_language": "Your native language",
       "target_language": "Language you want to learn"
     },
-    
     "step2": {
-      "title": "🎯 Why do you want to learn?",
+      "title": "Why do you want to learn?",
       "subtitle": "Select one or more goals",
       "goals": {
-        "travel": "✈️ Travel",
+        "travel": "Travel",
         "travel_desc": "Communicate while traveling",
-        "work": "💼 Work",
+        "work": "Work",
         "work_desc": "Professional use",
-        "study": "📚 Study",
+        "study": "Study",
         "study_desc": "Exams and certifications",
-        "culture": "🎭 Culture",
+        "culture": "Culture",
         "culture_desc": "Movies, books, music",
-        "conversation": "💬 Conversation",
+        "conversation": "Conversation",
         "conversation_desc": "Talk with natives",
-        "other": "🎯 Other",
+        "other": "Other",
         "other_desc": "Personal goals"
       }
     },
-    
     "step3": {
-      "title": "📊 What's your level?",
+      "title": "What's your level?",
       "subtitle": "In the language you want to learn",
       "levels": {
         "beginner": "Beginner",
@@ -92,8 +88,7 @@
         "native_desc": "Native competence"
       }
     },
-    
-    "continue_to_register": "Go to Registration →",
+    "continue_to_register": "Go to Registration",
     "errors": {
       "select_both_languages": "Select both languages",
       "languages_must_differ": "Languages must be different",
@@ -101,7 +96,6 @@
       "select_level": "Select your level"
     }
   },
-  
   "publicOnboarding": {
     "language": {
       "title": "Which language do you want to learn?",
@@ -110,17 +104,17 @@
     "goals": {
       "title": "Why do you want to learn?",
       "subtitle": "Select one or more goals",
-      "travel": "✈️ Travel",
+      "travel": "Travel",
       "travel_desc": "Communicate while traveling",
-      "work": "💼 Work",
+      "work": "Work",
       "work_desc": "Professional growth",
-      "study": "📚 Study",
+      "study": "Study",
       "study_desc": "Exams and certifications",
-      "culture": "🎭 Culture",
+      "culture": "Culture",
       "culture_desc": "Films, books, music",
-      "conversation": "💬 Conversation",
+      "conversation": "Conversation",
       "conversation_desc": "Talk with natives",
-      "other": "🎯 Other",
+      "other": "Other",
       "other_desc": "Personal goals"
     },
     "level": {
@@ -141,8 +135,8 @@
     },
     "hasAccount": "Already have an account?",
     "signIn": "Sign in",
-    "continue": "Continue →",
-    "finish": "Save preferences →",
+    "continue": "Continue",
+    "finish": "Save preferences",
     "errors": {
       "selectLanguage": "Please select a language",
       "selectGoal": "Please select at least one goal",
@@ -150,18 +144,15 @@
       "generic": "We couldn't save your preferences. Please try again."
     }
   },
-
   "home": {
-    "title": "🏠 Home",
+    "title": "Home",
     "welcome": "Welcome",
-    
     "study_widget": {
       "title": "Study Session",
       "cards_to_review": "{{count}} flashcard to review today",
       "subtitle": "Keep your memory alive!",
       "start": "Start Now"
     },
-    
     "stats": {
       "total": "Total Flashcards",
       "new": "New",
@@ -169,9 +160,8 @@
       "mastered": "Mastered",
       "avg_reviews": "Avg Reviews"
     },
-    
     "menu": {
-      "title": "📋 Main Menu",
+      "title": "Main Menu",
       "study_session": "Start Study Session",
       "study_session_desc": "Review today's scheduled flashcards",
       "manage_flashcards": "Manage my Flashcards",
@@ -184,17 +174,15 @@
       "settings_desc": "Modify preferences and configurations"
     }
   },
-
   "flashcards": {
-    "title": "📚 Flashcard Management",
-    "create_new": "✨ Create New Flashcard",
-    "your_flashcards": "📋 Your Flashcards",
+    "title": "Flashcard Management",
+    "create_new": "Create New Flashcard",
+    "your_flashcards": "Your Flashcards",
     "count": "{{count}} card",
     "count_plural": "{{count}} cards",
-    "empty_state": "📝 No flashcards yet.",
+    "empty_state": "No flashcards yet.",
     "empty_state_cta": "Create your first card above!",
-    "load_more": "⬇️ Load More",
-    
+    "load_more": "Load More",
     "form": {
       "original_text": "Original text",
       "translation": "Translation",
@@ -202,44 +190,38 @@
       "category_placeholder": "E.g.: travel, work, daily",
       "notes": "Notes (optional)",
       "notes_placeholder": "Add context or usage examples",
-      "translate_auto": "🔄 Translate automatically",
-      "translating": "⏳ Translating...",
-      "save_card": "💾 Save Flashcard",
+      "translate_auto": "Translate automatically",
+      "translating": "Translating...",
+      "save_card": "Save Flashcard",
       "saving": "Saving...",
       "from_language": "From your language:",
       "to_language": "To:"
     },
-    
     "errors": {
       "original_required": "Original text is required",
       "translation_required": "Translation is required",
       "enter_text_to_translate": "Enter text to translate",
       "translation_error": "Translation error. Enter manually."
     },
-    
     "success": {
-      "card_saved": "✅ Flashcard saved successfully!"
+      "card_saved": "Flashcard saved successfully!"
     },
-    
     "delete_confirm": "Are you sure you want to delete this flashcard?"
   },
-
   "study_session": {
-    "title": "📚 Study Session",
+    "title": "Study Session",
     "progress": "Progress",
     "progress_count": "{{current}} / {{total}}",
     "loading": "Loading flashcards...",
     "interrupt": "Interrupt Session",
-    
     "completed": {
       "title": "Session Completed!",
       "studied": "You studied <strong>{{count}}</strong> flashcard",
-      "no_cards": "No flashcards to review today.<br />Great job! 🌟",
+      "no_cards": "No flashcards to review today.<br />Great job!",
       "back_to_dashboard": "Back to Dashboard",
-      "motivation": "💪 Consistency is the key to success!",
+      "motivation": "Consistency is the key to success!",
       "come_back": "Come back tomorrow to continue your learning journey."
     },
-    
     "evaluation": {
       "question": "How well did you remember it?",
       "forgot": "Forgot",
@@ -251,7 +233,6 @@
       "easy": "Easy",
       "easy_desc": "Perfect!"
     },
-    
     "card_info": {
       "level": "Level:",
       "reviews": "Reviews:",
@@ -259,28 +240,26 @@
       "remember_translation": "Do you remember the translation?",
       "original": "Original",
       "translation": "Translation",
-      "click_to_flip": "👆 Click to see answer"
+      "click_to_flip": "Click to see answer"
     }
   },
-
   "languages": {
-    "it-IT": "🇮🇹 Italian",
-    "en-US": "🇺🇸 English (US)",
-    "en-GB": "🇬🇧 English (UK)",
-    "es-ES": "🇪🇸 Spanish",
-    "fr-FR": "🇫🇷 French",
-    "de-DE": "🇩🇪 German",
-    "pt-BR": "🇧🇷 Portuguese",
-    "ja-JP": "🇯🇵 Japanese",
-    "ko-KR": "🇰🇷 Korean",
-    "zh-CN": "🇨🇳 Chinese",
-    "ru-RU": "🇷🇺 Russian",
-    "ar-XA": "🇸🇦 Arabic"
+    "it-IT": "Italian",
+    "en-US": "English (US)",
+    "en-GB": "English (UK)",
+    "es-ES": "Spanish",
+    "fr-FR": "French",
+    "de-DE": "German",
+    "pt-BR": "Portuguese",
+    "ja-JP": "Japanese",
+    "ko-KR": "Korean",
+    "zh-CN": "Chinese",
+    "ru-RU": "Russian",
+    "ar-XA": "Arabic"
   },
-
   "settings": {
-    "title": "⚙️ Settings",
-    "under_construction": "🚧 Under Construction",
+    "title": "Settings",
+    "under_construction": "Under Construction",
     "coming_soon": "The ability to modify settings will be available soon!",
     "your_profile": "Your Profile",
     "native_language": "Native Language:",
@@ -288,19 +267,16 @@
     "level": "Level:",
     "goals": "Goals:"
   },
-
   "statistics": {
-    "title": "📊 Statistics and Progress",
-    "under_construction": "🚧 Under Construction",
+    "title": "Statistics and Progress",
+    "under_construction": "Under Construction",
     "coming_soon": "Detailed statistics will be available soon!"
   },
-
   "landing": {
     "title": "The world's most fun and famous way to learn Italian online",
     "getStarted": "GET STARTED",
     "login": "I ALREADY HAVE AN ACCOUNT"
   },
-
   "cookies": {
     "title": "Duo loves cookies",
     "description": "Both Duolingo and third parties, such as our advertising partners and service providers, use cookies and similar technologies to provide our services, help personalize content, and analyze ads. By clicking 'Accept Cookies', you consent to our Cookie Policy.",

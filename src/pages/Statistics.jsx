@@ -20,7 +20,7 @@ function Statistiche() {
   return (
     <div className="dashboard-contenitore">
       <header className="dashboard-header">
-        <h1>📊 Statistiche e Progressi</h1>
+        <h1> Statistiche e Progressi</h1>
         <button onClick={handleLogout} className="btn-logout">
           Logout
         </button>
@@ -28,7 +28,7 @@ function Statistiche() {
 
       <main className="dashboard-main">
         <div className="sezione-lista">
-          <h2>🚧 Pagina in Costruzione</h2>
+          <h2> Pagina in Costruzione</h2>
           <p style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
             Le statistiche dettagliate saranno disponibili presto!
           </p>
@@ -45,7 +45,7 @@ function Statistiche() {
                 fontSize: '1rem'
               }}
             >
-              ← Torna alla Dashboard
+              Torna alla Dashboard
             </button>
           </div>
         </div>

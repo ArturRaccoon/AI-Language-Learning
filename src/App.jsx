@@ -90,7 +90,7 @@ function App() {
             }
           />
 
-          {/* 404 → landing */}
+          {/* 404 -> landing */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

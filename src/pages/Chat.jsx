@@ -19,7 +19,7 @@ function Chat() {
   return (
     <div className="dashboard-contenitore">
       <header className="dashboard-header">
-        <h1>💬 AI Chat</h1>
+        <h1> AI Chat</h1>
         <button onClick={handleLogout} className="btn-logout">
           Logout
         </button>
@@ -27,7 +27,7 @@ function Chat() {
 
       <main className="dashboard-main">
         <div className="sezione-lista">
-          <h2>🚧 Under Construction</h2>
+          <h2> Under Construction</h2>
           <p style={{ textAlign: 'center', color: '#666', padding: '2rem' }}>
             AI chat feature coming soon!
           </p>
@@ -44,7 +44,7 @@ function Chat() {
                 fontSize: '1rem'
               }}
             >
-              ← Back to Dashboard
+              Back to Dashboard
             </button>
           </div>
         </div>

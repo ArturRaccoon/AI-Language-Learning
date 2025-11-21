@@ -1,211 +1,185 @@
-// File: MANUAL.md
+// File: manual.md
 // Created: 2025-11-13
-// Last-Updated: 2025-11-16
-// Author: Claude
-// Description: Technical documentation and source of truth for project conventions
+// Last-Updated: 2025-11-17
+// Maintainer: Core Engineering
+// Description: Authoritative guide for structure, setup, contribution, and roadmap
 
-# LingoCoon - Technical Manual
+# LingoCoon Project Manual (Version 1.0 Baseline)
 
-## Project Overview
-A modern language learning application built with React, Firebase, and i18next.
-
-## Tech Stack
-- **Frontend**: React 18 + Vite
-- **Routing**: React Router v6
-- **Authentication**: Firebase Auth
-- **Database**: Firestore
-- **Internationalization**: i18next
-- **Styling**: CSS (Duolingo-inspired)
-
-## Architecture Patterns
-
-### Authentication Flow
-1. **Public Landing** (`/`) → User sees language selector and CTA
-2. **Public Onboarding** (`/onboarding`) → Collects preferences (language, goals, level) WITHOUT authentication
-3. **Registration** (`/registration`) → Creates Firebase Auth user + merges onboarding preferences
-4. **Protected Routes** → Require auth + `onboardingCompleted: true`
-
-**📖 For complete onboarding flow documentation, see:** `ONBOARDING_FLOW.md`
-
-### Onboarding Preferences Storage
-- Preferences collected in `/onboarding` are stored in **sessionStorage** as JSON
-- Key: `onboardingPreferences`
-- Retrieved during registration/Google login to create complete user profile in one operation
-
-## File Naming Conventions
-| Type | Convention | Example |
-|------|-----------|---------|
-| React Components | PascalCase | `PublicLanding.jsx` |
-| Services | camelCase | `userService.js` |
-| Contexts | PascalCase + Context suffix | `AuthenticationContext.jsx` |
-| Styles | Component name | `PublicLanding.css` |
-| Directories | lowercase | `pages/`, `services/` |
-
-## File Header Standard
-Every code file must include:
-```javascript
-// File: relative/path/to/file.ext
-// Created: YYYY-MM-DD
-// Last-Updated: YYYY-MM-DD
-// Author: Claude
-// Description: One-line purpose
-```
-
-## Firebase Integration
-
-### User Profile Structure (Firestore `users` collection)
-```javascript
-{
-  uid: "firebase_uid",
-  email: "user@example.com",
-  name: "Full Name",
-  displayName: "Display Name",
-  nativeLanguage: "en",
-  targetLanguage: "it",
-  interfaceLanguage: "en",
-  level: "A1",
-  dailyGoals: 10,
-  onboardingCompleted: true, // CRITICAL: gates access to protected routes
-  authenticationMethods: ["password"] | ["google"] | ["password", "google"],
-  createdAt: Timestamp,
-  updatedAt: Timestamp
-}
-```
-
-### Authentication Methods
-1. **Email/Password Registration**:
-   - Creates Firebase Auth user
-   - Retrieves `sessionStorage` preferences
-   - Merges preferences with base data
-   - Creates Firestore profile with `onboardingCompleted: true`
-   - Clears sessionStorage
-
-2. **Google Login**:
-   - First-time: Same flow as email/password
-   - Returning user: Loads existing profile
-
-## Available Languages
-
-### Study Languages
-- Italian (it)
-- French (fr)
-- Ukrainian (uk)
-- English (en)
-
-### Interface Languages
-- Italian (it)
-- French (fr)
-- Ukrainian (uk)
-- English (en)
-- (+ 23 more in PublicLanding selector)
-
-## Routing Structure
-
-### Public Routes
-- `/` - PublicLanding
-- `/login` - Login
-- `/registration` - Registration
-- `/onboarding` - Public onboarding (NO AUTH REQUIRED)
-
-### Protected Routes (require auth + onboarding)
-- `/home` - Dashboard
-- `/study` - Study session
-- `/flashcards` - Flashcard review
-- `/review` - Spaced repetition
-- `/statistics` - Progress tracking
-- `/settings` - User settings
-- `/chat` - AI conversation practice
-
-## Key Services
-
-### userService.js
-- `createUserProfile(uid, data)` - Creates/updates user profile
-- `getUserProfile(uid)` - Fetches user profile
-- `completeOnboarding(uid, preferences)` - **DEPRECATED** (merged into registration flow)
-- `updateInterfaceLanguage(uid, langCode)` - Updates UI language
-
-### AuthenticationContext.jsx
-- `register(email, password, name)` - Email/password registration with preference merge
-- `loginWithGoogle()` - Google OAuth with preference merge
-- `login(email, password)` - Standard login
-- `logout()` - Sign out
-- **Helper**: `createProfileWithPreferences(uid, baseData)` - Handles sessionStorage merge
-
-## Environment Variables
-```env
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_domain
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-```
-
-## Common Commands
-```bash
-# Development
-npm run dev
-
-# Build
-npm run build
-
-# Preview production build
-npm run preview
-
-# Lint
-npm run lint
-```
-
-## Design System
-- **Primary Color**: #58CC02 (Duolingo green)
-- **Danger Color**: #FF4B4B
-- **Text**: #4B4B4B
-- **Background**: #FFFFFF
-- **Cards**: Box-shadow based elevation
-
-## Testing Strategy
-- Unit tests: Services and utilities
-- Integration tests: Authentication flow
-- E2E tests: Critical user journeys
-
-## Deployment Checklist
-- [ ] Firebase config validated
-- [ ] Environment variables set
-- [ ] Build passes without warnings
-- [ ] Authentication flow tested
-- [ ] Protected routes verified
-- [ ] i18n translations complete
-
-## Known Issues & Solutions
-
-### Issue: "No document to update" during onboarding
-**Cause**: Race condition between `createUserProfile` and `completeOnboarding`
-**Solution**: Merge preferences during registration using sessionStorage + helper function
-
-### Issue: User redirected to onboarding after completing it
-**Cause**: `onboardingCompleted` not set to `true` in profile
-**Solution**: Ensure `createProfileWithPreferences` sets flag correctly
-
-### Issue: Infinite onboarding loop - users with existing accounts trapped in onboarding
-**Cause**: `/onboarding` page had no "Already have an account?" link to navigate back to `/login`
-**Solution**: Added Link component at bottom of onboarding page pointing to `/login` (Fixed 2025-11-16)
-**Location**: `src/pages/Onboarding.jsx` - auth-footer div with Link to `/login`
-
-### Issue: Users with existing profiles always redirected to onboarding after login
-**Cause**: `onboardingCompleted` was set to `false` by default for existing users
-**Solution**: Modified `createUserProfile` in `userService.js` to:
-  1. Auto-fix existing profiles with `onboardingCompleted: false` → set to `true` on login
-  2. Only set `onboardingCompleted: true` for NEW profiles when explicitly passed (via sessionStorage)
-**Location**: `src/services/userService.js` - createUserProfile function (Fixed 2025-11-16)
-
-## Future Enhancements
-- [ ] Email verification
-- [ ] Password reset flow
-- [ ] Social auth (Facebook, Apple)
-- [ ] Profile picture upload
-- [ ] Friend system
-- [ ] Leaderboards
+This document captures the frozen state of Version 1.0. Every future enhancement must keep this baseline stable unless explicitly approved.
 
 ---
-**Last Updated**: 2025-11-16
-**Maintained By**: Claude (Senior Developer)
+
+## 1. Project Structure
+
+```
+project/
+├── manual.md                # This document
+├── package.json             # Runtime scripts and dependencies
+├── src/
+│   ├── main.jsx             # App entry point (imports i18n)
+│   ├── i18n.js              # i18next configuration
+│   ├── App.jsx              # Router and providers
+│   ├── contexts/            # React context providers (auth only for now)
+│   ├── pages/               # Route-level pages
+│   ├── components/          # Reusable UI blocks
+│   ├── services/            # Firebase and AI integration helpers
+│   ├── hooks/               # Custom hooks (audio, stats, etc.)
+│   ├── config/              # Firebase configuration
+│   ├── styles/              # Global and page-specific CSS
+│   └── utils/               # Utility helpers (prompt builder, etc.)
+├── public/
+│   ├── index.html           # Vite HTML shell
+│   └── locales/             # Static translation bundles (en, it, fr, uk)
+├── ONBOARDING_FLOW.md       # Deep dive on onboarding logic
+├── COMPLETE_FILES_SUMMARY.md# Full inventory (for auditors)
+├── COMPLETE_FLOW_SUMMARY.md # High-level business flows
+└── ...
+```
+
+**Naming rules**
+
+- React components and contexts: `PascalCase`.
+- Hooks and services: `camelCase`.
+- Stylesheets: match the component or page name.
+- Directories: snake case is forbidden; use lower-case words separated by dashes only when necessary.
+
+---
+
+## 2. Environment Setup
+
+### Prerequisites
+- Node.js 20.x (LTS) and npm 10+
+- Firebase project with Firestore and Authentication enabled
+- Optional: Chrome or Edge for debugging, VS Code with ESLint plugin
+
+### Installation
+```bash
+npm install
+```
+
+### Environment variables
+Create `.env.local` with the Firebase keys (see `.env.example` snippet below). Never commit environment files.
+
+```env
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+```
+
+---
+
+## 3. Running and Building
+
+| Purpose             | Command          | Notes                                      |
+|---------------------|------------------|--------------------------------------------|
+| Local development   | `npm run dev`    | Runs Vite dev server on port 5173          |
+| Type checking/lint  | `npm run lint`   | ESLint flat config                         |
+| Production build    | `npm run build`  | Emits artifacts in `dist/` (not committed) |
+| Preview build       | `npm run preview`| Serves production build locally            |
+
+Always run `npm run lint` before opening a pull request. The build must remain warning-free.
+
+---
+
+## 4. Application Architecture
+
+### Authentication and onboarding
+1. `/` (PublicLanding) collects no data; it only links to onboarding or login.
+2. `/onboarding` stores preferences in `sessionStorage` under `onboardingPreferences`.
+3. `/registration` or Google login reads that payload through `createProfileWithPreferences` and persists the profile with `onboardingCompleted: true`.
+4. Existing users automatically have `onboardingCompleted` enforced by `createUserProfile` to avoid loops.
+5. `ProtectedRoute` allows access only if Firebase Auth is satisfied and the profile flag is true.
+
+### Internationalization
+- `src/i18n.js` configures i18next with the HTTP backend and browser detection.
+- Static JSON bundles live in `public/locales/<lng>/translation.json`.
+- Every UI string must go through `useTranslation`. No inline literals in JSX except technical labels.
+
+### Services
+- `userService.js`: profile lifecycle (create, complete onboarding, update interface language).
+- `flashcardService.js`: CRUD plus SM-2 spaced repetition.
+- `chatService.js`, `ttsService.js`, `translationService.js`: remote API integration points (all HTTP-based, promise-returning functions).
+
+### State handling
+- Authentication context exposes `currentUser`, `userProfile`, status flags, and auth actions.
+- Page components remain lean by delegating data-access concerns to services and contexts.
+
+---
+
+## 5. Contribution Workflow
+
+1. **Create a feature branch** from `main` using `feature/<short-description>`.
+2. **Install dependencies** and ensure a clean `git status`.
+3. **Implement changes** while keeping components pure and deterministic.
+4. **Run quality gates**  
+   - `npm run lint`  
+   - `npm run build`
+5. **Add or update tests** in `src/components/tests/` when modifying auth, routing, or services.
+6. **Update documentation** (manual, onboarding guide, or summaries) whenever structure or flows change.
+7. **Open a pull request** with:
+   - Summary
+   - Screenshots (UI work)
+   - Testing evidence
+8. **Code review** is mandatory. Address feedback before merging.
+
+---
+
+## 6. Coding Guidelines
+
+- Avoid emojis, decorative glyphs, or playful copy in both source code and UI.
+- Keep logging serious and informative. Use structured data where possible.
+- Files should start with the four-line header comment (File, Created, Last-Updated, Description).
+- Components must remain stateless where possible; prefer hooks/services for side effects.
+- Use absolute imports only when aliasing is configured; otherwise stick to relative paths.
+
+---
+
+## 7. Known Limitations (Version 1.0)
+
+| Area              | Limitation                                                                      |
+|-------------------|----------------------------------------------------------------------------------|
+| Analytics         | No telemetry or error tracking beyond console logs.                             |
+| Testing           | Limited automated coverage (only auth and routing smoke tests).                 |
+| Accessibility     | Some placeholder pages need full keyboard navigation and ARIA review.          |
+| Offline support   | Service workers are not configured; the app requires a network connection.      |
+| Payments          | No monetization or subscription handling is implemented.                        |
+| Mobile polish     | Layout adapts but lacks device-specific optimizations or gestures.              |
+
+Do not ship beyond MVP scope until each limitation has a mitigation plan.
+
+---
+
+## 8. Future Roadmap
+
+1. **Trust and safety**
+   - Email verification and password reset
+   - Session expiration handling with refresh tokens
+2. **Learning depth**
+   - Rich statistics dashboards with Firestore aggregations
+   - Voice input assessment via Web Speech API
+3. **Collaboration**
+   - Shared study groups and leaderboard hooks
+4. **Content management**
+   - Import/export flashcards (CSV or Anki)
+   - Template-based flashcard generation
+5. **Infrastructure**
+   - Automated deployment pipeline (Vercel + Firebase rules check)
+   - Synthetic monitoring for uptime and latency
+
+Each roadmap item must include clear acceptance criteria before development begins.
+
+---
+
+## 9. Support Contacts
+
+- **Engineering owner**: Core Engineering (engineering@project.example)
+- **Product owner**: Language Learning Lead (product@project.example)
+- **Security**: Report incidents to security@project.example within 24 hours.
+
+---
+
+Version 1.0 is now considered stable. Treat this manual as the single source of truth when onboarding new contributors or auditing the repository.

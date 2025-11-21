@@ -47,12 +47,12 @@ function FlashcardForm({
       
       if (translatedText) {
         setTranslation(translatedText);
-        console.log('✅ Auto-translation successful');
+        console.log(' Auto-translation successful');
       } else {
         setError('Translation failed. Please enter manually.');
       }
     } catch (err) {
-      console.error('❌ Translation error:', err);
+      console.error(' Translation error:', err);
       setError('Translation error. Please try again.');
     } finally {
       setTranslating(false);
@@ -97,7 +97,7 @@ function FlashcardForm({
         setCategory('');
       }
     } catch (err) {
-      console.error('❌ Form submission error:', err);
+      console.error(' Form submission error:', err);
       setError('Failed to save flashcard. Please try again.');
     } finally {
       setLoading(false);
@@ -107,12 +107,12 @@ function FlashcardForm({
   return (
     <div className="flashcard-form-container">
       <div className="form-header">
-        <h2>{isEditing ? '✏️ Edit Flashcard' : '➕ New Flashcard'}</h2>
+        <h2>{isEditing ? ' Edit Flashcard' : ' New Flashcard'}</h2>
       </div>
 
       {error && (
         <div className="error-message">
-          ⚠️ {error}
+           {error}
         </div>
       )}
 
@@ -153,7 +153,7 @@ function FlashcardForm({
                 disabled={loading || translating || !originalWord.trim()}
                 className="btn-translate"
               >
-                {translating ? '⏳ Translating...' : '🔄 Auto-translate'}
+                {translating ? ' Translating...' : ' Auto-translate'}
               </button>
             )}
           </div>
@@ -210,7 +210,7 @@ function FlashcardForm({
               </>
             ) : (
               <>
-                {isEditing ? '💾 Update' : '💾 Save'}
+                {isEditing ? ' Update' : ' Save'}
               </>
             )}
           </button>

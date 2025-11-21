@@ -26,14 +26,14 @@ function ProtectedRoute({ children, requireOnboarding = true }) {
         color: '#667eea'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ marginBottom: '1rem' }}>🔄</div>
+          <div style={{ marginBottom: '1rem' }}></div>
           Loading...
         </div>
       </div>
     );
   }
 
-  // 1. User not logged in → redirect to login
+  // 1. User not logged in: redirect to login
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
@@ -42,7 +42,7 @@ function ProtectedRoute({ children, requireOnboarding = true }) {
   if (!requireOnboarding) {
     // If already completed onboarding, redirect to home
     if (userProfile?.onboardingCompleted) {
-      console.log('✅ Onboarding already completed, redirecting to home');
+      console.log(' Onboarding already completed, redirecting to home');
       return <Navigate to="/home" replace />;
     }
     // Otherwise, show the onboarding page
@@ -52,11 +52,11 @@ function ProtectedRoute({ children, requireOnboarding = true }) {
   // 3. For regular protected routes (requireOnboarding = true)
   // If onboarding not completed, redirect to onboarding
   if (!userProfile?.onboardingCompleted) {
-    console.log('🔄 Redirecting to onboarding');
+    console.log(' Redirecting to onboarding');
     return <Navigate to="/onboarding" replace />;
   }
 
-  // 4. All good → show content
+  // 4. All good: show content
   return children;
 }
 

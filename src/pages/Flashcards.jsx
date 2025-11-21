@@ -64,7 +64,7 @@ function Flashcards() {
       if (result.success) {
         setFlashcards([result.data, ...flashcards]);
         setShowForm(false);
-        console.log('✅ Flashcard created successfully');
+        console.log(' Flashcard created successfully');
       }
     } catch (error) {
       console.error('Error creating flashcard:', error);
@@ -80,7 +80,7 @@ function Flashcards() {
           card.id === cardId ? { ...card, ...newData } : card
         ));
         setEditingCard(null);
-        console.log('✅ Flashcard updated successfully');
+        console.log(' Flashcard updated successfully');
       }
     } catch (error) {
       console.error('Error updating flashcard:', error);
@@ -97,7 +97,7 @@ function Flashcards() {
 
       if (result.success) {
         setFlashcards(flashcards.filter(card => card.id !== cardId));
-        console.log('✅ Flashcard deleted successfully');
+        console.log(' Flashcard deleted successfully');
       }
     } catch (error) {
       console.error('Error deleting flashcard:', error);
@@ -152,21 +152,21 @@ function Flashcards() {
       {/* Header */}
       <header className="flashcards-header">
         <div className="header-content">
-          <h1>{t('flashcards.title', '📇 My Flashcards')}</h1>
+          <h1>{t('flashcards.title', ' My Flashcards')}</h1>
           <p>{t('flashcards.total_cards', '{{count}} total cards', { count: flashcards.length })}</p>
         </div>
         <button 
           onClick={() => setShowForm(true)}
           className="btn-primary"
         >
-          {t('flashcards.new_card', '➕ New Card')}
+          {t('flashcards.new_card', ' New Card')}
         </button>
       </header>
 
       {/* Filters */}
       <div className="flashcards-filters">
         <div className="search-bar">
-          <span className="search-icon">🔍</span>
+          <span className="search-icon"></span>
           <input
             type="text"
             placeholder={t('flashcards.search_placeholder', 'Search flashcards...')}
@@ -181,25 +181,25 @@ function Flashcards() {
             className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
             onClick={() => setFilter('all')}
           >
-            {t('flashcards.filters.all', '📚 All ({{count}})', { count: flashcards.length })}
+            {t('flashcards.filters.all', ' All ({{count}})', { count: flashcards.length })}
           </button>
           <button
             className={`filter-btn ${filter === 'new' ? 'active' : ''}`}
             onClick={() => setFilter('new')}
           >
-            {t('flashcards.filters.new', '✨ New ({{count}})', { count: newCount })}
+            {t('flashcards.filters.new', ' New ({{count}})', { count: newCount })}
           </button>
           <button
             className={`filter-btn ${filter === 'review' ? 'active' : ''}`}
             onClick={() => setFilter('review')}
           >
-            {t('flashcards.filters.review', '🔄 Review ({{count}})', { count: reviewCount })}
+            {t('flashcards.filters.review', ' Review ({{count}})', { count: reviewCount })}
           </button>
           <button
             className={`filter-btn ${filter === 'mastered' ? 'active' : ''}`}
             onClick={() => setFilter('mastered')}
           >
-            {t('flashcards.filters.mastered', '🏆 Mastered ({{count}})', { count: masteredCount })}
+            {t('flashcards.filters.mastered', ' Mastered ({{count}})', { count: masteredCount })}
           </button>
         </div>
       </div>
@@ -241,7 +241,7 @@ function Flashcards() {
           </div>
         ) : filteredFlashcards.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-icon">📭</div>
+            <div className="empty-icon"></div>
             <h2>
               {searchTerm || filter !== 'all' 
                 ? t('flashcards.empty.no_match', 'No flashcards match your filters')
@@ -257,7 +257,7 @@ function Flashcards() {
                 onClick={() => setShowForm(true)}
                 className="btn-primary"
               >
-                {t('flashcards.empty.create_button', '➕ Create First Card')}
+                {t('flashcards.empty.create_button', ' Create First Card')}
               </button>
             )}
           </div>
@@ -278,23 +278,23 @@ function Flashcards() {
       {/* Bottom Navigation */}
       <nav className="bottom-nav">
         <button onClick={() => navigate('/home')} className="nav-item">
-          <span>🏠</span>
+          <span></span>
           <span>{t('nav.home', 'Home')}</span>
         </button>
         <button onClick={() => navigate('/flashcards')} className="nav-item active">
-          <span>📇</span>
+          <span></span>
           <span>{t('nav.cards', 'Cards')}</span>
         </button>
         <button onClick={() => navigate('/study')} className="nav-item">
-          <span>📖</span>
+          <span></span>
           <span>{t('nav.study', 'Study')}</span>
         </button>
         <button onClick={() => navigate('/statistics')} className="nav-item">
-          <span>📊</span>
+          <span></span>
           <span>{t('nav.stats', 'Stats')}</span>
         </button>
         <button onClick={() => navigate('/settings')} className="nav-item">
-          <span>⚙️</span>
+          <span></span>
           <span>{t('nav.settings', 'Settings')}</span>
         </button>
       </nav>

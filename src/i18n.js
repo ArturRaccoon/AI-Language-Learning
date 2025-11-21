@@ -62,18 +62,18 @@ i18n
   });
 
 i18n.on('initialized', (options) => {
-  console.log('✅ i18next initialized');
-  console.log('📍 Detected language:', i18n.language);
-  console.log('🌍 Supported languages:', options.supportedLngs);
+  console.log(' i18next initialized');
+  console.log(' Detected language:', i18n.language);
+  console.log(' Supported languages:', options.supportedLngs);
 });
 
 i18n.on('languageChanged', (lng) => {
-  console.log('🔄 Language changed:', lng);
+  console.log(' Language changed:', lng);
   document.documentElement.lang = lng;
 });
 
 i18n.on('failedLoading', (lng, ns, msg) => {
-  console.error(`❌ Translation loading error [${lng}/${ns}]:`, msg);
+  console.error(` Translation loading error [${lng}/${ns}]:`, msg);
 });
 
 export default i18n;

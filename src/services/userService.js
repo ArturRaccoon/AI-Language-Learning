@@ -40,7 +40,7 @@ export const createUserProfile = async (uid, data) => {
       
       // If onboardingCompleted is false but profile exists, fix it
       if (!existingData.onboardingCompleted) {
-        console.log('⚠️ Fixing onboardingCompleted flag for existing user');
+        console.log(' Fixing onboardingCompleted flag for existing user');
         await updateDoc(userRef, {
           onboardingCompleted: true,
           updatedAt: serverTimestamp()
@@ -68,10 +68,10 @@ export const createUserProfile = async (uid, data) => {
     };
 
     await setDoc(userRef, profile);
-    console.log('✅ User profile created:', uid);
+    console.log(' User profile created:', uid);
     return profile;
   } catch (error) {
-    console.error('❌ Profile creation error:', error);
+    console.error(' Profile creation error:', error);
     throw new Error(`Unable to create profile: ${error.message}`);
   }
 };
@@ -97,10 +97,10 @@ export const completeOnboarding = async (uid, preferences) => {
       updatedAt: serverTimestamp()
     }, { merge: true });
 
-    console.log('✅ Onboarding completed for:', uid);
+    console.log(' Onboarding completed for:', uid);
     return true;
   } catch (error) {
-    console.error('❌ Onboarding completion error:', error);
+    console.error(' Onboarding completion error:', error);
     throw error;
   }
 };
@@ -122,7 +122,7 @@ export const getUserProfile = async (uid) => {
       ...userSnap.data()
     };
   } catch (error) {
-    console.error('❌ Profile retrieval error:', error);
+    console.error(' Profile retrieval error:', error);
     throw error;
   }
 };
@@ -137,9 +137,9 @@ export const updateInterfaceLanguage = async (uid, languageCode) => {
       interfaceLanguage: languageCode,
       updatedAt: serverTimestamp()
     });
-    console.log('✅ Interface language updated:', languageCode);
+    console.log(' Interface language updated:', languageCode);
   } catch (error) {
-    console.error('❌ Language update error:', error);
+    console.error(' Language update error:', error);
     throw error;
   }
 };

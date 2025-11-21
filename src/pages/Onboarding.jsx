@@ -18,27 +18,27 @@ const STEPS = {
 };
 
 const AVAILABLE_LANGUAGES = [
-  { code: 'fr', name: 'French', native: 'Français', flag: '🇫🇷' },
-  { code: 'it', name: 'Italian', native: 'Italiano', flag: '🇮🇹' },
-  { code: 'en', name: 'English', native: 'English', flag: '🇬🇧' },
-  { code: 'uk', name: 'Ukrainian', native: 'Українська', flag: '🇺🇦' }
+  { code: 'fr', name: 'French', native: 'Français' },
+  { code: 'it', name: 'Italian', native: 'Italiano' },
+  { code: 'en', name: 'English', native: 'English' },
+  { code: 'uk', name: 'Ukrainian', native: 'Українська' }
 ];
 
 const GOALS = [
-  { id: 'travel', icon: '✈️', key: 'goals.travel' },
-  { id: 'work', icon: '💼', key: 'goals.work' },
-  { id: 'study', icon: '📚', key: 'goals.study' },
-  { id: 'culture', icon: '🎭', key: 'goals.culture' },
-  { id: 'conversation', icon: '💬', key: 'goals.conversation' },
-  { id: 'other', icon: '🎯', key: 'goals.other' }
+  { id: 'travel', key: 'goals.travel' },
+  { id: 'work', key: 'goals.work' },
+  { id: 'study', key: 'goals.study' },
+  { id: 'culture', key: 'goals.culture' },
+  { id: 'conversation', key: 'goals.conversation' },
+  { id: 'other', key: 'goals.other' }
 ];
 
 const LEVELS = [
-  { code: 'beginner', icon: '🌱', key: 'levels.beginner' },
-  { code: 'elementary', icon: '📖', key: 'levels.elementary' },
-  { code: 'intermediate', icon: '💪', key: 'levels.intermediate' },
-  { code: 'advanced', icon: '🚀', key: 'levels.advanced' },
-  { code: 'native', icon: '⭐', key: 'levels.native' }
+  { code: 'beginner', key: 'levels.beginner' },
+  { code: 'elementary', key: 'levels.elementary' },
+  { code: 'intermediate', key: 'levels.intermediate' },
+  { code: 'advanced', key: 'levels.advanced' },
+  { code: 'native', key: 'levels.native' }
 ];
 
 function Onboarding() {
@@ -164,7 +164,7 @@ function Onboarding() {
       <div className="public-onboarding-card">
         <div className="onboarding-header">
           <img src="/logo.svg" alt="Logo" className="header-logo" />
-          <span className="header-title">duolingo</span>
+          <span className="header-title">ingoccon</span>
         </div>
 
         <div className="progress-container">
@@ -196,7 +196,6 @@ function Onboarding() {
                     }`}
                     onClick={() => handleLanguageSelect(lang.code)}
                   >
-                    <span className="language-flag-big">{lang.flag}</span>
                     <span className="language-name-big">{lang.name}</span>
                     <span className="language-native-big">{lang.native}</span>
                   </button>
@@ -221,16 +220,12 @@ function Onboarding() {
                     }`}
                     onClick={() => handleGoalToggle(goal.id)}
                   >
-                    <span className="goal-icon">{goal.icon}</span>
                     <span className="goal-title">
                       {t(`publicOnboarding.${goal.key}`, goal.id)}
                     </span>
                     <span className="goal-desc">
                       {t(`publicOnboarding.${goal.key}_desc`, '')}
                     </span>
-                    {preferences.goals.includes(goal.id) && (
-                      <span className="checkmark">✓</span>
-                    )}
                   </button>
                 ))}
               </div>
@@ -253,7 +248,6 @@ function Onboarding() {
                     }`}
                     onClick={() => handleLevelSelect(level.code)}
                   >
-                    <span className="level-icon">{level.icon}</span>
                     <span className="level-title">
                       {t(`publicOnboarding.${level.key}`, level.code)}
                     </span>
@@ -272,7 +266,7 @@ function Onboarding() {
             onClick={handleBack}
             className="btn-back"
           >
-            {currentStep === 0 ? '← Back to Home' : '← Back'}
+            {currentStep === 0 ? 'Back to Home' : 'Back'}
           </button>
 
           <button 
@@ -282,9 +276,9 @@ function Onboarding() {
           >
             {currentStep === totalSteps - 1 
               ? (isAuthenticated 
-                  ? t('publicOnboarding.finish', 'Save preferences →')
-                  : t('publicOnboarding.continue', 'Continue →'))
-              : t('common.next', 'Next →')
+                  ? t('publicOnboarding.finish', 'Save preferences')
+                  : t('publicOnboarding.continue', 'Continue'))
+              : t('common.next', 'Next')
             }
           </button>
         </div>
