@@ -2,7 +2,7 @@
 
 /**
  * Servizio Text-to-Speech con Google Cloud TTS
- * Selezione CASUALE delle voci ad ogni riproduzione (stile Duolingo)
+ * Selezione CASUALE delle voci ad ogni riproduzione
  * Voci Neural2/WaveNet per massima naturalezza
  */
 

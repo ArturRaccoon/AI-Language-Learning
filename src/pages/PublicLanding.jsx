@@ -8,7 +8,7 @@
  * - Smart: Clean Inter typography, generous spacing
  * - Tactile: Micro-interactions with depth (3D buttons)
  * - Focus-first: Minimal distractions, breathable layout
- * - Distinctive: NO green Duolingo vibes - Indigo + Coral accent
+ * - Distinctive: Indigo + Coral accent
  */
 
 import { useState, useEffect } from 'react';
