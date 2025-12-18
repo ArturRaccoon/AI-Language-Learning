@@ -1,14 +1,13 @@
 /**
  * FILE: src/pages/PublicLanding.jsx
  * UPDATED: 2025-01-19
- * DESCRIPTION: LinguaCoon landing page - "Nocturnal Intelligence" design
+ * DESCRIPTION: LinguaCoon landing page - Futuristic Dark Premium SaaS Design
  * 
  * Design philosophy:
- * - Nocturnal: Deep indigo palette, sophisticated not childish
- * - Smart: Clean Inter typography, generous spacing
- * - Tactile: Micro-interactions with depth (3D buttons)
- * - Focus-first: Minimal distractions, breathable layout
- * - Distinctive: Indigo + Coral accent
+ * - Dark & Premium: Deep black/slate background with purple/blue glows
+ * - Typography-First: Huge gradient headlines, less mascots
+ * - Glassy & Modern: Glassmorphism effects throughout
+ * - Tech-Forward: Grid patterns, glowing buttons, futuristic feel
  */
 
 import { useState, useEffect } from 'react';
@@ -16,7 +15,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import '../styles/PublicLanding.css';
 
-// Raccoon mascot SVG - refined version with more character
+// Small mascot for branding only
 const RaccoonMascot = ({ className = '', size = 'default' }) => (
   <svg 
     className={`raccoon-mascot ${className} raccoon-${size}`}
@@ -151,8 +150,6 @@ function PublicLanding() {
   const navigate = useNavigate();
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [showCookies, setShowCookies] = useState(false);
-  const [mascotHovered, setMascotHovered] = useState(false);
-  const [primaryBtnPressed, setPrimaryBtnPressed] = useState(false);
 
   const languages = [
     { code: 'en', name: 'English' },
@@ -198,6 +195,10 @@ function PublicLanding() {
 
   return (
     <div className="lc-landing">
+      {/* Animated background grid */}
+      <div className="lc-bg-grid"></div>
+      <div className="lc-bg-glow"></div>
+
       <header className="lc-header">
         <div className="lc-header-inner">
           <div className="lc-brand" onClick={() => navigate('/')} role="button" tabIndex={0}>
@@ -256,18 +257,9 @@ function PublicLanding() {
 
       <main className="lc-main">
         <section className="lc-hero">
-          <div 
-            className={`lc-mascot-wrapper ${mascotHovered ? 'hovered' : ''}`}
-            onMouseEnter={() => setMascotHovered(true)}
-            onMouseLeave={() => setMascotHovered(false)}
-          >
-            <div className="lc-mascot-glow" />
-            <RaccoonMascot size="hero" className={mascotHovered ? 'wiggle' : ''} />
-          </div>
-
           <div className="lc-hero-content">
             <h1 className="lc-headline">
-              {t('landing.hero_title')}
+              <span className="lc-gradient-text">{t('landing.hero_title')}</span>
             </h1>
             
             <p className="lc-subheadline">
@@ -276,11 +268,8 @@ function PublicLanding() {
 
             <div className="lc-cta-stack">
               <button 
-                className={`lc-btn lc-btn-primary ${primaryBtnPressed ? 'pressed' : ''}`}
+                className="lc-btn lc-btn-primary"
                 onClick={() => navigate('/onboarding')}
-                onMouseDown={() => setPrimaryBtnPressed(true)}
-                onMouseUp={() => setPrimaryBtnPressed(false)}
-                onMouseLeave={() => setPrimaryBtnPressed(false)}
               >
                 <span>{t('landing.cta_primary')}</span>
                 <svg className="lc-arrow" viewBox="0 0 20 20">
@@ -314,7 +303,6 @@ function PublicLanding() {
       {showCookies && (
         <div className="lc-cookies" role="dialog" aria-labelledby="cookie-heading">
           <div className="lc-cookies-inner">
-            <RaccoonMascot size="small" />
             <div className="lc-cookies-text">
               <h3 id="cookie-heading">{t('cookies.title')}</h3>
               <p>{t('cookies.description')}</p>

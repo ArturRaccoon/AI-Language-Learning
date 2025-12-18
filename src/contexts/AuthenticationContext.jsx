@@ -198,6 +198,3 @@ export const AuthenticationProvider = ({ children }) => {
     </AuthenticationContext.Provider>
   );
 };
-
-
-export default AuthenticationContext;

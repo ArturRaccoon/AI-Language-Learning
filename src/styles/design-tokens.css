@@ -48,9 +48,9 @@
   --color-accent-teal-700: #0F766E;
   
   /* Semantic colors */
-  --color-success-light: #D1FAE5;
-  --color-success: #10B981;
-  --color-success-dark: #059669;
+  --color-success-light: #DDD6FE;  /* Purple 200 */
+  --color-success: #8B5CF6;        /* Purple 500 */
+  --color-success-dark: #7C3AED;   /* Purple 600 */
   
   --color-error-light: #FEE2E2;
   --color-error: #DC2626;
@@ -183,7 +183,7 @@
   --shadow-primary-glow: 0 4px 14px 0 rgb(79 70 229 / 0.3);
   --shadow-coral-glow: 0 4px 14px 0 rgb(249 115 22 / 0.3);
   --shadow-teal-glow: 0 4px 14px 0 rgb(20 184 166 / 0.3);
-  --shadow-success-glow: 0 4px 14px 0 rgb(16 185 129 / 0.3);
+  --shadow-success-glow: 0 4px 14px 0 rgb(139 92 246 / 0.3); /* Purple instead of green */
   --shadow-error-glow: 0 4px 14px 0 rgb(220 38 38 / 0.3);
   
   /* Button "pressed" shadow (3D effect) */
