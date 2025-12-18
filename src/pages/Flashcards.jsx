@@ -206,8 +206,8 @@ function Flashcards() {
 
       {/* Flashcard Form Modal */}
       {showForm && (
-        <div className="modal-overlay" onClick={() => setShowForm(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowForm(false)}>
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
             <FlashcardForm
               onSubmit={handleCreateCard}
               onCancel={() => setShowForm(false)}
@@ -219,8 +219,8 @@ function Flashcards() {
 
       {/* Edit Form Modal */}
       {editingCard && (
-        <div className="modal-overlay" onClick={() => setEditingCard(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setEditingCard(null)}>
+          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
             <FlashcardForm
               initialData={editingCard}
               onSubmit={(data) => handleUpdateCard(editingCard.id, data)}
