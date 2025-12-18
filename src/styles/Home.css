@@ -1,29 +1,29 @@
 /**
  * FILE: src/styles/Home.css
- * LAST MODIFIED: 2025-01-19
- * DESCRIPTION: Styles for Home dashboard page
+ * DESCRIPTION: Dark Glass Theme for Home/Dashboard
+ * DESIGN: Deep Space / Glassmorphism - consistent with PublicLanding
  */
 
 /* ============================================
-   HOME CONTAINER
+   HOME CONTAINER - Transparent for body dark bg
    ============================================ */
 .home-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding-bottom: 80px; /* Space for bottom nav */
+  padding-bottom: 100px; /* Space for bottom nav */
 }
 
 /* ============================================
-   HEADER
+   HEADER - Glass Style
    ============================================ */
 .home-header {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   padding: 24px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--glass-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -32,20 +32,23 @@
 .header-content h1 {
   font-size: 28px;
   font-weight: 700;
-  color: #2d3748;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0 0 4px 0;
 }
 
 .header-content p {
   font-size: 14px;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .btn-logout {
-  background: white;
-  color: #e53e3e;
-  border: 2px solid #fc8181;
+  background: transparent;
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 10px 20px;
   border-radius: 12px;
   font-size: 14px;
@@ -55,10 +58,9 @@
 }
 
 .btn-logout:hover {
-  background: #e53e3e;
-  color: white;
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.5);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
 }
 
 /* ============================================
@@ -68,7 +70,7 @@
   padding: 24px 20px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 32px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -76,12 +78,12 @@
 .dashboard-grid h2 {
   font-size: 20px;
   font-weight: 700;
-  color: white;
+  color: var(--text-primary);
   margin: 0 0 16px 0;
 }
 
 /* ============================================
-   STATISTICS SECTION
+   STATISTICS SECTION - Glass Cards
    ============================================ */
 .stats-section {
   animation: fadeInUp 0.5s ease;
@@ -100,12 +102,13 @@
 
 .loading-stats,
 .no-stats {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
   padding: 40px 20px;
-  border-radius: 16px;
+  border-radius: 20px;
   text-align: center;
-  color: white;
+  color: var(--text-secondary);
   font-size: 16px;
 }
 
@@ -116,29 +119,30 @@
 }
 
 .stat-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 24px;
   display: flex;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
 }
 
 .stat-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-light);
 }
 
 .stat-card.highlight {
-  background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);
-  color: white;
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(99, 102, 241, 0.2));
+  border-color: var(--primary);
 }
 
 .stat-card.success {
-  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(168, 85, 247, 0.15));
 }
 
 .stat-icon {
@@ -150,27 +154,17 @@
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 4px 0;
-  color: #2d3748;
-}
-
-.stat-card.highlight .stat-content h3,
-.stat-card.success .stat-content h3 {
-  color: inherit;
+  color: var(--text-primary);
 }
 
 .stat-content p {
   font-size: 14px;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
 }
 
-.stat-card.highlight .stat-content p,
-.stat-card.success .stat-content p {
-  color: rgba(255, 255, 255, 0.9);
-}
-
 /* ============================================
-   ACTIONS SECTION
+   ACTIONS SECTION - Glass Cards
    ============================================ */
 .actions-section {
   animation: fadeInUp 0.6s ease;
@@ -183,20 +177,20 @@
 }
 
 .action-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: none;
-  border-radius: 16px;
-  padding: 24px 20px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px 24px;
   text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .action-card:hover:not(:disabled) {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+  border-color: var(--primary-light);
 }
 
 .action-card:disabled {
@@ -205,12 +199,13 @@
 }
 
 .action-card.primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+  box-shadow: 0 0 40px rgba(124, 58, 237, 0.3);
 }
 
 .action-card.primary:hover:not(:disabled) {
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 0 60px rgba(124, 58, 237, 0.5);
 }
 
 .action-icon {
@@ -222,7 +217,7 @@
 .action-card h3 {
   font-size: 18px;
   font-weight: 700;
-  color: #2d3748;
+  color: var(--text-primary);
   margin: 0 0 8px 0;
 }
 
@@ -232,30 +227,30 @@
 
 .action-card p {
   font-size: 14px;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .action-card.primary p {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.85);
 }
 
 /* ============================================
-   LEVEL SECTION
+   LEVEL SECTION - Glass Card
    ============================================ */
 .level-section {
   animation: fadeInUp 0.7s ease;
 }
 
 .level-bars {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 16px;
-  padding: 24px;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .level-bar {
@@ -269,13 +264,13 @@
   justify-content: space-between;
   font-size: 14px;
   font-weight: 600;
-  color: #2d3748;
+  color: var(--text-primary);
 }
 
 .progress-bar {
   width: 100%;
   height: 10px;
-  background: #e2e8f0;
+  background: rgba(148, 163, 184, 0.2);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -286,40 +281,31 @@
   border-radius: 8px;
 }
 
-.progress-fill.level-1 {
-  background: linear-gradient(90deg, #fc8181 0%, #f56565 100%);
-}
-
-.progress-fill.level-2 {
-  background: linear-gradient(90deg, #f6ad55 0%, #ed8936 100%);
-}
-
-.progress-fill.level-3 {
-  background: linear-gradient(90deg, #fbd38d 0%, #f6ad55 100%);
-}
-
-.progress-fill.level-4 {
-  background: linear-gradient(90deg, #9ae6b4 0%, #68d391 100%);
-}
-
+/* All progress bars use violet/indigo gradient */
+.progress-fill.level-1,
+.progress-fill.level-2,
+.progress-fill.level-3,
+.progress-fill.level-4,
 .progress-fill.level-5 {
-  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
 }
 
 /* ============================================
-   HOME NAVIGATION
+   HOME NAVIGATION - Glass Style
    ============================================ */
 .home-nav {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   display: flex;
   justify-content: space-around;
-  padding: 12px 8px 20px;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  padding: 12px 8px 24px;
+  border-top: 1px solid var(--glass-border);
   z-index: 100;
 }
 
@@ -331,13 +317,13 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 8px 12px;
-  border-radius: 12px;
+  padding: 10px 16px;
+  border-radius: 14px;
   transition: all 0.3s ease;
-  color: #718096;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 500;
-  min-width: 60px;
+  min-width: 64px;
 }
 
 .nav-item span:first-child {
@@ -346,8 +332,8 @@
 }
 
 .nav-item:hover {
-  background: rgba(102, 126, 234, 0.1);
-  color: #667eea;
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--primary-light);
 }
 
 .nav-item:hover span:first-child {
@@ -355,8 +341,8 @@
 }
 
 .nav-item.active {
-  color: #667eea;
-  background: rgba(102, 126, 234, 0.15);
+  color: var(--primary-light);
+  background: rgba(124, 58, 237, 0.2);
 }
 
 .nav-item.active span:first-child {
@@ -394,7 +380,7 @@
   }
 
   .stat-card {
-    padding: 16px;
+    padding: 20px;
   }
 
   .stat-icon {
@@ -410,7 +396,7 @@
   }
 
   .action-card {
-    padding: 20px 16px;
+    padding: 24px 20px;
   }
 }
 
@@ -428,7 +414,7 @@
 .btn-logout:focus,
 .action-card:focus,
 .nav-item:focus {
-  outline: 3px solid #667eea;
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -436,6 +422,6 @@
   .stat-card,
   .action-card,
   .level-bars {
-    border: 2px solid #2d3748;
+    border-width: 2px;
   }
 }

@@ -1,22 +1,32 @@
 /**
- * FILE: src/styles/PublicOnboarding.css
- * CREATED: 2025-11-09
- * DESCRIPTION: Styles for public onboarding flow (language, goals, level)
+ * FILE: src/styles/Onboarding.css
+ * DESCRIPTION: Dark Glass Theme for Onboarding Flow
+ * DESIGN: Deep Space / Glassmorphism - consistent with PublicLanding
  */
 
+/* ============================================
+   CONTAINER - Transparent to show body dark bg
+   ============================================ */
 .public-onboarding-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #ffffff 0%, #f7f7f7 100%);
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 40px 20px;
 }
 
+/* ============================================
+   MAIN CARD - Glass Style
+   ============================================ */
 .public-onboarding-card {
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-highlight);
   max-width: 800px;
   width: 100%;
   padding: 40px;
@@ -34,7 +44,9 @@
   }
 }
 
-/* Header */
+/* ============================================
+   HEADER - Gradient title
+   ============================================ */
 .onboarding-header {
   display: flex;
   align-items: center;
@@ -51,11 +63,16 @@
 .header-title {
   font-size: 28px;
   font-weight: 800;
-  color: #58cc02;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #6366f1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
 }
 
-/* Progress Bar */
+/* ============================================
+   PROGRESS BAR - Purple/Violet gradient
+   ============================================ */
 .progress-container {
   margin-bottom: 40px;
 }
@@ -63,7 +80,7 @@
 .progress-bar {
   width: 100%;
   height: 12px;
-  background: #e5e5e5;
+  background: rgba(148, 163, 184, 0.2);
   border-radius: 12px;
   overflow: hidden;
   margin-bottom: 8px;
@@ -71,9 +88,10 @@
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #58cc02 0%, #46a302 100%);
+  background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
   transition: width 0.3s ease;
   border-radius: 12px;
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
 }
 
 .progress-text {
@@ -81,10 +99,12 @@
   text-align: center;
   font-size: 14px;
   font-weight: 600;
-  color: #777;
+  color: var(--text-secondary);
 }
 
-/* Step Content */
+/* ============================================
+   STEP CONTENT
+   ============================================ */
 .step-content {
   min-height: 400px;
   margin-bottom: 32px;
@@ -93,19 +113,29 @@
 .step h1 {
   font-size: 32px;
   font-weight: 800;
-  color: #4b4b4b;
+  color: var(--text-primary);
   margin: 0 0 12px 0;
   text-align: center;
 }
 
 .step .subtitle {
   font-size: 18px;
-  color: #777;
+  color: var(--text-secondary);
   margin: 0 0 40px 0;
   text-align: center;
 }
 
-/* Language Selection Grid */
+.step-description {
+  font-size: 18px;
+  color: var(--text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* ============================================
+   LANGUAGE SELECTION GRID - Glass cards
+   ============================================ */
 .language-selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -113,8 +143,8 @@
 }
 
 .language-card {
-  background: white;
-  border: 3px solid #e5e5e5;
+  background: rgba(15, 23, 42, 0.5);
+  border: 2px solid var(--glass-border);
   border-radius: 16px;
   padding: 24px;
   display: flex;
@@ -125,29 +155,35 @@
   transition: all 0.2s;
   min-height: 180px;
   justify-content: center;
+  backdrop-filter: blur(10px);
 }
 
 .language-card:hover {
-  border-color: #58cc02;
+  border-color: var(--primary-light);
   transform: translateY(-4px);
-  box-shadow: 0 8px 16px rgba(88, 204, 2, 0.2);
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.2);
 }
 
 .language-card.selected {
-  background: #ddf4ff;
-  border-color: #1cb0f6;
-  line-height: 1.2;
+  background: rgba(124, 58, 237, 0.15);
+  border-color: var(--primary);
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
 }
 
-.step-description {
+.language-card .card-icon,
+.language-card .flag-emoji {
+  font-size: 48px;
+}
+
+.language-card .card-title {
   font-size: 18px;
-  color: var(--text-muted);
-  max-width: 600px;
-  margin: 0 auto;
-  line-height: 1.5;
+  font-weight: 600;
+  color: var(--text-primary);
 }
 
-/* Selection Grid */
+/* ============================================
+   SELECTION GRID - Glass cards
+   ============================================ */
 .selection-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -155,29 +191,30 @@
 }
 
 .selection-card {
-  background: white;
-  border: 1px solid var(--text-light);
-  border-radius: var(--radius);
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
   padding: 24px;
   cursor: pointer;
-  transition: var(--transition);
+  transition: all 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 16px;
   text-align: center;
+  backdrop-filter: blur(10px);
 }
 
 .selection-card:hover {
-  background: var(--bg-input);
+  background: rgba(15, 23, 42, 0.7);
   border-color: var(--text-muted);
   transform: translateY(-2px);
 }
 
 .selection-card.selected {
-  background: var(--primary-light);
+  background: rgba(124, 58, 237, 0.15);
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px var(--primary);
+  box-shadow: 0 0 0 2px var(--primary), 0 0 30px rgba(124, 58, 237, 0.2);
 }
 
 .card-icon {
@@ -188,15 +225,17 @@
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
 .card-subtitle {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
-/* Range Slider */
+/* ============================================
+   RANGE SLIDER
+   ============================================ */
 .range-container {
   padding: 40px 0;
   display: flex;
@@ -208,19 +247,22 @@
 .range-value {
   font-size: 48px;
   font-weight: 800;
-  color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .range-label {
   font-size: 18px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 input[type="range"] {
   width: 100%;
   max-width: 400px;
   height: 8px;
-  background: var(--bg-input);
+  background: rgba(148, 163, 184, 0.2);
   border-radius: 4px;
   outline: none;
   -webkit-appearance: none;
@@ -231,10 +273,10 @@ input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 24px;
   height: 24px;
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: var(--shadow);
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.5);
   transition: transform 0.1s;
 }
 
@@ -242,59 +284,63 @@ input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
-/* Navigation Buttons */
+/* ============================================
+   NAVIGATION BUTTONS
+   ============================================ */
 .navigation-buttons {
   display: flex;
   justify-content: space-between;
   margin-top: auto;
   padding-top: 40px;
-  border-top: 1px solid var(--bg-input);
+  border-top: 1px solid var(--glass-border);
 }
 
 .btn-back {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   border: none;
   padding: 12px 24px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: var(--transition);
-  border-radius: var(--radius-sm);
+  transition: all 0.2s;
+  border-radius: 12px;
 }
 
 .btn-back:hover {
-  background: var(--bg-input);
-  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
 }
 
 .btn-next {
-  background: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
   border: none;
-  padding: 14px 40px;
+  padding: 16px 40px;
   font-size: 16px;
-  font-weight: 600;
-  border-radius: var(--radius);
+  font-weight: 700;
+  border-radius: 14px;
   cursor: pointer;
-  transition: var(--transition);
-  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
 }
 
-.btn-next:hover {
-  background: var(--primary-hover);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+.btn-next:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(124, 58, 237, 0.5);
 }
 
 .btn-next:disabled {
-  background: var(--text-light);
+  background: rgba(148, 163, 184, 0.3);
+  color: var(--text-muted);
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
 }
 
-/* Welcome Screen Specifics */
+/* ============================================
+   WELCOME SCREEN - Glass features
+   ============================================ */
 .welcome-features {
   display: grid;
   grid-template-columns: 1fr;
@@ -306,39 +352,48 @@ input[type="range"]::-webkit-slider-thumb:hover {
   display: flex;
   align-items: center;
   gap: 20px;
-  background: white;
+  background: rgba(15, 23, 42, 0.5);
   padding: 20px;
-  border-radius: var(--radius);
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
 }
 
 .feature-icon {
   font-size: 32px;
-  background: var(--primary-light);
+  background: rgba(124, 58, 237, 0.2);
   width: 64px;
   height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  color: var(--primary);
+  color: var(--primary-light);
 }
 
 .feature-text h3 {
   font-size: 18px;
   font-weight: 700;
+  color: var(--text-primary);
   margin: 0 0 4px 0;
 }
 
 .feature-text p {
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin: 0;
 }
 
-/* Responsive */
+/* ============================================
+   RESPONSIVE
+   ============================================ */
 @media (max-width: 640px) {
-  .step-title {
+  .public-onboarding-card {
+    padding: 28px 20px;
+    border-radius: 20px;
+  }
+
+  .step h1 {
     font-size: 24px;
   }
   
@@ -360,8 +415,8 @@ input[type="range"]::-webkit-slider-thumb:hover {
   .step h1 {
     font-size: 20px;
   }
-  .goals-grid,
-  .levels-grid {
-    grid-template-columns: 1fr;
+
+  .language-selection-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }

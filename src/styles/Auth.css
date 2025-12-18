@@ -1,25 +1,33 @@
 /**
  * FILE: src/styles/Auth.css
- * LAST MODIFIED: 2025-01-19
- * DESCRIPTION: Shared styles for authentication pages (Login & Registration)
+ * DESCRIPTION: Dark Glass Theme for Authentication Pages (Login & Registration)
+ * DESIGN: Deep Space / Glassmorphism - consistent with PublicLanding
  */
 
 /* ============================================
-   AUTH CONTAINER
+   AUTH CONTAINER - Let body dark bg show
    ============================================ */
 .auth-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 20px;
+  position: relative;
 }
 
+/* ============================================
+   AUTH CARD - Glass Card Style
+   ============================================ */
 .auth-card {
-  background: white;
-  border-radius: 24px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 28px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 var(--glass-highlight);
   max-width: 450px;
   width: 100%;
   padding: 48px 40px;
@@ -38,7 +46,7 @@
 }
 
 /* ============================================
-   AUTH HEADER
+   AUTH HEADER - Light text for dark bg
    ============================================ */
 .auth-header {
   text-align: center;
@@ -48,33 +56,46 @@
 .auth-header h1 {
   font-size: 32px;
   font-weight: 700;
-  color: #2d3748;
+  background: linear-gradient(135deg, #60a5fa, #a78bfa, #6366f1);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   margin: 0 0 8px 0;
 }
 
 .auth-header p {
   font-size: 16px;
-  color: #718096;
+  color: var(--text-secondary);
   margin: 0;
-}
-
-/* ============================================
-   ERROR MESSAGE
-   ============================================ */
-.error-message {
-  background: #fee;
 }
 
 .auth-subtitle {
   font-size: 15px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   margin: 0;
 }
 
+/* ============================================
+   ERROR MESSAGE - Dark mode compatible
+   ============================================ */
+.error-message {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 14px 16px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* ============================================
+   FORM STYLES
+   ============================================ */
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 18px;
 }
 
 .form-group {
@@ -83,73 +104,70 @@
   gap: 8px;
 }
 
-.form-label {
+.form-group label {
   font-size: 14px;
   font-weight: 600;
-  color: var(--text-main);
+  color: var(--text-primary);
 }
 
-.form-input {
-  padding: 12px 16px;
-  border: 1px solid var(--text-light);
-  border-radius: var(--radius-sm);
+.form-group input {
+  padding: 14px 16px;
+  background: rgba(2, 6, 23, 0.5);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 12px;
   font-size: 16px;
-  transition: var(--transition);
-  background: var(--bg-input);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
 }
 
-.form-input:focus {
+.form-group input::placeholder {
+  color: var(--text-muted);
+}
+
+.form-group input:focus {
   outline: none;
   border-color: var(--primary);
-  background: white;
-  box-shadow: 0 0 0 3px var(--primary-light);
+  background: rgba(2, 6, 23, 0.7);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
 }
 
-.auth-button {
-  margin-top: 8px;
-  background: var(--primary);
+.form-group input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.form-group small {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+/* ============================================
+   PRIMARY BUTTON - Neon Style
+   ============================================ */
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: white;
-  padding: 14px;
   border: none;
-}
-
-/* Google Button - Modern Social Style */
-.btn-google {
-  width: 100%;
-  background: white; /* bg-white */
-  color: #374151; /* text-gray-700 */
-  border: 1px solid #d1d5db; /* border-gray-300 */
-  padding: 12px 24px;
-  border-radius: var(--radius); /* Match btn-primary rounded-xl concept */
+  padding: 16px 24px;
+  border-radius: 14px;
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  margin-top: 16px;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+  margin-top: 8px;
 }
 
-.btn-google img {
-  width: 24px; /* w-6 */
-  height: 24px; /* h-6 */
-  margin-right: 0; /* Flex gap handles spacing */
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(124, 58, 237, 0.5);
 }
 
-.btn-google:hover:not(:disabled) {
-  background-color: #f9fafb; /* hover:bg-gray-50 */
-  border-color: #c0c4c8;
-  transform: translateY(-1px);
-}
-
-.btn-google:active:not(:disabled) {
+.btn-primary:active:not(:disabled) {
   transform: translateY(0);
-  background-color: #f3f4f6;
 }
 
-.btn-google:disabled {
+.btn-primary:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -161,7 +179,7 @@
 .divider {
   position: relative;
   text-align: center;
-  margin: 24px 0;
+  margin: 28px 0;
 }
 
 .divider::before {
@@ -171,16 +189,58 @@
   left: 0;
   right: 0;
   height: 1px;
-  background: #e2e8f0;
+  background: var(--glass-border);
 }
 
 .divider span {
   position: relative;
-  background: white;
+  background: transparent;
   padding: 0 16px;
   font-size: 14px;
   font-weight: 500;
-  color: #718096;
+  color: var(--text-muted);
+  background: var(--bg-elevated);
+}
+
+/* ============================================
+   GOOGLE BUTTON - Visible on dark bg
+   ============================================ */
+.btn-google {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  color: #374151;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 14px 24px;
+  border-radius: 14px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.btn-google img {
+  width: 22px;
+  height: 22px;
+}
+
+.btn-google:hover:not(:disabled) {
+  background: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.btn-google:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-google:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }
 
 /* ============================================
@@ -188,26 +248,26 @@
    ============================================ */
 .auth-footer {
   text-align: center;
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid #e2e8f0;
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--glass-border);
 }
 
 .auth-footer p {
-  font-size: 14px;
-  color: #718096;
+  font-size: 15px;
+  color: var(--text-secondary);
   margin: 0;
 }
 
 .auth-footer a {
-  color: #667eea;
+  color: var(--primary-light);
   font-weight: 600;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .auth-footer a:hover {
-  color: #764ba2;
+  color: var(--accent);
   text-decoration: underline;
 }
 
@@ -215,13 +275,9 @@
    RESPONSIVE DESIGN
    ============================================ */
 @media (max-width: 600px) {
-  .auth-container {
-    padding: 16px;
-  }
-
   .auth-card {
-    padding: 36px 28px;
-    border-radius: 20px;
+    padding: 36px 24px;
+    border-radius: 24px;
   }
 
   .auth-header h1 {
@@ -236,7 +292,7 @@
   .btn-primary,
   .btn-google {
     font-size: 15px;
-    padding: 12px 16px;
+    padding: 14px 16px;
   }
 }
 
@@ -257,7 +313,7 @@
   .btn-primary,
   .btn-google {
     font-size: 14px;
-    padding: 11px 14px;
+    padding: 12px 14px;
   }
 }
 
@@ -272,118 +328,26 @@
   }
 }
 
-/* Focus states for keyboard navigation */
 .btn-primary:focus,
 .btn-google:focus,
 .form-group input:focus {
-  outline: 3px solid #667eea;
+  outline: 3px solid var(--primary);
   outline-offset: 2px;
 }
 
 .auth-footer a:focus {
-  outline: 2px solid #667eea;
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* High contrast mode support */
 @media (prefers-contrast: high) {
   .form-group input,
   .btn-google {
-    border-width: 3px;
+    border-width: 2px;
   }
 
   .error-message {
     border-width: 2px;
   }
-}
-
-/* Dark mode support (future enhancement) */
-@media (prefers-color-scheme: dark) {
-  /* Dark mode styles can be added here if needed */
-}
-
-/* ============================================
-   LOADING STATES
-   ============================================ */
-.btn-primary:disabled,
-.btn-google:disabled {
-  position: relative;
-}
-
-/* Optional: Add a spinner animation for loading buttons */
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* ============================================
-   PASSWORD STRENGTH INDICATOR (Optional)
-   ============================================ */
-.password-strength {
-  height: 4px;
-  border-radius: 2px;
-  background: #e2e8f0;
-  margin-top: 8px;
-  overflow: hidden;
-}
-
-.password-strength-bar {
-  height: 100%;
-  transition: all 0.3s ease;
-}
-
-.password-strength-bar.weak {
-  width: 33%;
-  background: #fc8181;
-}
-
-.password-strength-bar.medium {
-  width: 66%;
-  background: #f6ad55;
-}
-
-.password-strength-bar.strong {
-  width: 100%;
-  background: #68d391;
-}
-
-/* ============================================
-   FORM VALIDATION STATES
-   ============================================ */
-.form-group input:invalid:not(:placeholder-shown) {
-  border-color: #fc8181;
-}
-
-.form-group input:valid:not(:placeholder-shown) {
-  border-color: #68d391;
-}
-
-.form-group.has-error input {
-  border-color: #fc8181;
-  background: rgba(252, 129, 129, 0.05);
-}
-
-.form-group.has-success input {
-  border-color: #68d391;
-  background: rgba(104, 211, 145, 0.05);
-}
-
-/* Error text below input */
-.form-error {
-  font-size: 12px;
-  color: #c53030;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Success text below input */
-.form-success {
-  font-size: 12px;
-  color: #2f855a;
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
