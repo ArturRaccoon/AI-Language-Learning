@@ -25,3 +25,17 @@ export async function generateChatResponse(userMessage, flashcardsContext) {
   const data = await response.json();
   return data[0].generated_text;
 }
+
+function buildPrompt(userMessage, flashcardsContext) {
+  const contextStr = flashcardsContext 
+    ? `\nContext (Flashcards): ${JSON.stringify(flashcardsContext)}`
+    : '';
+    
+  return `<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+You are a helpful language tutor assistant named LinguaCoon.
+Your goal is to help the user learn their target language.
+${contextStr}
+<|eot_id|><|start_header_id|>user<|end_header_id|>
+${userMessage}
+<|eot_id|><|start_header_id|>assistant<|end_header_id|>`;
+}

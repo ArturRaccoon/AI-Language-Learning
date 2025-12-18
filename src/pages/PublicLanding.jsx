@@ -248,7 +248,7 @@ function PublicLanding() {
             </div>
 
             <button className="lc-login-btn" onClick={() => navigate('/login')}>
-              {t('landing.login', 'Accedi')}
+              {t('landing.login_button')}
             </button>
           </div>
         </div>
@@ -267,11 +267,11 @@ function PublicLanding() {
 
           <div className="lc-hero-content">
             <h1 className="lc-headline">
-              {t('landing.title', 'Il tuo compagno intelligente per imparare le lingue')}
+              {t('landing.hero_title')}
             </h1>
             
             <p className="lc-subheadline">
-              {t('landing.subtitle', 'Parla, scrivi, impara. Con feedback AI in tempo reale.')}
+              {t('landing.hero_subtitle')}
             </p>
 
             <div className="lc-cta-stack">
@@ -282,29 +282,29 @@ function PublicLanding() {
                 onMouseUp={() => setPrimaryBtnPressed(false)}
                 onMouseLeave={() => setPrimaryBtnPressed(false)}
               >
-                <span>{t('landing.getStarted', 'Inizia gratis')}</span>
+                <span>{t('landing.cta_primary')}</span>
                 <svg className="lc-arrow" viewBox="0 0 20 20">
                   <path d="M4 10H16M12 5L17 10L12 15" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
               </button>
               
               <button className="lc-btn lc-btn-secondary" onClick={() => navigate('/login')}>
-                {t('landing.haveAccount', 'Ho già un account')}
+                {t('landing.cta_secondary')}
               </button>
             </div>
 
             <div className="lc-trust-row">
               <div className="lc-trust-badge">
                 <FeatureIcon type="ai" />
-                <span>{t('landing.trust1', 'Feedback personalizzato')}</span>
+                <span>{t('landing.features.personalized')}</span>
               </div>
               <div className="lc-trust-badge">
                 <FeatureIcon type="time" />
-                <span>{t('landing.trust2', '5 minuti al giorno')}</span>
+                <span>{t('landing.features.five_mins')}</span>
               </div>
               <div className="lc-trust-badge">
                 <FeatureIcon type="free" />
-                <span>{t('landing.trust3', 'Nessuna carta richiesta')}</span>
+                <span>{t('landing.features.no_card')}</span>
               </div>
             </div>
           </div>
@@ -316,15 +316,15 @@ function PublicLanding() {
           <div className="lc-cookies-inner">
             <RaccoonMascot size="small" />
             <div className="lc-cookies-text">
-              <h3 id="cookie-heading">{t('cookies.title', 'Usiamo i cookie')}</h3>
-              <p>{t('cookies.description', 'Utilizziamo cookie per migliorare la tua esperienza e analizzare l\'utilizzo del sito.')}</p>
+              <h3 id="cookie-heading">{t('cookies.title')}</h3>
+              <p>{t('cookies.description')}</p>
             </div>
             <div className="lc-cookies-actions">
               <button className="lc-btn lc-btn-accept" onClick={acceptCookies}>
-                {t('cookies.accept', 'Accetta')}
+                {t('cookies.accept')}
               </button>
               <button className="lc-btn lc-btn-reject" onClick={rejectCookies}>
-                {t('cookies.reject', 'Rifiuta')}
+                {t('cookies.reject')}
               </button>
             </div>
           </div>

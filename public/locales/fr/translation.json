@@ -272,9 +272,16 @@
     "coming_soon": "Les statistiques détaillées seront bientôt disponibles!"
   },
   "landing": {
-    "title": "Votre compagnon intelligent pour maîtriser les langues",
-    "getStarted": "COMMENCER",
-    "login": "J'AI DÉJÀ UN COMPTE"
+    "hero_title": "Votre compagnon intelligent pour maîtriser les langues",
+    "hero_subtitle": "Parlez, écrivez, apprenez. Avec des commentaires IA en temps réel.",
+    "cta_primary": "Commencer",
+    "cta_secondary": "J'ai déjà un compte",
+    "login_button": "Connexion",
+    "features": {
+      "personalized": "Feedback personnalisé",
+      "five_mins": "5 minutes par jour",
+      "no_card": "Aucune carte requise"
+    }
   },
   "cookies": {
     "title": "LinguaCoon utilise des cookies",

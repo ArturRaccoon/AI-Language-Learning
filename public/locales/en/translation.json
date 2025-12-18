@@ -273,9 +273,16 @@
     "coming_soon": "Detailed statistics will be available soon!"
   },
   "landing": {
-    "title": "Your intelligent companion for language mastery",
-    "getStarted": "GET STARTED",
-    "login": "I ALREADY HAVE AN ACCOUNT"
+    "hero_title": "Your intelligent companion for language mastery",
+    "hero_subtitle": "Speak, write, learn. With real-time AI feedback.",
+    "cta_primary": "Get Started",
+    "cta_secondary": "I already have an account",
+    "login_button": "Login",
+    "features": {
+      "personalized": "Personalized feedback",
+      "five_mins": "5 minutes a day",
+      "no_card": "No credit card required"
+    }
   },
   "cookies": {
     "title": "LinguaCoon uses cookies",

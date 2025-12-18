@@ -15,7 +15,7 @@ const AVAILABLE_LANGUAGES = [
 ];
 
 function LanguageSelector({ variant = 'default' }) {
-  const { i18n, t } = useTranslation();
+  const { i18n } = useTranslation();
 
   function changeLanguage(langCode) {
     i18n.changeLanguage(langCode);

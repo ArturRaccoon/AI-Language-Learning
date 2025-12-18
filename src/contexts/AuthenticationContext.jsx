@@ -15,12 +15,11 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
+import { AuthenticationContext } from './AuthCtx';
 import { 
   createUserProfile, 
   getUserProfile 
 } from '../services/userService';
-
-const AuthenticationContext = createContext();
 
 export const useAuthentication = () => {
   const context = useContext(AuthenticationContext);
