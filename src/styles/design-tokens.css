@@ -183,7 +183,7 @@
   --shadow-primary-glow: 0 4px 14px 0 rgb(79 70 229 / 0.3);
   --shadow-coral-glow: 0 4px 14px 0 rgb(249 115 22 / 0.3);
   --shadow-teal-glow: 0 4px 14px 0 rgb(20 184 166 / 0.3);
-  --shadow-success-glow: 0 4px 14px 0 rgb(139 92 246 / 0.3); /* Purple instead of green */
+  --shadow-success-glow: 0 4px 14px 0 rgb(139 92 246 / 0.3);
   --shadow-error-glow: 0 4px 14px 0 rgb(220 38 38 / 0.3);
   
   /* Button "pressed" shadow (3D effect) */

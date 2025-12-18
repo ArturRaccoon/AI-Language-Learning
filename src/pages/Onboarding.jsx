@@ -159,12 +159,20 @@ function Onboarding() {
     return false;
   };
 
+  // Shared classes for all cards
+  const baseCardClasses = "flex flex-col items-center justify-center p-6 gap-3 transition-all duration-200 ease-in-out cursor-pointer backdrop-blur-md rounded-xl border";
+  const unselectedClasses = "bg-slate-800/40 border-slate-700/50 text-slate-300 hover:bg-slate-700/60 hover:border-indigo-400/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-500/20 hover:text-white";
+  const selectedClasses = "border-2 border-indigo-500 bg-indigo-900/30 shadow-xl shadow-indigo-500/40 text-indigo-100";
+
+  const getCardClass = (isSelected) => {
+    return `${baseCardClasses} ${isSelected ? selectedClasses : unselectedClasses}`;
+  };
+
   return (
     <div className="public-onboarding-container">
       <div className="public-onboarding-card">
         <div className="onboarding-header">
-          <img src="/logo.svg" alt="Logo" className="header-logo" />
-          <span className="header-title">ingoccon</span>
+          <span className="header-title" style={{ fontSize: '2.5rem' }}>LinguaCoon</span>
         </div>
 
         <div className="progress-container">
@@ -191,9 +199,7 @@ function Onboarding() {
                 {AVAILABLE_LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
-                    className={`language-card ${
-                      preferences.targetLanguage === lang.code ? 'selected' : ''
-                    }`}
+                    className={`language-card ${preferences.targetLanguage === lang.code ? 'selected' : ''}`}
                     onClick={() => handleLanguageSelect(lang.code)}
                   >
                     <span className="language-name-big">{lang.name}</span>
@@ -215,9 +221,7 @@ function Onboarding() {
                 {GOALS.map((goal) => (
                   <button
                     key={goal.id}
-                    className={`goal-card ${
-                      preferences.goals.includes(goal.id) ? 'selected' : ''
-                    }`}
+                    className={`goal-card ${preferences.goals.includes(goal.id) ? 'selected' : ''}`}
                     onClick={() => handleGoalToggle(goal.id)}
                   >
                     <span className="goal-title">
@@ -243,9 +247,7 @@ function Onboarding() {
                 {LEVELS.map((level) => (
                   <button
                     key={level.code}
-                    className={`level-card ${
-                      preferences.level === level.code ? 'selected' : ''
-                    }`}
+                    className={`level-card ${preferences.level === level.code ? 'selected' : ''}`}
                     onClick={() => handleLevelSelect(level.code)}
                   >
                     <span className="level-title">
@@ -271,8 +273,9 @@ function Onboarding() {
 
           <button 
             onClick={handleNext}
-            className={`btn-continue ${canProceed() && !isSubmitting ? '' : 'disabled'}`}
+            className={`btn-neon ${canProceed() && !isSubmitting ? '' : 'opacity-50 cursor-not-allowed'}`}
             disabled={!canProceed() || isSubmitting}
+            style={{ minWidth: '160px' }}
           >
             {currentStep === totalSteps - 1 
               ? (isAuthenticated 
@@ -287,7 +290,7 @@ function Onboarding() {
         <div className="auth-footer" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
           <p>
             {t('publicOnboarding.hasAccount', 'Already have an account?')}{' '}
-            <Link to="/login" style={{ color: '#58CC02', fontWeight: '600', textDecoration: 'none' }}>
+            <Link to="/login" style={{ color: '#8b5cf6', fontWeight: '600', textDecoration: 'none' }}>
               {t('publicOnboarding.signIn', 'Sign in')}
             </Link>
           </p>
