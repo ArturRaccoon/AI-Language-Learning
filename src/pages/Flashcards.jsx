@@ -8,15 +8,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthentication } from '../contexts/AuthenticationContext';
-import { 
-  createFlashcard, 
-  getFlashcards, 
-  updateFlashcard, 
-  deleteFlashcard 
+import {
+  createFlashcard,
+  getFlashcards,
+  updateFlashcard,
+  deleteFlashcard
 } from '../services/flashcardService';
 import { translateText } from '../services/translationService';
-import FlashcardForm from '../components/FlashcardForm';
 import Flashcard from '../components/Flashcard';
+import CreateFlashcardModal from '../components/Flashcards/CreateFlashcardModal';
 import '../styles/Flashcards.css';
 
 function Flashcards() {
@@ -42,7 +42,7 @@ function Flashcards() {
     try {
       setLoading(true);
       const result = await getFlashcards(currentUser.uid);
-      
+
       if (result.success) {
         setFlashcards(result.data);
       }
@@ -76,7 +76,7 @@ function Flashcards() {
       const result = await updateFlashcard(cardId, newData);
 
       if (result.success) {
-        setFlashcards(flashcards.map(card => 
+        setFlashcards(flashcards.map(card =>
           card.id === cardId ? { ...card, ...newData } : card
         ));
         setEditingCard(null);
@@ -124,7 +124,7 @@ function Flashcards() {
   // Filter flashcards
   const filteredFlashcards = flashcards.filter(card => {
     // Apply search filter
-    const matchesSearch = searchTerm === '' || 
+    const matchesSearch = searchTerm === '' ||
       card.originalWord.toLowerCase().includes(searchTerm.toLowerCase()) ||
       card.translation.toLowerCase().includes(searchTerm.toLowerCase());
 
@@ -155,7 +155,7 @@ function Flashcards() {
           <h1>{t('flashcards.title', ' My Flashcards')}</h1>
           <p>{t('flashcards.total_cards', '{{count}} total cards', { count: flashcards.length })}</p>
         </div>
-        <button 
+        <button
           onClick={() => setShowForm(true)}
           className="btn-primary"
         >
@@ -205,32 +205,22 @@ function Flashcards() {
       </div>
 
       {/* Flashcard Form Modal */}
-      {showForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setShowForm(false)}>
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <FlashcardForm
-              onSubmit={handleCreateCard}
-              onCancel={() => setShowForm(false)}
-              onTranslate={handleQuickTranslate}
-            />
-          </div>
-        </div>
-      )}
+      <CreateFlashcardModal
+        isOpen={showForm}
+        onClose={() => setShowForm(false)}
+        onSubmit={handleCreateCard}
+        onTranslate={handleQuickTranslate}
+      />
 
       {/* Edit Form Modal */}
-      {editingCard && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setEditingCard(null)}>
-          <div className="relative w-full max-w-lg max-h-[90vh] overflow-y-auto bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <FlashcardForm
-              initialData={editingCard}
-              onSubmit={(data) => handleUpdateCard(editingCard.id, data)}
-              onCancel={() => setEditingCard(null)}
-              onTranslate={handleQuickTranslate}
-              isEditing
-            />
-          </div>
-        </div>
-      )}
+      <CreateFlashcardModal
+        isOpen={!!editingCard}
+        onClose={() => setEditingCard(null)}
+        onSubmit={(data) => handleUpdateCard(editingCard.id, data)}
+        onTranslate={handleQuickTranslate}
+        initialData={editingCard}
+        isEditing={true}
+      />
 
       {/* Flashcard Grid */}
       <div className="flashcards-content">
@@ -243,7 +233,7 @@ function Flashcards() {
           <div className="empty-state">
             <div className="empty-icon"></div>
             <h2>
-              {searchTerm || filter !== 'all' 
+              {searchTerm || filter !== 'all'
                 ? t('flashcards.empty.no_match', 'No flashcards match your filters')
                 : t('flashcards.empty.no_cards', 'No flashcards yet')}
             </h2>
@@ -253,7 +243,7 @@ function Flashcards() {
                 : t('flashcards.empty.create_first', 'Create your first flashcard to start learning!')}
             </p>
             {!searchTerm && filter === 'all' && (
-              <button 
+              <button
                 onClick={() => setShowForm(true)}
                 className="btn-primary"
               >
