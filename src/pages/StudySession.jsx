@@ -7,7 +7,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthentication } from '../contexts/AuthenticationContext';
+import { useAuthentication } from '../contexts/AuthContextDefinition';
 import { getFlashcardsForReview, recordReview } from '../services/flashcardService';
 import FlashcardReview from '../components/FlashcardReview';
 import '../pages/StudySession.css';

@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthentication } from '../contexts/AuthenticationContext';
+import { useAuthentication } from '../contexts/AuthContextDefinition';
 import { completeOnboarding } from '../services/userService';
 import '../styles/Onboarding.css';
 
@@ -199,7 +199,7 @@ function Onboarding() {
                 {AVAILABLE_LANGUAGES.map((lang) => (
                   <button
                     key={lang.code}
-                    className={`language-card ${preferences.targetLanguage === lang.code ? 'selected' : ''}`}
+                    className={getCardClass(preferences.targetLanguage === lang.code)}
                     onClick={() => handleLanguageSelect(lang.code)}
                   >
                     <span className="language-name-big">{lang.name}</span>
@@ -221,7 +221,7 @@ function Onboarding() {
                 {GOALS.map((goal) => (
                   <button
                     key={goal.id}
-                    className={`goal-card ${preferences.goals.includes(goal.id) ? 'selected' : ''}`}
+                    className={getCardClass(preferences.goals.includes(goal.id))}
                     onClick={() => handleGoalToggle(goal.id)}
                   >
                     <span className="goal-title">
@@ -247,7 +247,7 @@ function Onboarding() {
                 {LEVELS.map((level) => (
                   <button
                     key={level.code}
-                    className={`level-card ${preferences.level === level.code ? 'selected' : ''}`}
+                    className={getCardClass(preferences.level === level.code)}
                     onClick={() => handleLevelSelect(level.code)}
                   >
                     <span className="level-title">

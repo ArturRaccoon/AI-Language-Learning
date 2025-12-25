@@ -5,7 +5,7 @@
  *   FIX: createUserProfile called in onAuthStateChanged to auto-fix existing profiles
  */
 
-import { useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -15,20 +15,14 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
-import { AuthenticationContext } from './AuthCtx';
+import { AuthenticationContext } from './AuthContextDefinition';
 import { translateFirebaseError } from '../utils/authUtils';
 import { 
   createUserProfile, 
   getUserProfile 
 } from '../services/userService';
 
-export const useAuthentication = () => {
-  const context = useContext(AuthenticationContext);
-  if (!context) {
-    throw new Error('useAuthentication must be used within AuthenticationProvider');
-  }
-  return context;
-};
+
 
 export const AuthenticationProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);

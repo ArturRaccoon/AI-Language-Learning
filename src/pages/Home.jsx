@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthentication } from '../contexts/AuthenticationContext';
+import { useAuthentication } from '../contexts/AuthContextDefinition';
 import { getStatistics } from '../services/flashcardService';
 import '../styles/Home.css';
 

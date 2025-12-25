@@ -7,7 +7,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthentication } from '../contexts/AuthenticationContext';
+import { useAuthentication } from '../contexts/AuthContextDefinition';
 import '../styles/Auth.css';
 
 function Registration() {
