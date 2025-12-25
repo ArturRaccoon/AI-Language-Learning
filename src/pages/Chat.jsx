@@ -4,7 +4,7 @@
  */
 
 import { useNavigate } from 'react-router-dom';
-import { useAuthentication } from '../contexts/AuthContextDefinition';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import '../styles/Dashboard.css';
 
 function Chat() {

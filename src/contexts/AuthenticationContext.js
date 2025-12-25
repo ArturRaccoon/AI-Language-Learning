@@ -1,3 +1,9 @@
+/**
+ * FILE: src/contexts/AuthenticationContext.js
+ * LAST MODIFIED: 25 Dicembre 2025 - 16:15 (CET)
+ * DESCRIPTION: Context definition and Hook
+ */
+
 import { createContext, useContext } from 'react';
 
 export const AuthenticationContext = createContext();

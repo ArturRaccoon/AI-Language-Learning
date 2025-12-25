@@ -1,13 +1,13 @@
 // File: src/pages/Onboarding.jsx
 // Created: 2025-11-09
-// Last-Updated: 2025-11-16
+// Last-Updated: 25 Dicembre 2025 - 16:15 (CET)
 // Author: Claude
 // Description: Public onboarding flow - Language selection, goals, and level (no auth required)
 
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuthentication } from '../contexts/AuthContextDefinition';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 import { completeOnboarding } from '../services/userService';
 import '../styles/Onboarding.css';
 

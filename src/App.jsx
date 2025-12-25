@@ -5,7 +5,7 @@
 // Description: Main application router with authentication flow
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthenticationProvider } from './contexts/AuthenticationContext';
+import { AuthenticationProvider } from './contexts/AuthenticationProvider';
 
 // Pages
 import PublicLanding from './pages/PublicLanding';

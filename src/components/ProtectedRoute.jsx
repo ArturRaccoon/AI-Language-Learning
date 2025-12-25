@@ -8,7 +8,7 @@
  */
 
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuthentication } from '../contexts/AuthContextDefinition';
+import { useAuthentication } from '../contexts/AuthenticationContext';
 
 function ProtectedRoute({ children, requireOnboarding = true }) {
   const { currentUser, userProfile, loading } = useAuthentication();

@@ -1,8 +1,7 @@
 /**
- * FILE: src/contexts/AuthenticationContext.jsx
- * LAST MODIFIED: 2025-11-16
- * DESCRIPTION: Global auth context with auto-fix for onboarding loop
- *   FIX: createUserProfile called in onAuthStateChanged to auto-fix existing profiles
+ * FILE: src/contexts/AuthenticationProvider.jsx
+ * LAST MODIFIED: 25 Dicembre 2025 - 16:15 (CET)
+ * DESCRIPTION: Global auth provider
  */
 
 import { useState, useEffect } from 'react';
@@ -15,7 +14,7 @@ import {
   updateProfile
 } from 'firebase/auth';
 import { auth, googleProvider } from '../config/firebase';
-import { AuthenticationContext } from './AuthContextDefinition';
+import { AuthenticationContext } from './AuthenticationContext';
 import { translateFirebaseError } from '../utils/authUtils';
 import { 
   createUserProfile, 
