@@ -1,10 +1,50 @@
 /**
  * FILE: src/services/flashcardService.test.js
- * CREATION DATE: 2025-11-18
+ * LAST MODIFIED: 25 Dicembre 2025 - 16:55 (CET)
  * DESCRIPTION: Unit tests for the SM-2 SRS algorithm logic.
  */
 
 import { describe, it, expect, vi } from 'vitest';
+
+// Mock Firebase modules to prevent real network calls and config errors
+vi.mock('firebase/app', () => ({
+  initializeApp: vi.fn(),
+}));
+
+vi.mock('firebase/auth', () => {
+  const GoogleAuthProviderMock = vi.fn();
+  GoogleAuthProviderMock.prototype.setCustomParameters = vi.fn();
+  
+  return {
+    getAuth: vi.fn(),
+    GoogleAuthProvider: GoogleAuthProviderMock,
+    setPersistence: vi.fn(() => Promise.resolve()),
+    browserLocalPersistence: 'TEST_PERSISTENCE',
+    signInWithPopup: vi.fn(),
+  };
+});
+
+vi.mock('firebase/firestore', () => ({
+  getFirestore: vi.fn(),
+  enableIndexedDbPersistence: vi.fn(() => Promise.resolve()),
+  collection: vi.fn(),
+  addDoc: vi.fn(),
+  getDocs: vi.fn(),
+  doc: vi.fn(),
+  updateDoc: vi.fn(),
+  deleteDoc: vi.fn(),
+  query: vi.fn(),
+  where: vi.fn(),
+  orderBy: vi.fn(),
+  limit: vi.fn(),
+  startAfter: vi.fn(),
+  getDoc: vi.fn(),
+}));
+
+vi.mock('firebase/storage', () => ({
+  getStorage: vi.fn(),
+}));
+
 import { calculateSRSParameters } from './flashcardService';
 
 // Fix system time for deterministic nextReview calculation
